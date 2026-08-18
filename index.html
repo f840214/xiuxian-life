@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
-<title>修仙人生模擬器 V0.4</title>
+<title>修仙人生模擬器 V0.5</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
 <style>
 :root{--bg:#0b0f14;--bg2:#10161e;--card:#161e29;--line:#26313f;--line2:#354355;
@@ -183,7 +183,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 0 . 4</div>
+  <div class="en">X I A N　L I F E　V 0 . 5</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1237,13 +1237,13 @@ const SHOP=[
  {id:'hui',ic:'❤️',n:'回春丹',d:()=>'體魄回滿、心魔 -15',price:()=>Math.round(REALMS[S.realm].need*.25),limit:1,buy:()=>{S.hp=100;S.stress=Math.max(0,S.stress-15)}},
  {id:'qing',ic:'🧘',n:'清心丹',d:()=>'心魔 -30',price:()=>Math.round(REALMS[S.realm].need*.2),limit:2,buy:()=>{S.stress=Math.max(0,S.stress-30)}},
  {id:'wen',ic:'🎋',n:'法寶溫養',d:()=>'六維各 +1（受資質上限限制）',price:()=>Math.round(REALMS[S.realm].need*.6),limit:1,buy:()=>{AK.forEach(k=>addStat(k,1))}},
- {id:'vein',ic:'🏔️',n:'靈脈',d:()=>`目前 Lv.${S.shop.vein}／5。每級每年被動修為 +2%（本境需求）`,price:()=>Math.round(REALMS[S.realm].need*2*(S.shop.vein+1)),limit:1,max:()=>S.shop.vein>=5,buy:()=>{S.shop.vein++}},
+ {id:'vein',ic:'🏔️',n:'靈脈',d:()=>`目前 Lv.${S.shop.vein}／5。每級每回合被動修為 +1.5%（本境需求）`,price:()=>Math.round(REALMS[S.realm].need*2*(S.shop.vein+1)),limit:1,max:()=>S.shop.vein>=5,buy:()=>{S.shop.vein++}},
  {id:'alch',ic:'⚗️',n:'丹房',d:()=>`目前 Lv.${S.shop.alch}／3。每級每年靈石 +300×境界，丹藥類 9 折`,price:()=>Math.round(REALMS[S.realm].need*3*(S.shop.alch+1)),limit:1,max:()=>S.shop.alch>=3,buy:()=>{S.shop.alch++}},
  {id:'guard',ic:'🛡️',n:'雇請護法（20 年）',d:()=>S.shop.guardUntil>S.age?`護法在任至 ${S.shop.guardUntil} 歲。凶險事件 -50%`:'20 年內凶險事件出現率 -50%',price:()=>Math.round(REALMS[S.realm].need*1.2),limit:1,max:()=>S.shop.guardUntil>S.age,buy:()=>{S.shop.guardUntil=S.age+20}},
  {id:'life',ic:'⏳',n:'延壽丹',d:()=>`壽元 +${Math.round(REALMS[S.realm].life*.04)}（每境限購一次）`,price:()=>Math.round(REALMS[S.realm].need*1.5),limit:1,min:3,max:()=>!!S.shop.lifeBought[S.realm],buy:()=>{S.life+=Math.round(REALMS[S.realm].life*.04);S.shop.lifeBought[S.realm]=1}},
  {id:'dice',ic:'🎲',n:'骰盅',d:()=>'一次性。天機賭局出現率翻倍（永久）',price:()=>Math.round(REALMS[S.realm].need*.5),limit:1,max:()=>S.shop.dice>0,buy:()=>{S.shop.dice=1}},
 ];
-const qiEff=()=>Math.max(.05,.15*Math.pow(.85,S.shop.qiN||0));
+const qiEff=()=>Math.max(.04,.10*Math.pow(.85,S.shop.qiN||0));
 const FLOOR={qi:120,hui:90,qing:70,wen:200,vein:600,alch:900,guard:400,life:500,dice:180};
 function shopPrice(it){let p=Math.max(it.price(),Math.round((FLOOR[it.id]||0)*Math.pow(S.realm+1,1.5)));if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);return p}
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
@@ -1269,7 +1269,7 @@ EV.push(...EV10);
 
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
- {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.035+S.stat.insight/2000+(S.master?.015:0)));S.cul+=g;S.stress+=7;return`修為+${g}`}},
+ {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06));S.cul+=g;S.stress+=7;return`修為+${g}`}},
  {id:'train',n:'💪 錘鍊肉身',c:'根骨+ · 體魄+',f:()=>{const a=addStat('body',rr(1,3));S.hp=clamp(S.hp+8,0,100);return`${a?'根骨+'+a:'根骨已達上限'}、體魄+8`}},
  {id:'read',n:'📚 研讀典籍',c:'悟性/神識+',f:()=>{const k=rnd()<.5?'insight':'spirit';const a=addStat(k,rr(1,3));return a?`${AN[k]}+${a}`:`${AN[k]}已達上限`}},
  {id:'wander',n:'🌄 遊歷紅塵',c:'心境/氣運+ · 心魔-',f:()=>{const k=rnd()<.5?'mind':'luck';const a=addStat(k,rr(1,3));S.stress=Math.max(0,S.stress-12);return`${a?AN[k]+'+'+a:AN[k]+'已達上限'}、心魔-12`}},
@@ -1346,7 +1346,7 @@ function renderEvent(){
 }
 function doOpt(i){
  const e=EV.find(x=>x.id===S.evId);const opts=typeof e.opts==='function'?e.opts():e.opts;
- S.step++;reseed();const cb=S._culBefore??S.cul,sb=S._stoneBefore??S.stone;const [win,txt,cs]=opts[i].r();if(S.realm<=2&&S.stone>sb)S.stone=Math.round(sb+(S.stone-sb)*.6);if(S.cul>cb)S.cul=Math.round(cb+(S.cul-cb)*(S.realm>=5?.45:.6));
+ S.step++;reseed();const cb=S._culBefore??S.cul,sb=S._stoneBefore??S.stone;const [win,txt,cs]=opts[i].r();if(S.realm<=2&&S.stone>sb)S.stone=Math.round(sb+(S.stone-sb)*.6);if(S.cul>cb)S.cul=Math.round(cb+(S.cul-cb)*(S.realm>=7?.22:S.realm>=5?.3:.45));
  log(`${typeof e.t==='function'?e.t():e.t}｜${opts[i].b} → ${txt}`);
  showRes(win,txt,cs);
  S.phase=2;
@@ -1406,7 +1406,7 @@ function nextYear(){
  recordCurve();
  {const inSect=S.sect&&S.sect!=='own'&&!S.flags.leader;const up=Math.round(10*Math.pow(S.realm+1,2)*(inSect?2.5:1));if(S.stone>=up){S.stone-=up}else{S.stone=0;S.flags.broke=(S.flags.broke||0)+1;S.stress+=5;log(`💸 ${inSect?'宗門月例':'生活開銷'}付不出來（需 ${up} 靈石），只能賒帳。`)}}
  S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};S.shop.buys={};
- if(S.shop.vein)S.cul+=Math.round(REALMS[S.realm].need*.02*S.shop.vein);
+ if(S.shop.vein)S.cul+=Math.round(REALMS[S.realm].need*.015*S.shop.vein);
  if(S.shop.alch)S.stone+=300*S.shop.alch*(S.realm+1);
  if(S.flags.consort){S.stone+=3000}
  if(S.flags.debt){S.flags.debt=Math.round(S.flags.debt*1.15)}
