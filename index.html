@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
-<title>修仙人生模擬器 V0.7</title>
+<title>修仙人生模擬器 V0.8</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
 <style>
 :root{--bg:#0b0f14;--bg2:#10161e;--card:#161e29;--line:#26313f;--line2:#354355;
@@ -183,7 +183,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 0 . 7</div>
+  <div class="en">X I A N　L I F E　V 0 . 8</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -454,6 +454,7 @@ const ACH=[
  {id:'vein5',n:'🏔️ 坐擁靈脈',chk:s=>s.shop&&s.shop.vein>=5},
  {id:'coupWin',n:'👑 篡位者',chk:s=>s.flags.coupWin},
  {id:'coupFail',n:'🐕 我是宗門的狗',chk:s=>(s.flags.coupFail||0)>=1},
+ {id:'robbed',n:'🏴‍☠️ 倒楣鬼',chk:s=>(s.flags.robbed||0)>=3},
  {id:'work',n:'🧾 打工人的一生',chk:s=>s.flags.workLife},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
@@ -1251,14 +1252,17 @@ function shopPrice(it){let p=Math.max(it.price(),Math.round((FLOOR[it.id]||0)*Ma
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
 function closeShop(){$('shop').classList.remove('on');render()}
 function renderShop(){
- $('shopSub').textContent=`身上靈石 ${fmt(S.stone)}。價格隨境界（${REALMS[S.realm].n}）浮動；每回合有限購。買東西不耗行動點。`;
+ $('shopSub').textContent=`身上靈石 ${fmt(S.stone)}。價格隨境界（${REALMS[S.realm].n}）浮動；每回合有限購。買東西不耗行動點。⚠️ 每筆交易 15% 機率歸途遇強盜（雇有護法時 5%）：貨物被搶、另損失身上 10% 靈石。`;renderShopList()}
+function renderShopList(){
  $('shopList').innerHTML=SHOP.map(it=>{
   if(it.min&&S.realm<it.min)return'';
   const p=shopPrice(it),used=S.shop.buys[it.id]||0,maxed=it.max&&it.max();
   const dis=maxed||used>=it.limit||S.stone<p;
   return`<div class="si"><div class="ic">${it.ic}</div><div class="tx"><b>${it.n}</b><i>${it.d()}${it.limit>1?`　（本回合 ${used}/${it.limit}）`:''}</i></div><button class="buy" ${dis?'disabled':''} onclick="buyItem('${it.id}')">${maxed?'已滿':used>=it.limit?'本回合已購':fmt(p)+' 靈石'}</button></div>`}).join('');
 }
-function buyItem(id){const it=SHOP.find(x=>x.id===id);const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
+function buyItem(id){const it=SHOP.find(x=>x.id===id);const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.step++;reseed();
+ const robP=S.shop.guardUntil>S.age?.05:.15;if(rnd()<robP){const loss=Math.min(S.stone,Math.round(S.stone*.10));S.stone=Math.max(0,S.stone-loss);S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 坊市歸途遇強盜！「${it.n}」被搶走，還被洗劫 ${fmt(loss)} 靈石。`);$('shopSub').innerHTML=`<span style="color:var(--red)">🏴‍☠️ 歸途遇強盜！「${it.n}」被搶，另損失 ${fmt(loss)} 靈石。</span>`;renderShopList();$('sStone').textContent=fmt(S.stone);save();return}
+ S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
 
 
 const EV10=[
