@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
-<title>修仙人生模擬器 V1.0</title>
+<title>修仙人生模擬器 V1.1</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
 <style>
 :root{--bg:#0b0f14;--bg2:#10161e;--card:#161e29;--line:#26313f;--line2:#354355;
@@ -183,7 +183,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 1 . 0</div>
+  <div class="en">X I A N　L I F E　V 1 . 1</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -929,9 +929,9 @@ const EV5=[
  opts:[{b:'以身為祭，安葬神骸',cs:['心境檢定','神格'],r:()=>{if(chk('mind',44)){S.flags.godBury=(S.flags.godBury||0)+1;S.cul+=Math.round(REALMS[S.realm].need*.4);S.life+=100;S.items.push('神格碎片');return[true,'你在骸骨前立碑守孝三年。第三年，一縷神光鑽入你眉心。系統：「神格碎片 +1。」',['修為大增','壽元+100','獲得神格碎片',sysP(20)]]}S.stress+=20;S.hp-=20;return[false,'神威餘韻讓你吐血。系統：「宿主道心不足，請提升後再來。」',['心魔+20','體魄-20']]}},
  {b:'挖神骨賣錢',cs:['靈石+','因果--'],r:()=>{S.stone+=5000*S.realm;S.karma-=25;sysP(-20);return[true,'發了。系統：「……宿主，這是葬神系統，不是盜墓系統。」',['靈石+'+5000*S.realm,'因果-25','系統積分-20']]}}]},
 {id:'sys_shop',realm:[1,2,3,4,5,6,7],w:9,cond:s=>SYS(s)&&s.flags.sysWake&&s.sys.pts>=30,tag:'',t:'🛒 系統商城',d:()=>`「叮！系統商城已開放。宿主目前積分 ${S.sys.pts}。」`,
- opts:[{b:'兌換：壽元丹（30分）',cs:['壽元+'],r:()=>{sysP(-30);S.life+=Math.round(REALMS[S.realm].life*.15);return[true,'一顆丹下去，鬢角的白髮黑回來了。',['壽元+','系統積分-30']]}},
- {b:'兌換：頓悟卡（30分）',cs:['修為+'],r:()=>{sysP(-30);S.cul+=Math.round(REALMS[S.realm].need*.35);return[true,'一瞬間你看穿了大道的一角。',['修為大增','系統積分-30']]}},
- {b:'兌換：屬性藥劑（30分）',cs:['六維+'],r:()=>{sysP(-30);AK.forEach(k=>addStat(k,2));return[true,'全身舒暢。',['六維+2','系統積分-30']]}}]},
+ opts:[{b:'兌換：壽元丹（30分）',cs:['壽元+'],r:()=>{sysP(S.shop&&S.shop.vip?-24:-30);S.life+=Math.round(REALMS[S.realm].life*.15);return[true,'一顆丹下去，鬢角的白髮黑回來了。',['壽元+','系統積分-30']]}},
+ {b:'兌換：頓悟卡（30分）',cs:['修為+'],r:()=>{sysP(S.shop&&S.shop.vip?-24:-30);S.cul+=Math.round(REALMS[S.realm].need*.35);return[true,'一瞬間你看穿了大道的一角。',['修為大增','系統積分-30']]}},
+ {b:'兌換：屬性藥劑（30分）',cs:['六維+'],r:()=>{sysP(S.shop&&S.shop.vip?-24:-30);AK.forEach(k=>addStat(k,2));return[true,'全身舒暢。',['六維+2','系統積分-30']]}}]},
 {id:'sys_bug',realm:[1,2,3,4,5,6],w:6,cond:s=>SYS(s)&&s.flags.sysWake,tag:'dgr',t:'⚠️ 系統故障',d:'「叮！系統遭遇未知錯誤，正在——滋——重啟——滋——」\n你的腦子裡一片雜音。',
  opts:[{b:'等它重啟',cs:['隨機'],r:()=>{const r=rnd();if(r<.4){S.sys.pts+=40;S.sys.lvl++;return[true,'重啟完成。系統：「檢測到版本更新，宿主獲得補償。」',['系統積分+40','系統升級']]}if(r<.8){S.sys.pts=Math.max(0,S.sys.pts-20);return[false,'重啟完成，但積分少了一截。系統假裝沒事。',['系統積分-20']]}S.stress+=15;return[false,'系統沉默了整整一年。你懷疑自己是不是瘋了。',['心魔+15']]}},
  {b:'趁機自己修煉',cs:['修為+','心境+'],r:()=>{S.cul+=Math.round(REALMS[S.realm].need*.12);addStat('mind',3);return[true,'沒有系統的日子，你反而踏實。',['修為+','心境+3']]}}]},
@@ -1245,9 +1245,17 @@ const SHOP=[
  {id:'alch',ic:'⚗️',n:'丹房',d:()=>`目前 Lv.${S.shop.alch}／3。每級每年靈石 +300×境界，丹藥類 9 折`,price:()=>Math.round(REALMS[S.realm].need*3*(S.shop.alch+1)),limit:1,max:()=>S.shop.alch>=3,buy:()=>{S.shop.alch++}},
  {id:'guard',ic:'🛡️',n:'雇請護法（20 年）',d:()=>S.shop.guardUntil>S.age?`護法在任至 ${S.shop.guardUntil} 歲。凶險事件 -50%`:'20 年內凶險事件出現率 -50%',price:()=>Math.round(REALMS[S.realm].need*1.2),limit:1,max:()=>S.shop.guardUntil>S.age,buy:()=>{S.shop.guardUntil=S.age+20}},
  {id:'life',ic:'⏳',n:'延壽丹',d:()=>`壽元 +${Math.round(REALMS[S.realm].life*.04)}（每境限購一次）`,price:()=>Math.round(REALMS[S.realm].need*1.5),limit:1,min:3,max:()=>!!S.shop.lifeBought[S.realm],buy:()=>{S.life+=Math.round(REALMS[S.realm].life*.04);S.shop.lifeBought[S.realm]=1}},
+ {id:'sw',ic:'🗡️',n:'名劍・青霜',d:()=>'劍修專屬・一次性。行動點 +1、根骨 +3',price:()=>Math.round(REALMS[S.realm].need*4),limit:1,type:'sword',max:()=>!!S.shop.sw,buy:()=>{S.shop.sw=1;S.apMax++;S.ap++;addStat('body',3);S.items.push('名劍青霜')}},
+ {id:'lu',ic:'🔥',n:'紫金丹爐',d:()=>'丹修專屬・一次性。聚氣丹效果 +50%、丹房收益 +50%、悟性 +3',price:()=>Math.round(REALMS[S.realm].need*4),limit:1,type:'alch',max:()=>!!S.shop.lu,buy:()=>{S.shop.lu=1;addStat('insight',3);S.items.push('紫金丹爐')}},
+ {id:'ye',ic:'🧪',n:'淬體神液',d:()=>'體修專屬・一次性。根骨上限 +6、每回合體魄 +5',price:()=>Math.round(REALMS[S.realm].need*4),limit:1,type:'phys',max:()=>!!S.shop.ye,buy:()=>{S.shop.ye=1;S.cap.body=Math.min(99,S.cap.body+6);addStat('body',4)}},
+ {id:'pu',ic:'🪷',n:'靜心蒲團',d:()=>'心修專屬・一次性。每回合心魔 -4、心境 +3',price:()=>Math.round(REALMS[S.realm].need*4),limit:1,type:'heart',max:()=>!!S.shop.pu,buy:()=>{S.shop.pu=1;addStat('mind',3);S.items.push('靜心蒲團')}},
+ {id:'yu',ic:'🧿',n:'開光玉佩',d:()=>'氣運之子專屬・一次性。氣運 +5、氣運檢定 +3、強盜機率減半',price:()=>Math.round(REALMS[S.realm].need*4),limit:1,type:'fate',max:()=>!!S.shop.yu,buy:()=>{S.shop.yu=1;addStat('luck',5);S.items.push('開光玉佩')}},
+ {id:'vip',ic:'💳',n:'系統會員卡',d:()=>'系統專屬・一次性。每回合系統積分 +3、商城兌換 8 折（積分）',price:()=>Math.round(REALMS[S.realm].need*4),limit:1,type:'sys',max:()=>!!S.shop.vip,buy:()=>{S.shop.vip=1;S.sys.pts+=20}},
+ {id:'bag',ic:'👝',n:'防盜儲物袋',d:()=>'一次性。被強盜洗劫時損失減半（10% → 5%）',price:()=>Math.round(REALMS[S.realm].need*1.5),limit:1,max:()=>!!S.shop.bag,buy:()=>{S.shop.bag=1}},
+ {id:'tie',ic:'📨',n:'拜帖',d:()=>'消耗品。下一回合機緣事件出現率 ×2',price:()=>Math.round(REALMS[S.realm].need*.8),limit:1,buy:()=>{S.shop.tieUntil=S.age+1}},
  {id:'dice',ic:'🎲',n:'骰盅',d:()=>'一次性。天機賭局出現率翻倍（永久）',price:()=>Math.round(REALMS[S.realm].need*.5),limit:1,max:()=>S.shop.dice>0,buy:()=>{S.shop.dice=1}},
 ];
-const qiEff=()=>Math.max(.04,.10*Math.pow(.85,S.shop.qiN||0));
+const qiEff=()=>Math.max(.04,.10*(S.shop.lu?1.5:1)*Math.pow(.85,S.shop.qiN||0));
 const FLOOR={qi:120,hui:90,qing:70,wen:200,vein:600,alch:900,guard:400,life:500,dice:180};
 function shopPrice(it){let p=Math.max(it.price(),Math.round((FLOOR[it.id]||0)*Math.pow(S.realm+1,1.5)));if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);return p}
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
@@ -1256,13 +1264,13 @@ function renderShop(){
  $('shopSub').textContent=`身上靈石 ${fmt(S.stone)}。價格隨境界（${REALMS[S.realm].n}）浮動；每回合有限購。買東西不耗行動點。⚠️ 每筆交易 15% 機率歸途遇強盜（雇有護法時 5%）：貨物被搶、另損失身上 10% 靈石。`;renderShopList()}
 function renderShopList(){
  $('shopList').innerHTML=SHOP.map(it=>{
-  if(it.min&&S.realm<it.min)return'';
+  if(it.min&&S.realm<it.min)return'';if(it.type&&it.type!==S.type)return'';
   const p=shopPrice(it),used=S.shop.buys[it.id]||0,maxed=it.max&&it.max();
   const dis=maxed||used>=it.limit||S.stone<p;
   return`<div class="si"><div class="ic">${it.ic}</div><div class="tx"><b>${it.n}</b><i>${it.d()}${it.limit>1?`　（本回合 ${used}/${it.limit}）`:''}</i></div><button class="buy" ${dis?'disabled':''} onclick="buyItem('${it.id}')">${maxed?'已滿':used>=it.limit?'本回合已購':fmt(p)+' 靈石'}</button></div>`}).join('');
 }
-function buyItem(id){const it=SHOP.find(x=>x.id===id);const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.step++;reseed();
- const robP=S.shop.guardUntil>S.age?.05:.15;if(rnd()<robP){const loss=Math.min(S.stone,Math.round(S.stone*.10));S.stone=Math.max(0,S.stone-loss);S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 坊市歸途遇強盜！「${it.n}」被搶走，還被洗劫 ${fmt(loss)} 靈石。`);$('shopSub').innerHTML=`<span style="color:var(--red)">🏴‍☠️ 歸途遇強盜！「${it.n}」被搶，另損失 ${fmt(loss)} 靈石。</span>`;renderShopList();$('sStone').textContent=fmt(S.stone);save();return}
+function buyItem(id){const it=SHOP.find(x=>x.id===id);if(!it||(it.type&&it.type!==S.type)||(it.min&&S.realm<it.min))return;const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.step++;reseed();
+ let robP=S.shop.guardUntil>S.age?.05:.15;if(S.shop.yu)robP/=2;if(rnd()<robP){const loss=Math.min(S.stone,Math.round(S.stone*(S.shop.bag?.05:.10)));S.stone=Math.max(0,S.stone-loss);S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 坊市歸途遇強盜！「${it.n}」被搶走，還被洗劫 ${fmt(loss)} 靈石。`);$('shopSub').innerHTML=`<span style="color:var(--red)">🏴‍☠️ 歸途遇強盜！「${it.n}」被搶，另損失 ${fmt(loss)} 靈石。</span>`;renderShopList();$('sStone').textContent=fmt(S.stone);save();return}
  S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
 
 
@@ -1281,6 +1289,56 @@ const EV11=[
  {b:'再忍忍',cs:['—'],r:()=>{addStat('mind',1);return[true,'時機未到。你把念頭壓了下去。',['心境+1']]}}]},
 ];
 EV.push(...EV11);
+
+
+const EV12=[
+{id:'lantern',realm:[0,1,2],w:6,tag:'',t:'🏮 元宵燈會',d:'滿城花燈。燈謎攤前圍滿了人，猜中十題送一枚「靈光珠」。',
+ opts:[{b:'猜燈謎',cs:['悟性檢定'],r:()=>{if(chk('insight',32)){addStat('insight',2);S.items.push('靈光珠');S.stone+=30;return[true,'十題全中！攤主目瞪口呆。',['悟性+2','獲得靈光珠','靈石+30']]}addStat('insight',1);return[false,'猜中六題，差一點。',['悟性+1']]}},
+ {b:'看燈就好',cs:['心魔-'],r:()=>{S.stress-=8;if(S.love&&!S.dao){S.love.aff+=6;return[true,`你和${LV().n}並肩看了一夜的燈。`,['心魔-8','好感+6']]}return[true,'燈很美。',['心魔-8']]}}]},
+{id:'ferry',realm:[1,2,3],w:6,tag:'acc',t:'⛵ 渡口老船夫',d:'大河無橋，只有一個老船夫。他說：「渡河十靈石。修士嘛……講個故事也行。」',
+ opts:[{b:'講一個自己的故事',cs:['人脈檢定'],r:()=>{if(chk('social',34)){addStat('social',2);addStat('mind',2);S.cul+=60;return[true,'講到一半，你發現船已停在對岸許久。老船夫說：「你的故事，還沒完。」',['人脈+2','心境+2','修為+60']]}S.stone-=10;return[false,'老船夫聽睡著了。你還是付了錢。',['靈石-10']]}},
+ {b:'付錢',cs:['靈石-10'],r:()=>{S.stone-=10;return[true,'安安穩穩過了河。',['靈石-10']]}}]},
+{id:'old_tree',realm:[2,3,4],w:6,tag:'acc',t:'🌳 千年古樹',d:'深山裡有一棵三人合抱的古樹，你靠著它打坐時，聽見它在說話——很慢、很低。',
+ opts:[{b:'陪它聊一年',cs:['心境+','壽元+'],r:()=>{S.age+=1;addStat('mind',4);S.life+=20;S.stress-=15;return[true,'它活了三千年，說的每一句話都像一季。你走時，它落了一片葉子給你。',['心境+4','壽元+20','心魔-15']]}},
+ {b:'取它的樹心煉器',cs:['因果--','法寶'],r:()=>{S.karma-=15;S.items.push('千年樹心');addStat('spirit',3);S.flags.killed=true;return[true,'古樹沒有反抗。你拿到了極品材料，也拿到了一整夜的沉默。',['因果-15','獲得千年樹心','神識+3']]}}]},
+{id:'friend_loan',realm:[1,2,3,4],w:6,cond:s=>!s.flags.loanOut,tag:'',t:'🤲 借錢',d:'一位交情不錯的同道找上門，說家中出事，急需一筆靈石，「日後必還」。',
+ opts:[{b:'借（身上一半）',cs:['靈石-','日後可能還'],r:()=>{const c=Math.round(S.stone*.5);S.stone-=c;S.flags.loanOut=c;S.karma+=4;addStat('social',2);return[true,'他千恩萬謝地走了。',['靈石-'+fmt(c),'因果+4','人脈+2']]}},
+ {b:'借一點意思意思',cs:['靈石-'],r:()=>{S.stone-=100;S.flags.loanOut=100;return[true,'他笑得有點勉強。',['靈石-100']]}},
+ {b:'不借',cs:['人脈-'],r:()=>{addStat('social',-2);S.flags.loanOut=0;return[true,'他沒再來過。',['人脈-2']]}}]},
+{id:'friend_repay',realm:[2,3,4,5,6],w:8,cond:s=>(s.flags.loanOut||0)>0&&!(s.cd.friend_loan>s.age),tag:'acc',t:'💰 還錢的來了',d:'當年借錢的同道登門，如今已是一方人物。他把一個沉甸甸的儲物袋放在桌上。',
+ opts:[{b:'收下',cs:['靈石+++'],r:()=>{const g=S.flags.loanOut*4;S.stone+=g;S.flags.loanOut=0;S.fame+=200;return[true,'連本帶利四倍。他說：「當年若沒有你……」',['靈石+'+fmt(g),'名望+200']]}},
+ {b:'只收本金',cs:['因果+','人脈+'],r:()=>{S.stone+=S.flags.loanOut;S.flags.loanOut=0;S.karma+=8;addStat('social',4);return[true,'他愣了很久，最後鄭重一拜。從此你多了一個生死之交。',['因果+8','人脈+4']]}}]},
+{id:'impostor',realm:[3,4,5,6],w:6,cond:s=>s.fame>=2000,tag:'dgr',t:'🎭 冒名頂替',d:'有人打著你的名號在外行騙、收徒、收「供奉」，還把帳算在你頭上。',
+ opts:[{b:'親自去抓',cs:['神識檢定'],r:()=>{if(chk('spirit',44)){S.fame+=400;S.stone+=800*S.realm;return[true,'你當眾揭穿了他。他騙來的錢，你「代為保管」了。',['名望+400','靈石+'+800*S.realm]]}S.fame-=300;return[false,'他跑得比你快，還多騙了兩座城。',['名望-300']]}},
+ {b:'發布通告澄清',cs:['人脈檢定'],r:()=>{if(chk('social',42)){S.fame+=100;return[true,'各大坊市都貼了你的畫像。騙子銷聲匿跡。',['名望+100']]}S.fame-=100;return[false,'通告沒人看。',['名望-100']]}}]},
+{id:'sect_exam',realm:[1,2],w:8,cond:s=>!!s.sect&&s.sect!=='own'&&!s.flags.inner,tag:'sch',t:'📝 內門考核',d:'三年一次的內門考核到了。通過就是內門弟子，資源翻倍。',
+ opts:[{b:'考',cs:['悟性+根骨檢定'],r:()=>{if(chk('insight',38,S.stat.body/6)){S.flags.inner=true;S.cul+=100;S.stone+=200;return[true,'你通過了。從此不用再種靈田。',['晉升內門','修為+100','靈石+200']]}addStat('insight',1);return[false,'差了幾分。三年後再來。',['悟性+1']]}},
+ {b:'走後門',cs:['靈石-','人脈檢定'],r:()=>{S.stone-=300;if(chk('social',40)){S.flags.inner=true;S.karma-=5;return[true,'執事收了錢，你的名字出現在名單上。',['靈石-300','晉升內門','因果-5']]}return[false,'錢收了，事沒辦。',['靈石-300']]}}]},
+{id:'moon_dao',realm:[2,3,4,5,6,7],w:6,tag:'acc',t:'🌕 月下悟道',d:'一個尋常的月夜。你忽然覺得月光有形狀。',
+ opts:[{b:'順著這感覺坐下去',cs:['悟性檢定'],r:()=>{if(chk('insight',42)){S.cul+=Math.round(REALMS[S.realm].need*.3);addStat('insight',3);addStat('spirit',2);return[true,'一坐七日。起身時，你懂了一點以前不懂的東西。',['修為大增','悟性+3','神識+2']]}S.stress-=5;return[false,'月亮落下去了。感覺沒了。',['心魔-5']]}}]},
+{id:'foundling',realm:[2,3,4,5],w:5,tag:'',t:'🧺 棄嬰',d:'洞府門口多了一個籃子。裡面的嬰兒盯著你看，不哭。',
+ opts:[{b:'養',cs:['因果+','徒弟+'],r:()=>{S.karma+=8;S.flags.disciples=(S.flags.disciples||0)+1;addStat('mind',2);return[true,'你給他取了名字。他後來成了你最像的徒弟。',['因果+8','徒弟+1','心境+2']]}},
+ {b:'送去山下人家',cs:['因果+'],r:()=>{S.karma+=4;S.stone-=100;return[true,'你留了一筆錢給那戶人家。',['因果+4','靈石-100']]}}]},
+{id:'poison_wine',realm:[3,4,5,6],w:5,tag:'dgr',t:'🍷 一杯酒',d:'仇家設宴賠罪。酒到你面前時，你的神識告訴你：有毒。對方正笑吟吟地看著你。',
+ opts:[{b:'喝下去，當場逼出毒',cs:['根骨檢定','名望+'],r:()=>{if(chk('body',46)){S.fame+=800;addStat('body',3);return[true,'你一飲而盡，指尖滴出一滴黑血。滿座無聲。仇家跪了。',['名望+800','根骨+3']]}S.hp-=40;S.stress+=10;return[false,'你高估了自己。',['體魄-40','心魔+10']]}},
+ {b:'把酒潑回去',cs:['—'],r:()=>{S.fame+=100;S.flags.killed=true;return[true,'一場血戰。你活著走出來，仇家沒有。',['名望+100']]}},
+ {b:'借故離席',cs:['心境+'],r:()=>{addStat('mind',2);return[true,'不上當是本事。',['心境+2']]}}]},
+{id:'lost_memory',realm:[3,4,5,6],w:4,tag:'dgr',t:'🌀 失憶',d:'一場走火入魔後，你醒來時忘了自己是誰。身邊只有一柄劍、一本手札，和一個守著你的人。',
+ opts:[{b:'照著手札重新來過',cs:['悟性檢定'],r:()=>{if(chk('insight',44)){addStat('insight',4);S.stress=0;return[true,'記憶慢慢回來了。有些包袱，倒是忘得剛好。',['悟性+4','心魔歸零']]}S.cul=Math.round(S.cul*.7);return[false,'花了十年才想起大半。修為退了。',['修為-30%']]}},
+ {b:'不想起也好',cs:['心境+'],r:()=>{addStat('mind',5);S.stress=0;S.love=null;S.rival=null;return[true,'你成了一個沒有過去的人。輕鬆，也孤獨。',['心境+5','心魔歸零','忘卻舊識']]}}]},
+{id:'beast_tide',realm:[2,3,4,5],w:6,tag:'dgr',t:'🐗 獸潮',d:'萬獸山脈的妖獸不知為何集體南下，山下三城告急。',
+ opts:[{b:'守城',cs:['根骨檢定','名望+'],r:()=>{S.flags.killed=true;if(chk('body',44)){S.fame+=600;S.karma+=10;S.stone+=500*S.realm;return[true,'三天三夜。城守住了。',['名望+600','因果+10','靈石+'+500*S.realm]]}S.hp-=40;S.karma+=5;return[false,'你倒在城牆上，被人拖了下來。城還是守住了。',['體魄-40','因果+5']]}},
+ {b:'趁亂收妖丹',cs:['靈石+','因果-'],r:()=>{S.stone+=1000*S.realm;S.karma-=8;S.flags.killed=true;return[true,'別人守城，你發財。',['靈石+'+1000*S.realm,'因果-8']]}}]},
+{id:'sky_summon',realm:[6,7,8],w:5,tag:'',t:'📯 仙盟徵召',d:'仙盟傳訊：域外邪魔叩關，徵召所有化神以上修士。不去者，除名。',
+ opts:[{b:'赴戰',cs:['根骨+神識檢定'],r:()=>{S.flags.killed=true;if(chk('body',54,S.stat.spirit/3)){S.fame+=5000;S.karma+=10;S.items.push('仙盟令');return[true,'你在戰場上斬了一尊魔將。仙盟令到手。',['名望+5000','因果+10','獲得仙盟令']]}S.hp-=50;S.stress+=15;return[false,'魔物比你想的多。你被抬了回來。',['體魄-50','心魔+15']]}},
+ {b:'不去',cs:['名望-'],r:()=>{S.fame=Math.max(0,S.fame-3000);S.cul+=200*S.realm;return[true,'你被仙盟除名。你也不在乎。',['名望-3000','修為+']]}}]},
+{id:'child_letter',realm:[4,5,6,7],w:4,cond:s=>s.flags.childGrown,tag:'',t:'📮 孩子的信',d:'你的孩子寄來一封信——他過得很好，只是想你了。',
+ opts:[{b:'回一趟',cs:['心魔-','心境+'],r:()=>{S.stress-=20;addStat('mind',3);S.karma+=3;return[true,'你陪他過了一個年。',['心魔-20','心境+3','因果+3']]}},
+ {b:'回信',cs:['心魔-'],r:()=>{S.stress-=8;return[true,'你寫了很長的信，最後只寄了一句「爹／娘很好」。',['心魔-8']]}}]},
+{id:'ancient_bell',realm:[5,6,7,8],w:4,tag:'acc',t:'🔔 上古鐘聲',d:'一口埋在地底的古鐘自己響了。方圓千里的修士都聽見了，只有你聽出了鐘聲裡的一段法訣。',
+ opts:[{b:'循聲而去',cs:['神識檢定'],r:()=>{if(chk('spirit',52)){S.cul+=Math.round(REALMS[S.realm].need*.4);addStat('spirit',5);S.items.push('鐘紋玉簡');return[true,'鐘下有一位坐化的前輩。他等的就是聽得懂的人。',['修為大增','神識+5','獲得鐘紋玉簡']]}S.hp-=25;return[false,'鐘聲震傷了你的神識。',['體魄-25']]}}]},
+];
+EV.push(...EV12);
 
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
@@ -1346,7 +1404,7 @@ function pickEvent(){
  if(S.stone>=50&&rnd()<(S.shop&&S.shop.dice?.14:.07))return DICE;
  const T=SEED_TIER.find(t=>t.k===S.tier);
  const pool=EV.filter(e=>e.realm.includes(S.realm)&&(!e.cond||e.cond(S))&&!(S.cd[e.id]>S.age));
- let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'))}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));if(S.shop&&S.shop.guardUntil>S.age)w*=.5}tot+=w;return w});
+ let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'));if(S.shop&&S.shop.tieUntil>=S.age)w*=2}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));if(S.shop&&S.shop.guardUntil>S.age)w*=.5}tot+=w;return w});
  let x=rnd()*tot;for(let i=0;i<pool.length;i++){x-=ws[i];if(x<=0)return pool[i]}return pool[pool.length-1];
 }
 function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S._culBefore=S.cul;S._stoneBefore=S.stone;S.cd[e.id]=S.age+(S.realm===0?9:4);render()}
@@ -1427,7 +1485,8 @@ function nextYear(){
  {const inSect=S.sect&&S.sect!=='own'&&!S.flags.leader;const up=Math.round(10*Math.pow(S.realm+1,2)*(inSect?2.5:1));if(S.stone>=up){S.stone-=up}else{S.stone=0;S.flags.broke=(S.flags.broke||0)+1;S.stress+=5;log(`💸 ${inSect?'宗門月例':'生活開銷'}付不出來（需 ${up} 靈石），只能賒帳。`)}}
  S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};S.shop.buys={};
  if(S.shop.vein)S.cul+=Math.round(REALMS[S.realm].need*.015*S.shop.vein);
- if(S.shop.alch)S.stone+=300*S.shop.alch*(S.realm+1);
+ if(S.shop.alch)S.stone+=Math.round(300*S.shop.alch*(S.realm+1)*(S.shop.lu?1.5:1));
+ if(S.shop.pu)S.stress=Math.max(0,S.stress-4);if(S.shop.ye)S.hp=clamp(S.hp+5,0,100);if(S.shop.vip&&S.type==='sys'&&!S.flags.sysRebel)S.sys.pts+=3;
  if(S.flags.consort){S.stone+=3000}
  if(S.flags.debt){S.flags.debt=Math.round(S.flags.debt*1.15)}
  if(S.flags.disciples){S.stone+=100*S.flags.disciples*yrs;S.karma+=1}
