@@ -187,6 +187,9 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
     <div class="opts" id="goalOpts"></div></div>
    <div class="field"><label>立誓</label>
     <label class="opt" style="display:flex;gap:10px;align-items:center;cursor:pointer"><input type="checkbox" id="inVow" style="width:18px;height:18px;accent-color:#e0b64c"><span><b>🌪️ 終身散修</b><i>此生不入任何宗門、不開宗立派。行動點 +1、宗門招募不再出現，走「散修至尊」之路。</i></span></label></div>
+   <div class="field"><label>宿敵碼（選填）</label>
+    <div class="inrow"><input type="text" id="inGhost" placeholder="貼上朋友給你的 XR1.… 宿敵碼"></div>
+    <div class="hint">朋友的一世成長曲線會化作你這一世的宿敵：搶機緣、下戰帖、比誰先突破。你自己的宿敵碼在狀態頁／結局畫面可複製。</div></div>
    <div class="field"><label>命格種子</label>
     <div class="inrow"><input type="text" id="inSeed" maxlength="12" placeholder="例如 XL-7Q2K9"><button class="mini" onclick="rndSeed()">🎲 換</button></div>
     <div class="hint">種子決定命格等級（資質上限、寿元、機緣頻率），開局後才會揭曉。相同種子＋相同選擇＝完全相同的一生，可與朋友交換挑戰。</div></div>
@@ -264,7 +267,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
    <div class="card pad"><div class="ct">畢生所求</div><div id="goalBox" style="font-size:.85rem;line-height:1.8"></div></div>
    <div class="card pad"><div class="ct">命格與稱號</div><div id="titleBox" style="font-size:.85rem;line-height:1.8"></div></div>
    <div class="card pad full"><div class="ct">修士錄</div><div id="hallGrid2" class="hall"></div>
-    <div class="picks grid2"><button class="btn ghost" onclick="exportSave()">📤 匯出存檔碼</button><button class="btn ghost" onclick="importSave()">📥 匯入存檔碼</button><button class="btn ghost" onclick="downloadSave()">💾 下載存檔檔案</button><button class="btn ghost" onclick="askReset()">↺ 清除存檔並重新開始</button></div>
+    <div class="picks grid2"><button class="btn ghost" onclick="copyGhost()">⚔️ 複製我的宿敵碼</button><button class="btn ghost" onclick="exportSave()">📤 匯出存檔碼</button><button class="btn ghost" onclick="importSave()">📥 匯入存檔碼</button><button class="btn ghost" onclick="downloadSave()">💾 下載存檔檔案</button><button class="btn ghost" onclick="askReset()">↺ 清除存檔並重新開始</button></div>
     <div class="hint">存檔碼含目前進度＋成就殿堂，可貼到別的瀏覽器／裝置匯入。</div></div>
   </div></div>
   <!-- 歷程頁 -->
@@ -308,7 +311,7 @@ const GOALS={
  ascend:{name:'🌌 飛升成仙',desc:'銅 金丹｜銀 化神｜金 渡劫飛升',t:s=>s.realm>=9?3:s.realm>=6?2:s.realm>=3?1:0},
  longevity:{name:'🐢 長生久視',desc:'銅 活過200歲｜銀 500歲｜金 1000歲',t:s=>s.age>=1000?3:s.age>=500?2:s.age>=200?1:0},
  rich:{name:'💎 富甲一方',desc:'銅 10萬靈石｜銀 100萬｜金 1000萬',t:s=>s.stone>=1e7?3:s.stone>=1e6?2:s.stone>=1e5?1:0},
- sword:{name:'🗡️ 一代劍仙',desc:'銅 名望5000｜銀 擊敗宿敵＋名望2萬｜金 名望10萬且無敗績',t:s=>{let n=s.fame>=5000?1:0;if(n&&s.fame>=20000&&s.flags.rivalWon)n=2;if(n===2&&s.fame>=1e5&&!s.flags.everLost)n=3;return n}},
+ sword:{name:'🗡️ 一代劍仙',desc:'銅 名望5000｜銀 名望2萬｜金 名望10萬且無敗績',t:s=>{let n=s.fame>=5000?1:0;if(n&&s.fame>=20000)n=2;if(n===2&&s.fame>=1e5&&!s.flags.everLost)n=3;return n}},
  rogue:{name:'🌪️ 散修至尊',desc:'銅 不入宗門結金丹｜銀 不入宗門成元嬰｜金 終身散修化神',t:s=>s.flags.everSect?0:s.realm>=5?3:s.realm>=4?2:s.realm>=3?1:0},
  hermit:{name:'🍃 逍遙隱士',desc:'銅 因果≥+30｜銀 因果≥+60 且元嬰｜金 因果≥+100 且從未殺生',t:s=>{let n=s.karma>=30?1:0;if(n&&s.karma>=60&&s.realm>=4)n=2;if(n===2&&s.karma>=100&&!s.flags.killed)n=3;return n}},
 };
@@ -349,7 +352,7 @@ function newState(name,type,goal,seed){
  const s={v:VER,name,type,goal,seed,age:16,year:1,ap:3,apMax:3,phase:0,
   stat:{},cap:{},cul:0,realm:0,stone:200,hp:100,stress:0,fame:0,karma:0,
   sect:null,tier:0,life:80,flags:{},cd:{},log:[],ach:[],dead:false,ending:null,evId:null,step:0,
-  master:null,rival:null,dao:null,love:null,items:[],sys:{pts:0,lvl:1,face:0}};
+  master:null,rival:null,dao:null,love:null,items:[],sys:{pts:0,lvl:1,face:0},fruits:[],curve:[],ghost:null};
  return s;
 }
 function initSeed(s){
@@ -386,7 +389,7 @@ const ACH=[
  {id:'age500',n:'🐢 五百年道行',chk:s=>s.age>=500},
  {id:'saint',n:'😇 大善人',chk:s=>s.karma>=60},
  {id:'demon',n:'😈 魔頭',chk:s=>s.karma<=-60},
- {id:'rival',n:'🗡️ 斬斷宿怨',chk:s=>s.flags.rivalWon},
+ {id:'rival',n:'🗡️ 斬斷宿怨',chk:s=>(s.flags.ghostWins||0)>=3,lock:'需宿敵碼'},
  {id:'master',n:'🙇 得遇明師',chk:s=>!!s.master},
  {id:'dao',n:'💞 結為道侶',chk:s=>!!s.dao},
  {id:'fail3',n:'🩸 三敗不餒',chk:s=>(s.flags.brkFail||0)>=3},
@@ -433,6 +436,9 @@ const ACH=[
  {id:'legacy',n:'📜 傳世功法',chk:s=>s.flags.legacy},
  {id:'dice5',n:'🎲 賭神',chk:s=>(s.flags.diceWin||0)>=5},
  {id:'diceBig',n:'💸 一擲千金',chk:s=>(s.flags.diceMax||0)>=10000},
+ {id:'ghostBeat',n:'🏆 後來居上',chk:s=>s.flags.ghostBeat},
+ {id:'ghostDuel',n:'⚔️ 宿命對決',chk:s=>(s.flags.ghostWins||0)>=1},
+ {id:'fruit3',n:'🍑 三果在身',chk:s=>s.fruits.length>=3},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
 function ach(){let n=0;ACH.forEach(a=>{if(!S.ach.includes(a.id)&&a.chk(S)){S.ach.push(a.id);n++;const b=ACH_BUFF[a.id];if(b){if(b.ap){S.apMax+=b.ap;S.ap+=b.ap}if(b.capK)Object.entries(b.capK).forEach(([k,v])=>S.cap[k]=Math.min(99,S.cap[k]+v));log('🏅 達成成就「'+a.n+'」→ 獲得稱號【'+b.t+'】：'+b.d)}else log('🏅 達成成就「'+a.n+'」');if(!HALL.all.includes(a.id)){HALL.all.push(a.id)}}});if(n)saveHall();return n}
@@ -465,7 +471,8 @@ const ACH_BUFF={
  sword:{}, /* placeholder */
 };
 delete ACH_BUFF.sword;
-const B=(k,sub)=>S?S.ach.reduce((a,id)=>{const b=ACH_BUFF[id];if(!b)return a;if(sub)return a+((b[k]||{})[sub]||0);return a+(typeof b[k]==='number'?b[k]:0)},0):0;
+const B0=(k,sub)=>S?S.ach.reduce((a,id)=>{const b=ACH_BUFF[id];if(!b)return a;if(sub)return a+((b[k]||{})[sub]||0);return a+(typeof b[k]==='number'?b[k]:0)},0):0;
+const B=(k,sub)=>B0(k,sub)+F(k,sub);
 const titles=()=>S.ach.filter(id=>ACH_BUFF[id]).map(id=>ACH_BUFF[id].t);
 /* 跨局殿堂里程碑 */
 const HALL_TIERS=[
@@ -503,7 +510,7 @@ const EV=[
 /* --- 煉氣/築基期 --- */
 {id:'senior',realm:[1,2],w:14,cond:s=>!!s.sect,tag:'sch',t:'😤 師兄的刁難',d:'一位內門師兄看你不順眼，逼你在演武場上「切磋」。',
  opts:[
- {b:'應戰',cs:['根骨檢定','名望'],r:()=>{if(chk('body',40,S.stat.spirit/6)){S.fame+=200;S.rival=S.rival||'那位師兄';return[true,'三招之內你把師兄的劍挑飛。全場譁然。他從此記恨你。',['名望+200',R('body',3),'結下宿敵']]}S.hp-=15;S.flags.everLost=true;return[false,'你被打得鼻青臉腫，還被罰掃三個月藏經閣。',['體魄-15',R('insight',2)]]}},
+ {b:'應戰',cs:['根骨檢定','名望'],r:()=>{if(chk('body',40,S.stat.spirit/6)){S.fame+=200;S.rival=S.rival||'那位師兄';return[true,'三招之內你把師兄的劍挑飛。全場譁然。他從此記恨你。',['名望+200',R('body',3),'結下樑子']]}S.hp-=15;S.flags.everLost=true;return[false,'你被打得鼻青臉腫，還被罰掃三個月藏經閣。',['體魄-15',R('insight',2)]]}},
  {b:'認慫，改日再說',cs:['心境'],r:()=>[true,'你低頭。師兄冷哼一聲離開。你在心裡默默記下這筆帳。',[R('mind',2),'修為+30']]},
  {b:'找師父評理',cs:['人脈檢定'],r:()=>{if(chk('social',38)){S.fame+=60;return[true,'師父罰了師兄。你在門中多了個靠山，也多了個仇人。',[R('social',3),'名望+60']]}return[false,'師父只說「同門和睦」，一切照舊。',[R('mind',1)]]}}]},
 {id:'cave',realm:[1,2,3],w:12,tag:'acc',t:'🕳️ 荒山古洞',d:'歷練途中，你在懸崖半腰發現一個被藤蔓封住的山洞，隱有靈氣逸散。',
@@ -533,7 +540,7 @@ const EV=[
  opts:[
  {b:'直面它',cs:['心境檢定'],r:()=>{if(chk('mind',45)){S.stress=Math.max(0,S.stress-40);S.cul+=200;return[true,'你與心魔對坐三日，最終它化作一縷煙。道心更堅。',['心魔-40','修為+200',R('mind',5)]]}S.hp-=25;S.stress+=10;S.cul=Math.max(0,S.cul-150);return[false,'你險些入魔，被護法弟子強行喚醒，修為倒退。',['體魄-25','修為-150','心魔+10']]}},
  {b:'服用清心丹',cs:['靈石-','安全'],r:()=>{S.stone-=200;S.stress-=20;return[true,'丹藥壓住了心魔，但你知道它還在。',['靈石-200','心魔-20']]}}]},
-{id:'rivalDuel',realm:[2,3,4,5],w:9,cond:s=>!!s.rival&&!s.flags.rivalWon,tag:'dgr',t:'🗡️ 宿敵約戰',d:()=>`${S.rival} 修為大進，公開下了戰帖，約你三月後於問劍台一決高下。全城都在議論。`,
+{id:'rivalDuel',realm:[2,3,4,5],w:9,cond:s=>false,tag:'dgr',t:'🗡️ 宿敵約戰',d:()=>`${S.rival} 修為大進，公開下了戰帖，約你三月後於問劍台一決高下。全城都在議論。`,
  opts:[
  {b:'應戰',cs:['根骨+神識檢定','名望'],r:()=>{if(chk('body',48,S.stat.spirit/3+S.stat.mind/8)){S.flags.rivalWon=true;S.fame+=800*(S.realm);return[true,`你贏了。${S.rival} 拱手離去，從此江湖上多了個傳說。`,['擊敗宿敵','名望+'+800*S.realm,R('spirit',4)]]}S.hp-=40;S.flags.everLost=true;S.stress+=15;return[false,'你敗了，敗得很難看。',['體魄-40','心魔+15',R('mind',3)]]}},
  {b:'閉關不出',cs:['名望-'],r:()=>{S.fame=Math.max(0,S.fame-300);S.cul+=150;return[true,'你當作沒看見那張帖子。外面說你怕了。',['名望-300','修為+150']]}}]},
@@ -661,7 +668,7 @@ const EV2=[
  {b:'轉包給師弟',cs:['人脈+','靈石+'],r:()=>{S.stone+=150*S.realm;addStat('social',2);return[true,'抽了一成佣金。師弟感激涕零。',['靈石+'+150*S.realm,'人脈+2']]}}]},
 {id:'sectSlander',realm:[2,3,4,5],w:6,cond:s=>!!s.sect,tag:'dgr',t:'🗣️ 流言',d:'門中傳言你偷學禁術。長老要你當眾自證清白。',
  opts:[{b:'當眾演示功法',cs:['神識檢定'],r:()=>{if(chk('spirit',42)){S.fame+=200;return[true,'一套功法打完，長老們無話可說。造謠者被罰。',['名望+200',R('spirit',2)]]}S.fame-=200;S.stress+=12;return[false,'你緊張失手，反而坐實了傳言。',['名望-200','心魔+12']]}},
- {b:'找出造謠者',cs:['人脈檢定'],r:()=>{if(chk('social',42)){S.fame+=100;S.rival=S.rival||'造謠的師兄';return[true,'是嫉妒你的師兄。你們從此結下樑子。',['名望+100','結下宿敵']]}S.stress+=8;return[false,'查不出來，只能忍。',['心魔+8']]}}]},
+ {b:'找出造謠者',cs:['人脈檢定'],r:()=>{if(chk('social',42)){S.fame+=100;S.rival=S.rival||'造謠的師兄';return[true,'是嫉妒你的師兄。你們從此結下樑子。',['名望+100','結下樑子']]}S.stress+=8;return[false,'查不出來，只能忍。',['心魔+8']]}}]},
 {id:'lonelySoul',realm:[2,3,4,5,6],w:6,cond:s=>!s.sect,tag:'acc',t:'🏕️ 散修盟會',d:'幾十名散修在荒山結盟，推舉一位盟主共抗宗門壓迫。有人提了你的名字。',
  opts:[{b:'出任盟主',cs:['人脈檢定'],r:()=>{if(chk('social',44)){S.fame+=1000;S.stone+=800;S.flags.allyLeader=true;return[true,'你成了散修盟主。事情變多了，朋友也變多了。',['名望+1000','靈石+800',R('social',4)]]}S.stress+=10;return[false,'推舉時輸給了一個更會說話的。',['心魔+10']]}},
  {b:'加入但不出頭',cs:['人脈+'],r:()=>{addStat('social',3);S.stone+=200;return[true,'有人一起分擔情報和資源，日子好過多了。',['人脈+3','靈石+200']]}},
@@ -727,7 +734,7 @@ const EV3=[
  opts:[{b:'偷偷進去',cs:['氣運檢定','高風險'],r:()=>{if(chk('luck',44)){S.items.push('無字天書');S.cul+=200;return[true,'書上真的無字，但你盯著看時，腦中自然浮現經文。從此每年多悟一分。',['獲得無字天書','修為+200']]}S.fame-=100;S.stress+=10;return[false,'被抓了。罰面壁三年。',['名望-100','心魔+10',R('mind',3)]]}},
  {b:'光明正大向掌門請求',cs:['人脈檢定'],r:()=>{if(chk('social',48)){S.items.push('無字天書');return[true,'掌門看了你很久，說：「拿去吧，別讓祖師失望。」',['獲得無字天書',R('social',2)]]}return[false,'掌門說你火候未到。',[R('mind',1)]]}}]},
 {id:'qy_spy',realm:[2,3,4],w:7,cond:s=>s.sect==='qingyun',tag:'dgr',t:'🎭 青雲門・臥底',d:'你發現一向和善的師叔，深夜在後山向天魔教傳訊。',
- opts:[{b:'上報掌門',cs:['因果+','名望+'],r:()=>{S.karma+=6;S.fame+=300;S.rival=S.rival||'被逐的師叔';return[true,'師叔被逐出師門。臨走前他看你的眼神像刀。',['因果+6','名望+300','結下宿敵']]}},
+ opts:[{b:'上報掌門',cs:['因果+','名望+'],r:()=>{S.karma+=6;S.fame+=300;S.rival=S.rival||'被逐的師叔';return[true,'師叔被逐出師門。臨走前他看你的眼神像刀。',['因果+6','名望+300','結下樑子']]}},
  {b:'私下勒索',cs:['靈石+','因果-'],r:()=>{S.stone+=1500;S.karma-=12;return[true,'他每年給你一筆封口費。你睡得不太好。',['靈石+1500','因果-12']]}},
  {b:'當作沒看見',cs:['—'],r:()=>{S.stress+=5;S.karma-=3;return[true,'半年後，天魔教夜襲青雲，死了很多人。',['心魔+5','因果-3']]}}]},
 /* 萬劍宗：劍修聖地 */
@@ -842,7 +849,7 @@ const EV4=[
  {b:'選擇相信',cs:['好感+'],r:()=>{const a=aff(10);return[true,'後來證明是造謠。對方知道你沒動搖，很久之後才說「謝謝」。',[a]]}}]},
 {id:'lv_rivalLove',realm:[1,2,3,4,5],w:6,cond:s=>!!s.love&&!s.dao&&s.love.aff>=30,tag:'dgr',t:()=>`${LV().ic} 情敵`,d:()=>`一位家世顯赫的天驕公開追求${LV().n}，送靈石、送法寶、送整條街。`,
  opts:[{b:'比他更用心',cs:['人脈檢定','好感+'],r:()=>{if(chk('social',40,S.love.aff/5)){const a=aff(20);return[true,`${LV().n}最後把那人送的東西全退了，只留下你送的。`,[a]]}const a=aff(-5);return[false,'你顯得有點笨拙。但對方沒有走。',[a]]}},
- {b:'直接找他打一架',cs:['根骨檢定','名望'],r:()=>{if(chk('body',42)){S.fame+=200;const a=aff(LV().id==='demon'?20:8);S.rival=S.rival||'情敵';return[true,'打贏了。有人覺得你魯莽，有人覺得你帥。',['名望+200',a,'結下宿敵']]}S.hp-=25;const a=aff(-5);return[false,'打輸了，還丟臉。',['體魄-25',a]]}},
+ {b:'直接找他打一架',cs:['根骨檢定','名望'],r:()=>{if(chk('body',42)){S.fame+=200;const a=aff(LV().id==='demon'?20:8);S.rival=S.rival||'情敵';return[true,'打贏了。有人覺得你魯莽，有人覺得你帥。',['名望+200',a,'結下樑子']]}S.hp-=25;const a=aff(-5);return[false,'打輸了，還丟臉。',['體魄-25',a]]}},
  {b:'放手成全',cs:['心境+','結束感情線'],r:()=>{S.love=null;addStat('mind',4);S.stress+=10;return[true,'你祝他們幸福。你沒騙人，只是很難。',['心境+4','心魔+10']]}}]},
 /* 表白 */
 {id:'lv_confess',realm:[0,1,2,3,4,5,6],w:16,cond:s=>!!s.love&&!s.dao&&s.love.aff>=60,tag:'acc',t:()=>`${LV().ic} 月下`,d:()=>`月圓之夜，你和${LV().n}並肩坐在崖邊。誰都沒說話。你覺得，是時候了。`,
@@ -960,7 +967,7 @@ const EV5=[
  opts:[{b:'學',cs:['悟性+','時間'],r:()=>{S.age+=3;addStat('insight',4);S.items.push('戰傀');return[true,'三年後你有了一具戰傀，能替你擋刀。',['悟性+4','獲得戰傀','時光+3年']]}},
  {b:'不學',cs:['—'],r:()=>[true,'你不想被人使喚。',[R('mind',1)]]}]},
 {id:'framed',realm:[1,2,3],w:6,cond:s=>!!s.sect,tag:'dgr',t:'⚖️ 誣陷',d:'宗門寶庫失竊，贓物在你床下被搜出來。執法堂要當場定罪。',
- opts:[{b:'據理力爭',cs:['人脈檢定'],r:()=>{if(chk('social',40,S.flags.classmate?10:0)){S.fame+=200;S.rival=S.rival||'陷害你的人';return[true,'你找到了證人。真兇被揪出來——是嫉妒你的同門。',['名望+200','結下宿敵']]}S.fame-=200;S.stone-=300;S.stress+=15;return[false,'百口莫辯，罰靈石三百、面壁三年。',['名望-200','靈石-300','心魔+15']]}},
+ opts:[{b:'據理力爭',cs:['人脈檢定'],r:()=>{if(chk('social',40,S.flags.classmate?10:0)){S.fame+=200;S.rival=S.rival||'陷害你的人';return[true,'你找到了證人。真兇被揪出來——是嫉妒你的同門。',['名望+200','結下樑子']]}S.fame-=200;S.stone-=300;S.stress+=15;return[false,'百口莫辯，罰靈石三百、面壁三年。',['名望-200','靈石-300','心魔+15']]}},
  {b:'認罪保命',cs:['名望--'],r:()=>{S.fame-=300;S.stress+=10;return[false,'你認了。宗門裡從此沒人跟你說話。',['名望-300','心魔+10']]}},
  {b:'連夜逃出宗門',cs:['脫離宗門'],r:()=>{S.sect=null;S.fame-=100;return[true,'從此你是通緝犯，也是自由人。',['脫離宗門','名望-100']]}}]},
 {id:'sword_loose',realm:[2,3],w:6,tag:'dgr',t:'🌀 飛劍失控',d:'第一次御劍飛行，你飛得太嗨，一頭撞進了某個大能的洞府禁制。',
@@ -1095,6 +1102,67 @@ function diceGo(bet){
  $('sStone').textContent=fmt(S.stone);S.phase=2;save();
 }
 
+
+/* ===================== 道果（突破三選一） ===================== */
+const FRUITS=[
+ {id:'jianxin',n:'⚔️ 劍心通明',d:'根骨檢定 +5；心境檢定 -2',chkK:{body:5,mind:-2}},
+ {id:'yiye',n:'🍃 一葉障目',d:'凶險事件 -40%；機緣事件 -25%',dgrW:-.4,accW:-.25},
+ {id:'caimi',n:'💰 財迷心竅',d:'每年靈石 +300×境界；每年因果 -1',stone:300,karma:-1},
+ {id:'daqi',n:'🐢 大器晚成',d:'每年修為 +4%；突破率 -4%',cul:.04,brk:-.04},
+ {id:'fangu',n:'🔥 天生反骨',d:'所有檢定 +2；每年心魔 +2',chk:2,calm:-2},
+ {id:'jingshui',n:'🌊 靜水流深',d:'每年心魔 -4；機緣事件 -10%',calm:4,accW:-.1},
+ {id:'mingying',n:'🪨 命硬',d:'壽元 +15%（立即）；突破率 -2%',lifeP:.15,brk:-.02},
+ {id:'tanbei',n:'🍶 貪杯',d:'人脈檢定 +3、每年心魔 -3；悟性檢定 -3',chkK:{social:3,insight:-3},calm:3},
+ {id:'cibei',n:'🙏 慈悲為懷',d:'每年因果 +2；每年靈石 -100×境界',karma:2,stone:-100},
+ {id:'shafa',n:'🗡️ 殺伐果斷',d:'根骨/神識檢定 +3；每年因果 -1',chkK:{body:3,spirit:3},karma:-1},
+ {id:'jianlie',n:'👀 見獵心喜',d:'機緣事件 +30%；凶險事件 +30%',accW:.3,dgrW:.3},
+ {id:'tianji',n:'🎲 天機一線',d:'賭局可偷看一顆骰；氣運檢定 +3',peek:1,chkK:{luck:3}},
+ {id:'guomu',n:'📚 過目不忘',d:'悟性檢定 +5；每年心魔 +1',chkK:{insight:5},calm:-1},
+ {id:'tongpi',n:'🛡️ 銅皮鐵骨',d:'每年體魄 +8；心境檢定 -2',hp:8,chkK:{mind:-2}},
+ {id:'guangjie',n:'🤝 廣結善緣',d:'人脈檢定 +5；每年靈石 -50×境界',chkK:{social:5},stone:-50},
+ {id:'biguan',n:'🧘 閉關狂',d:'每年修為 +3%；每年心魔 +3',cul:.03,calm:-3},
+ {id:'fuxing',n:'🌟 福星高照',d:'氣運檢定 +4；人脈檢定 -1',chkK:{luck:4,social:-1}},
+ {id:'nilin',n:'🐉 逆鱗',d:'突破失敗不折壽；突破率 -2%',noLifeLoss:1,brk:-.02},
+ {id:'dunwu',n:'💡 頓悟體質',d:'突破率 +5%；壽元 -5%（立即）',brk:.05,lifeP:-.05},
+ {id:'lingshi',n:'👃 靈石鼻',d:'每年靈石 +200×境界；機緣事件 -5%',stone:200,accW:-.05},
+ {id:'zhishui',n:'🕯️ 心如止水',d:'每年心魔 -5；所有檢定 -1',calm:5,chk:-1},
+ {id:'xingdong',n:'⚡ 雷厲風行',d:'行動點 +1（立即）；每年心魔 +2',ap:1,calm:-2},
+ {id:'yinshi',n:'🏔️ 隱士',d:'凶險事件 -25%；每年名望 -50×境界',dgrW:-.25,fame:-50},
+ {id:'haoke',n:'🎁 豪客',d:'機緣事件 +15%；每年靈石 -150×境界',accW:.15,stone:-150},
+];
+const F=(k,sub)=>S?S.fruits.reduce((a,id)=>{const f=FRUITS.find(x=>x.id===id);if(!f)return a;if(sub)return a+((f[k]||{})[sub]||0);return a+(typeof f[k]==='number'?f[k]:0)},0):0;
+function offerFruits(){const pool=FRUITS.filter(f=>!S.fruits.includes(f.id));const pick3=[];while(pick3.length<3&&pool.length){const i=Math.floor(rnd()*pool.length);pick3.push(pool.splice(i,1)[0].id)}S.fruitOffer=pick3}
+function renderFruitPick(){
+ $('eTag').textContent='道果';$('eTag').className='tag acc';$('eTitle').textContent='🍑 突破之際，天降道果';$('eDesc').textContent='境界提升時，天地會給你三枚道果，擇一而食。每一枚都有得有失，此生不可更改。';
+ $('ePicks').className='picks';
+ $('ePicks').innerHTML=S.fruitOffer.map(id=>{const f=FRUITS.find(x=>x.id===id);return`<button class="btn" onclick="takeFruit('${id}')"><b>${f.n}</b><div class="cs">${chips(f.d.split('；'))}</div></button>`}).join('');
+}
+function takeFruit(id){const f=FRUITS.find(x=>x.id===id);S.fruits.push(id);if(f.ap){S.apMax+=f.ap;S.ap+=f.ap}if(f.lifeP)S.life=Math.round(S.life*(1+f.lifeP));delete S.fruitOffer;log(`🍑 服下道果「${f.n}」：${f.d}`);S.phase=2;showRes(true,`你服下了「${f.n}」。`,f.d.split('；'));$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save()}
+
+/* ===================== 幽靈宿敵（朋友的成長曲線） ===================== */
+function ghostAt(age){const g=S.ghost;if(!g||!g.curve.length)return null;let r=g.curve[0];for(const c of g.curve){if(c[0]<=age)r=c;else break}return{age:r[0],realm:r[1],ovr:r[2],fame:r[3],ended:g.end&&age>=g.end.age}}
+function packGhost(){return 'XR1.'+b64e(JSON.stringify({n:S.name,type:S.type,tier:S.tier,curve:S.curve,end:S.dead?{age:S.age,realm:S.realm,ending:S.ending}:null}))}
+function parseGhost(code){try{if(!code.startsWith('XR1.'))return null;const g=JSON.parse(b64d(code.slice(4)));if(!g.n||!Array.isArray(g.curve)||!g.curve.length)return null;return g}catch(e){return null}}
+function copyGhost(){const c=packGhost();dlgOpen('宿敵碼','把這段給朋友，貼在他開局的「宿敵碼」欄位，你的成長曲線就會成為他那一世的宿敵。',c,false,null);$('dArea').readOnly=true;setTimeout(()=>{$('dArea').select();try{document.execCommand('copy')}catch(e){}},50)}
+function recordCurve(){const last=S.curve[S.curve.length-1];const o=ovr();if(!last||last[1]!==S.realm||S.age-last[0]>=15){S.curve.push([S.age,S.realm,o,Math.round(S.fame)]);if(S.curve.length>240)S.curve.splice(1,1)}}
+const GH_EV=[
+{id:'gh_news',realm:[0,1,2,3,4,5,6,7,8,9],w:14,cond:s=>!!s.ghost&&!ghostAt(s.age).ended&&ghostAt(s.age).realm>(s.flags.ghostSeen||0),tag:'',t:()=>`📯 宿敵 ${S.ghost.n} 的消息`,d:()=>{const g=ghostAt(S.age);return`傳聞四起：${S.ghost.n} 已於 ${g.age} 歲突破至「${REALMS[g.realm].n}」。${g.realm>S.realm?'而你，還在原地。':g.realm===S.realm?'與你並駕齊驅。':'但你早已走在前面。'}`},
+ opts:[{b:'奮起直追',cs:['修為+','心魔+'],r:()=>{S.flags.ghostSeen=ghostAt(S.age).realm;S.cul+=Math.round(REALMS[S.realm].need*.15);S.stress+=8;return[true,'你把那個名字寫在洞府牆上。',['修為+','心魔+8']]}},
+ {b:'關我什麼事',cs:['心境+'],r:()=>{S.flags.ghostSeen=ghostAt(S.age).realm;addStat('mind',3);return[true,'各修各的道。',['心境+3']]}}]},
+{id:'gh_steal',realm:[1,2,3,4,5,6,7],w:8,cond:s=>!!s.ghost&&!ghostAt(s.age).ended&&ghostAt(s.age).realm>s.realm,tag:'dgr',t:()=>`🏃 被 ${S.ghost.n} 搶先一步`,d:()=>`一處秘境開啟，你趕到時只看見 ${S.ghost.n} 的背影和一地空匣。`,
+ opts:[{b:'追上去理論',cs:['氣運檢定'],r:()=>{if(chk('luck',44)){S.stone+=800*(S.realm+1);S.cul+=100*(S.realm+1);return[true,`${S.ghost.n} 冷笑著丟給你一份殘羹：「慢了。」——但殘羹也是肉。`,['靈石+'+800*(S.realm+1),'修為+']]}S.stress+=10;return[false,'連背影都追不上。',['心魔+10']]}},
+ {b:'另尋他處',cs:['穩健'],r:()=>{S.stone+=200*(S.realm+1);return[true,'你在外圍撿了些殘渣。',['靈石+'+200*(S.realm+1)]]}}]},
+{id:'gh_ahead',realm:[1,2,3,4,5,6,7],w:7,cond:s=>!!s.ghost&&!ghostAt(s.age).ended&&ghostAt(s.age).realm<s.realm,tag:'acc',t:()=>`🙇 ${S.ghost.n} 登門`,d:()=>`${S.ghost.n} 來訪。他的境界比你低，語氣卻不見得客氣：「聽說你走得挺快。」`,
+ opts:[{b:'指點他幾句',cs:['因果+','人脈+'],r:()=>{S.karma+=4;addStat('social',3);S.fame+=200*S.realm;return[true,'他走的時候若有所思。你們之間的關係變得微妙。',['因果+4','人脈+3','名望+'+200*S.realm]]}},
+ {b:'不見',cs:['修為+'],r:()=>{S.cul+=100*S.realm;return[true,'閉門謝客。',['修為+']]}}]},
+{id:'gh_duel',realm:[1,2,3,4,5,6,7,8],w:9,cond:s=>!!s.ghost&&!ghostAt(s.age).ended&&Math.abs(ghostAt(s.age).realm-s.realm)<=1&&!(s.cd.gh_duel>s.age),tag:'dgr',t:()=>`⚔️ 問劍台・${S.ghost.n}`,d:()=>{const g=ghostAt(S.age);return`${S.ghost.n}（${REALMS[g.realm].n}・綜合 ${g.ovr}）向你下了戰帖。全城矚目。`},
+ opts:[{b:'應戰',cs:['根骨+神識檢定'],r:()=>{const g=ghostAt(S.age);const d=34+g.ovr/2+(g.realm-S.realm)*8;if(chk('body',d,S.stat.spirit/4+S.stat.mind/8)){S.flags.ghostWins=(S.flags.ghostWins||0)+1;S.flags.rivalWon=true;S.fame+=600*(S.realm+1);return[true,`你贏了。${S.ghost.n} 收劍抱拳：「下次。」`,['名望+'+600*(S.realm+1),'戰勝宿敵',R('spirit',3)]]}S.hp-=35;S.stress+=12;S.flags.everLost=true;S.flags.ghostLoss=(S.flags.ghostLoss||0)+1;return[false,`你敗了。${S.ghost.n} 的劍比傳聞更快。`,['體魄-35','心魔+12']]}},
+ {b:'不應',cs:['名望-'],r:()=>{S.fame=Math.max(0,S.fame-200*(S.realm+1));return[true,'戰帖被你燒了。外面說你怕。',['名望-'+200*(S.realm+1)]]}}]},
+{id:'gh_end',realm:[0,1,2,3,4,5,6,7,8,9],w:30,cond:s=>!!s.ghost&&s.ghost.end&&s.age>=s.ghost.end.age&&!s.flags.ghostEndSeen,tag:'acc',t:()=>`🌠 ${S.ghost.n} 的結局`,d:()=>{const e=S.ghost.end;const m={ascend:'白日飛升，位列仙班',trib:'渡劫失敗，身死道消',old:'壽元耗盡，坐化山中',hurt:'傷重不治',retire:'封山歸隱，不知所終'}[e.ending]||'消失了';return`消息傳來：${S.ghost.n} 於 ${e.age} 歲、${REALMS[e.realm].n}之境，${m}。\n你們的比試，到此為止。`},
+ opts:[{b:'敬他一杯',cs:['心境+'],r:()=>{S.flags.ghostEndSeen=true;addStat('mind',4);S.stress-=10;if(S.realm>S.ghost.end.realm||(S.realm===S.ghost.end.realm&&S.age<S.ghost.end.age))S.flags.ghostBeat=true;return[true,'從此路上少了一個人。',['心境+4','心魔-10']]}}]},
+];
+EV.push(...GH_EV);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.05+S.stat.insight/1400+(S.master?.02:0)));S.cul+=g;S.stress+=7;return`修為+${g}`}},
@@ -1125,18 +1193,20 @@ function render(){
  $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,'f-blu',`${S.age} / ${fmt(S.life)}`);
  $('mindBars2').innerHTML=$('mindBars').innerHTML;
  const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
- $('sideInfo').innerHTML=`名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}<br>${S.master?'師承 '+S.master+'<br>':''}${S.dao?'💞 '+S.dao+'<br>':S.love?LOVES[S.love.id].ic+' '+LOVES[S.love.id].n+'（好感 '+S.love.aff+'）<br>':''}${S.rival?'宿敵 '+S.rival+'<br>':''}${S.items.length?'持有 '+S.items.slice(-4).join('、'):''}`;
+ $('sideInfo').innerHTML=`名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}<br>${S.master?'師承 '+S.master+'<br>':''}${S.dao?'💞 '+S.dao+'<br>':S.love?LOVES[S.love.id].ic+' '+LOVES[S.love.id].n+'（好感 '+S.love.aff+'）<br>':''}${S.ghost?'⚔️ 宿敵 '+esc(S.ghost.n)+'<br>':''}${S.items.length?'持有 '+S.items.slice(-4).join('、'):''}`;
  $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。';
  const G=GOALS[S.goal],gt=G.t(S);
  $('goalBox').innerHTML=`<b>${G.name}</b><br><span style="color:var(--sub);font-size:.78rem">${G.desc}</span><br>目前：${['未達成','🥉 銅','🥈 銀','🥇 金'][gt]}`;
  const tl=S.ach.filter(id=>ACH_BUFF[id]).map(id=>`<span class="chip c-mon" title="${esc(ACH_BUFF[id].d)}">${esc(ACH_BUFF[id].t)}</span>`).join(' ');
- $('titleBox').innerHTML=(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LOVES[S.love.id].ic+' 心上人：'+LOVES[S.love.id].n+'（好感 '+S.love.aff+'）<br>':''}${S.rival?'宿敵：'+S.rival+(S.flags.rivalWon?'（已勝）':'')+'<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?'持有：'+S.items.join('、'):''}`;
+ const fr=S.fruits.map(id=>{const f=FRUITS.find(x=>x.id===id);return f?`<span class="chip c-dif" title="${esc(f.d)}">${esc(f.n)}</span>`:''}).join(' ');
+ const gh=S.ghost?(()=>{const g=ghostAt(S.age);return`<div style="margin:8px 0;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#0d131b">⚔️ 宿敵 <b>${esc(S.ghost.n)}</b>　${g.ended?'（已'+({ascend:'飛升',trib:'隕落',old:'坐化',hurt:'殞落',retire:'歸隱'}[S.ghost.end.ending]||'結束')+'）':`同齡時：${REALMS[g.realm].n}・綜合 ${g.ovr}　<span style="color:${g.realm>S.realm?'var(--red)':g.realm<S.realm?'var(--jade)':'var(--gold)'}">${g.realm>S.realm?'▲ 領先你':g.realm<S.realm?'▼ 落後你':'＝ 並駕齊驅'}</span>`}<br><span style="font-size:.72rem;color:var(--dim)">對決 勝 ${S.flags.ghostWins||0}／敗 ${S.flags.ghostLoss||0}</span></div>`})():'';
+ $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LOVES[S.love.id].ic+' 心上人：'+LOVES[S.love.id].n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?'持有：'+S.items.join('、'):''}`;
  renderHall('hallGrid2');
  $('logBox').innerHTML=S.log.map(l=>`<div class="log"><b>${l.y}歲</b>${esc(l.t)}</div>`).join('')||'<div class="hint">尚無記錄</div>';
  // 舞台
  $('eRes').style.display='none';
  if(S.dead){renderEnd();return}
- if(S.phase===0)renderActions();else if(S.phase===1)renderEvent();else renderYearEnd();
+ if(S.phase===0)renderActions();else if(S.phase===1)renderEvent();else if(S.phase===3&&S.fruitOffer)renderFruitPick();else renderYearEnd();
  save();
 }
 function chips(arr){return arr.map(c=>{const cls=/[-]/.test(c)&&!/檢定/.test(c)?'c-dn':/靈石\+/.test(c)?'c-mon':/檢定/.test(c)?'c-dif':/\+/.test(c)?'c-up':'c-neu';return`<span class="chip ${cls}">${esc(c)}</span>`}).join('')}
@@ -1157,7 +1227,7 @@ function pickEvent(){
  if(S.stone>=50&&rnd()<.07)return DICE;
  const T=SEED_TIER.find(t=>t.k===S.tier);
  const pool=EV.filter(e=>e.realm.includes(S.realm)&&(!e.cond||e.cond(S))&&!(S.cd[e.id]>S.age));
- let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=1+B('accW')}tot+=w;return w});
+ let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'))}if(e.tag==='dgr')w*=Math.max(.2,1+B('dgrW'));tot+=w;return w});
  let x=rnd()*tot;for(let i=0;i<pool.length;i++){x-=ws[i];if(x<=0)return pool[i]}return pool[pool.length-1];
 }
 function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S.cd[e.id]=S.age+4;render()}
@@ -1201,10 +1271,14 @@ function breakthrough(){
   AK.forEach(k=>addStat(k,rr(2,5)));S.fame+=100*S.realm*S.realm;
   log(`🌟 突破成功！晉入 ${REALMS[S.realm].n}，壽元增至 ${fmt(S.life)}。`);ach();
   showRes(true,`天地靈氣灌體，你成功晉入 ${REALMS[S.realm].n}！`,['壽元+'+fmt(REALMS[S.realm].life-Rm.life),'六維全面提升','體魄回滿']);
+  if(S.ghost){const g=S.ghost.curve.find(c=>c[1]>=S.realm);if(!g||g[0]>S.age)S.flags.ghostBeat=true}
+  recordCurve();offerFruits();S.phase=3;
+  $('ePicks').innerHTML=`<button class="btn brk" onclick="renderFruitPick()">🍑 選擇道果 →</button>`;save();
+  $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);return;
  }else{
-  S.flags.brkFail=(S.flags.brkFail||0)+1;S.hp-=30;S.stress+=20;S.cul=Math.round(S.cul*.7);if(S.tier!==-1)S.life-=Math.round(Rm.life*.05);
+  S.flags.brkFail=(S.flags.brkFail||0)+1;S.hp-=30;S.stress+=20;S.cul=Math.round(S.cul*.7);if(S.tier!==-1&&!B('noLifeLoss'))S.life-=Math.round(Rm.life*.05);
   log('💥 突破失敗，反噬受傷。');ach();
-  showRes(false,'靈力逆衝，經脈受創。你吐出一口血，境界仍在原地。',['體魄-30','心魔+20','修為-30%',S.tier===-1?'苦命：不折壽':'壽元-'+Math.round(Rm.life*.05)]);
+  showRes(false,'靈力逆衝，經脈受創。你吐出一口血，境界仍在原地。',['體魄-30','心魔+20','修為-30%',(S.tier===-1||B('noLifeLoss'))?'不折壽':'壽元-'+Math.round(Rm.life*.05)]);
  }
  $('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();
  $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);
@@ -1222,7 +1296,8 @@ function nextYear(){
  if(S.items.includes('無字天書')){S.cul+=Math.round(REALMS[S.realm].need*.02)}
  if(S.flags.tmBoss){S.stone+=400}
  if(S.type==='sys'&&S.flags.sysWake&&!S.flags.sysRebel){S.sys.pts+=2}
- S.stone+=B('stone')*(S.realm+1);S.cul+=Math.round(REALMS[S.realm].need*B('cul'));S.stress=Math.max(0,S.stress-B('calm'));
+ S.stone+=B('stone')*(S.realm+1);S.cul+=Math.round(REALMS[S.realm].need*B('cul'));S.stress=clamp(S.stress-B('calm'),0,100);S.karma+=B('karma');S.hp=clamp(S.hp+B('hp'),0,100);S.fame=Math.max(0,S.fame+B('fame')*(S.realm+1));
+ recordCurve();
  if(S.flags.consort){S.stone+=3000}
  if(S.flags.debt){S.flags.debt=Math.round(S.flags.debt*1.15)}
  if(S.flags.disciples){S.stone+=100*S.flags.disciples*yrs;S.karma+=1}
@@ -1240,8 +1315,8 @@ function renderEnd(){
  const rec={name:S.name,realm:REALMS[S.realm].n,age:S.age,goal:gt,seed:S.seed};
  $('eTag').textContent='終章';$('eTag').className='tag lgd';
  $('eTitle').textContent='';$('eDesc').innerHTML='';
- $('ePicks').innerHTML=`<div class="end"><div class="big">${E[0]}</div><h2>${E[1]}</h2><p>${E[2]}\n\n${S.name}・${TYPES[S.type].name}・${T.ic}${T.n}\n最終境界：${REALMS[S.realm].n}　享年 ${fmt(S.age)} 歲\n靈石 ${fmt(S.stone)}　名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}\n畢生所求「${G.name}」：${['未達成','🥉 銅','🥈 銀','🥇 金'][gt]}\n成就 ${S.ach.length}/${ACH.length}\n\n種子：${esc(S.seed)}</p></div>
- <button class="btn go" onclick="shareTxt()">📋 複製這一生</button><button class="btn ghost" onclick="askReset()">↺ 再活一世</button>`;
+ $('ePicks').innerHTML=`<div class="end"><div class="big">${E[0]}</div><h2>${E[1]}</h2><p>${E[2]}\n\n${S.name}・${TYPES[S.type].name}・${T.ic}${T.n}\n最終境界：${REALMS[S.realm].n}　享年 ${fmt(S.age)} 歲\n靈石 ${fmt(S.stone)}　名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}\n畢生所求「${G.name}」：${['未達成','🥉 銅','🥈 銀','🥇 金'][gt]}\n成就 ${S.ach.length}/${ACH.length}${S.fruits.length?'\n道果：'+S.fruits.map(id=>(FRUITS.find(x=>x.id===id)||{}).n).join('、'):''}${S.ghost?'\n\n⚔️ 宿敵 '+esc(S.ghost.n)+'：'+(S.ghost.end?REALMS[S.ghost.end.realm].n+'・'+S.ghost.end.age+' 歲':'—')+'　你：'+REALMS[S.realm].n+'・'+fmt(S.age)+' 歲　對決 '+(S.flags.ghostWins||0)+' 勝 '+(S.flags.ghostLoss||0)+' 敗'+(S.flags.ghostBeat?'　🏆 後來居上':''):''}\n\n種子：${esc(S.seed)}</p></div>
+ <button class="btn go" onclick="shareTxt()">📋 複製這一生</button><button class="btn brk" onclick="copyGhost()">⚔️ 複製宿敵碼（讓朋友挑戰你）</button><button class="btn ghost" onclick="askReset()">↺ 再活一世</button>`;
  $('eRes').style.display='none';
 }
 function shareTxt(){const G=GOALS[S.goal];const t=`【修仙人生模擬器】${S.name}・${TYPES[S.type].name}\n境界：${REALMS[S.realm].n}｜享年 ${fmt(S.age)}｜靈石 ${fmt(S.stone)}｜名望 ${fmt(S.fame)}\n所求「${G.name}」${['未達成','銅','銀','金'][G.t(S)]}｜成就 ${S.ach.length}/${ACH.length}\n種子 ${S.seed}`;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>dlg('已複製','貼給朋友挑戰同一顆種子吧！',null))}
@@ -1261,13 +1336,13 @@ function startGame(){
  const name=$('inName').value.trim().slice(0,8);
  if(!name){dlg('還沒取名','請先輸入道號／姓名，或按「↺ 隨機」。',null);$('inName').focus();return}
  let seed=$('inSeed').value.trim();if(!seed){rndSeed();seed=$('inSeed').value}
- S=newState(name,selType,selGoal,seed);initSeed(S);if($('inVow').checked){S.flags.vowRogue=true;S.apMax++;S.ap=S.apMax}applyHallTiers(S);
+ S=newState(name,selType,selGoal,seed);initSeed(S);if($('inVow').checked){S.flags.vowRogue=true;S.apMax++;S.ap=S.apMax}applyHallTiers(S);const gc=$('inGhost').value.trim();if(gc){const g=parseGhost(gc);if(!g){dlg('宿敵碼無效','格式不正確，已忽略。',null)}else{S.ghost=g;S.rival=g.n;log(`此生宿敵：${g.n}（${TYPES[g.type]?TYPES[g.type].name:''}）。你們的路，從此交錯。`)}}recordCurve();
  const T=SEED_TIER.find(t=>t.k===S.tier);
  log(`${name} 出生於凡人之家，靈根：${TYPES[selType].name}。命格揭曉：${T.ic}${T.n}——${T.say}`);
  $('pgStart').style.display='none';$('pgGame').style.display='block';
  render();dlg('命格揭曉',`${T.ic} ${T.n}\n${T.say}${T.ab?'\n\n'+T.ab:''}`,null);
 }
-function loadGame(){try{const s=JSON.parse(localStorage.getItem(SK));if(!s||s.v!==VER)throw 0;S=s;S.sys=S.sys||{pts:0,lvl:1,face:0};S.love=S.love===undefined?null:S.love;$('pgStart').style.display='none';$('pgGame').style.display='block';render()}catch(e){dlg('讀取失敗','存檔已損毀或版本不符。',null)}}
+function loadGame(){try{const s=JSON.parse(localStorage.getItem(SK));if(!s||s.v!==VER)throw 0;S=s;S.sys=S.sys||{pts:0,lvl:1,face:0};S.love=S.love===undefined?null:S.love;S.fruits=S.fruits||[];S.curve=S.curve||[];S.ghost=S.ghost||null;$('pgStart').style.display='none';$('pgGame').style.display='block';render()}catch(e){dlg('讀取失敗','存檔已損毀或版本不符。',null)}}
 function askRetire(){dlg('歸隱','就此封山歸隱、不再問道？這一世將在此結束並結算，成就與目標照常計入殿堂。',()=>{S.dead=true;S.ending='retire';log('封山歸隱，此生功成身退。');ach();render();window.scrollTo(0,0)})}
 function askReset(){dlg('重新開始','將清除目前存檔，這一生的記錄只保留成就。確定？',()=>{localStorage.removeItem(SK);S=null;$('pgGame').style.display='none';$('pgStart').style.display='block';renderStart();window.scrollTo(0,0)})}
 function openHall(){const b=$('hallBox');b.style.display=b.style.display==='none'?'block':'none';renderHall('hallGrid')}
@@ -1280,7 +1355,7 @@ function packSave(){return 'XL1.'+b64e(JSON.stringify({s:S,h:HALL.all,t:Date.now
 function exportSave(){if(!S)return;const code=packSave();dlgOpen('匯出存檔碼','複製下方整段文字，到另一個瀏覽器選「匯入存檔碼」貼上即可。',code,false,null);const ta=$('dArea');ta.readOnly=true;setTimeout(()=>{ta.select();try{document.execCommand('copy');$('dText').textContent='已嘗試自動複製到剪貼簿；若失敗請手動全選複製。'}catch(e){}},50)}
 function downloadSave(){if(!S)return;const blob=new Blob([packSave()],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`xianlife_${S.name}_${S.age}歲.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function importSave(){dlgOpen('匯入存檔','貼上存檔碼，或選擇存檔檔案。匯入會覆蓋目前進度（成就殿堂會合併）。','',true,()=>{const code=$('dArea').value.trim();if(code)applyImport(code)});$('dArea').readOnly=false;$('dFile').value='';$('dFile').onchange=ev=>{const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('dArea').value=String(r.result).trim()};r.readAsText(f)}}
-function applyImport(code){try{if(!code.startsWith('XL1.'))throw 0;const o=JSON.parse(b64d(code.slice(4)));if(!o.s||!o.s.name||!o.s.stat)throw 0;o.h=Array.isArray(o.h)?o.h:[];o.h.forEach(id=>{if(!HALL.all.includes(id))HALL.all.push(id)});saveHall();S=o.s;S.sys=S.sys||{pts:0,lvl:1,face:0};S.love=S.love===undefined?null:S.love;save();$('pgStart').style.display='none';$('pgGame').style.display='block';render();setTimeout(()=>dlg('匯入成功',`${S.name}・${REALMS[S.realm].n}・${S.age} 歲，繼續修行吧。`,null),80)}catch(e){setTimeout(()=>dlg('匯入失敗','存檔碼格式不正確或已損毀。',null),80)}}
+function applyImport(code){try{if(!code.startsWith('XL1.'))throw 0;const o=JSON.parse(b64d(code.slice(4)));if(!o.s||!o.s.name||!o.s.stat)throw 0;o.h=Array.isArray(o.h)?o.h:[];o.h.forEach(id=>{if(!HALL.all.includes(id))HALL.all.push(id)});saveHall();S=o.s;S.sys=S.sys||{pts:0,lvl:1,face:0};S.love=S.love===undefined?null:S.love;S.fruits=S.fruits||[];S.curve=S.curve||[];S.ghost=S.ghost||null;save();$('pgStart').style.display='none';$('pgGame').style.display='block';render();setTimeout(()=>dlg('匯入成功',`${S.name}・${REALMS[S.realm].n}・${S.age} 歲，繼續修行吧。`,null),80)}catch(e){setTimeout(()=>dlg('匯入失敗','存檔碼格式不正確或已損毀。',null),80)}}
 function dlgOpen(t,x,val,showFile,cb){dlg(t,x,cb);const ta=$('dArea');ta.style.display='block';ta.value=val||'';$('dFile').style.display=showFile?'block':'none';$('dlg').querySelector('.drow button').style.display='';if(!cb){$('dlg').querySelector('.drow button').textContent='關閉'}else{$('dlg').querySelector('.drow button').textContent='取消'}}
 
 function dlgClose(ok){$('dlg').classList.remove('on');if(ok&&dlgCb)dlgCb();dlgCb=null}
