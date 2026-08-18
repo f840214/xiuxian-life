@@ -300,12 +300,12 @@ const AN={body:'根骨',insight:'悟性',spirit:'神識',mind:'心境',luck:'氣
 const OVR_W={body:.18,insight:.24,spirit:.2,mind:.15,luck:.1,social:.13};
 const TCOL={sword:['#7dd3fc','#1e5aa0'],alch:['#86efac','#0f6b48'],phys:['#fdba74','#9a3412'],heart:['#c4b5fd','#5a35a8'],fate:['#fde68a','#8a6d1f'],sys:['#f9a8d4','#9d174d']};
 const TYPES={
- sword:{name:'⚔️ 劍修',desc:'一劍破萬法，戰力最強、最容易招惹因果',bonus:{body:10,spirit:6,insight:2,mind:-2,luck:0,social:-4}},
+ sword:{name:'⚔️ 劍修',desc:'一劍破萬法，戰力最強、劍意大成後突破更穩',bonus:{body:10,spirit:7,insight:3,mind:-1,luck:0,social:-4}},
  alch:{name:'⚗️ 丹修',desc:'煉丹術傍身，靈石不缺、交遊廣闊',bonus:{insight:8,social:8,spirit:2,body:-4,mind:0,luck:0}},
- phys:{name:'🪨 體修',desc:'肉身成聖，體魄極高、壽元較長',bonus:{body:14,mind:4,insight:-4,spirit:-2,luck:0,social:-2}},
+ phys:{name:'🪨 體修',desc:'肉身成聖，體魄極高、壽元較長',bonus:{body:13,mind:3,insight:-5,spirit:-3,luck:0,social:-2}},
  heart:{name:'🕯️ 心修',desc:'道心澄澈，突破穩定、心魔難侵',bonus:{mind:12,insight:5,spirit:3,body:-3,luck:0,social:-3}},
  fate:{name:'🍀 氣運之子',desc:'機緣連連，但根基薄弱',bonus:{luck:14,social:4,insight:0,body:-4,spirit:-2,mind:-4}},
- sys:{name:'📱 系統',desc:'穿越者標配：簽到、抽獎、任務、裝逼打臉，還可能迎娶女帝',bonus:{luck:8,social:6,insight:3,body:-2,spirit:-3,mind:-6}},
+ sys:{name:'📱 系統',desc:'穿越者標配：簽到、抽獎、任務、裝逼打臉，還可能迎娶女帝',bonus:{luck:7,social:5,insight:2,body:-3,spirit:-4,mind:-7}},
 };
 const GOALS={
  ascend:{name:'🌌 飛升成仙',desc:'銅 金丹｜銀 化神｜金 渡劫飛升',t:s=>s.realm>=9?3:s.realm>=6?2:s.realm>=3?1:0},
@@ -1163,6 +1163,30 @@ const GH_EV=[
 ];
 EV.push(...GH_EV);
 
+
+const EV7=[
+{id:'m_teahouse',realm:[0],w:8,tag:'',t:'🍵 茶館說書',d:'鎮上茶館的說書人講起「三百年前那位飛升的劍仙」，講到一半忽然停下，盯著你看：「小友，你眉間有劍氣。」',
+ opts:[{b:'請他細說',cs:['悟性+','靈石-'],r:()=>{S.stone-=10;addStat('insight',2);S.cul+=30;return[true,'他喝了你買的茶，說了半個時辰。有幾句你記了一輩子。',['靈石-10','悟性+2','修為+30']]}},
+ {b:'江湖騙子',cs:['—'],r:()=>[true,'你走了。後來你發現，他說的那位劍仙是真的。',[R('mind',1)]]}]},
+{id:'m_drought',realm:[0],w:7,tag:'dgr',t:'☀️ 大旱',d:'三個月沒下雨，井乾了，田裂了。村裡有人要去求雨，有人要搶鄰村的水。',
+ opts:[{b:'跟去搶水',cs:['根骨檢定','因果-'],r:()=>{if(chk('body',30)){S.stone+=60;S.karma-=6;return[true,'搶到了。你看見鄰村小孩的眼神。',['靈石+60','因果-6']]}S.hp-=15;return[false,'被打回來了。',['體魄-15']]}},
+ {b:'帶村民找新水源',cs:['悟性檢定','因果+'],r:()=>{if(chk('insight',30)){S.karma+=8;S.fame+=60;addStat('luck',1);return[true,'你在後山找到一處泉眼。全村喊你「小福星」。',['因果+8','名望+60','氣運+1']]}S.hp-=10;return[false,'找了半個月，一無所獲。',['體魄-10',R('body',1)]]}}]},
+{id:'m_tiger',realm:[0],w:6,tag:'dgr',t:'🐯 山中猛虎',d:'一頭吊睛白額虎在山路傷了人。獵戶們要組隊除虎，缺人手。',
+ opts:[{b:'去',cs:['根骨檢定'],r:()=>{if(chk('body',32)){addStat('body',3);S.fame+=80;S.stone+=50;S.flags.killed=true;return[true,'虎倒下時你手還在抖。虎骨賣了五十靈石。',['根骨+3','名望+80','靈石+50']]}S.hp-=30;return[false,'虎爪劃過你的背。你留了一輩子的疤。',['體魄-30',R('body',2)]]}},
+ {b:'不去',cs:['—'],r:()=>[true,'你不想死在一隻老虎手裡。',[R('mind',1)]]}]},
+{id:'m_peddler',realm:[0],w:7,tag:'acc',t:'🎒 貨郎的擔子',d:'走村串戶的貨郎擔子裡，有一本泛黃的《引氣訣》，要價二十靈石。也可能是騙人的。',
+ opts:[{b:'買',cs:['靈石-20','悟性檢定'],r:()=>{S.stone-=20;if(chk('insight',28)){S.cul+=70;addStat('insight',2);return[true,'書是真的，只是缺了後半。但前半夠你入門了。',['靈石-20','修為+70','悟性+2']]}return[false,'一本破書，字都不認識幾個。',['靈石-20']]}},
+ {b:'殺價到五靈石',cs:['人脈檢定'],r:()=>{if(chk('social',30)){S.stone-=5;S.cul+=50;addStat('social',2);return[true,'貨郎罵罵咧咧地賣了。',['靈石-5','修為+50','人脈+2']]}return[false,'貨郎挑起擔子走了。',[R('mind',1)]]}}]},
+{id:'m_funeral',realm:[0],w:6,tag:'',t:'🕯️ 守靈',d:'村裡最長壽的老人過世了，享年九十九。你被叫去守靈。半夜，靈堂燭火忽明忽暗。',
+ opts:[{b:'守到天亮',cs:['心境+'],r:()=>{addStat('mind',3);S.cul+=25;return[true,'天亮時你想通了一件事：人活九十九，也不過如此。你要活得更久。',['心境+3','修為+25']]}},
+ {b:'偷偷睡著',cs:['—'],r:()=>{S.stress-=5;return[true,'夢裡老人跟你說了句話，醒來忘了。',['心魔-5']]}}]},
+{id:'m_bully',realm:[0],w:7,tag:'dgr',t:'👊 地痞',d:'鎮上地痞看你不順眼，天天堵你要「保護費」。',
+ opts:[{b:'打回去',cs:['根骨檢定'],r:()=>{if(chk('body',30)){addStat('body',2);S.fame+=40;return[true,'你把他打進了水溝。從此鎮上沒人敢惹你。',['根骨+2','名望+40']]}S.hp-=15;S.stone-=20;return[false,'被揍了一頓，錢還是被拿走了。',['體魄-15','靈石-20']]}},
+ {b:'交錢',cs:['靈石-'],r:()=>{S.stone-=30;S.stress+=5;return[true,'破財消災。你在心裡記了一筆。',['靈石-30','心魔+5']]}},
+ {b:'找長輩調解',cs:['人脈檢定'],r:()=>{if(chk('social',30)){addStat('social',2);return[true,'族長出面，地痞收斂了。',['人脈+2']]}S.stone-=20;return[false,'族長也怕他。',['靈石-20']]}}]},
+];
+EV.push(...EV7);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.05+S.stat.insight/1400+(S.master?.02:0)));S.cul+=g;S.stress+=7;return`修為+${g}`}},
@@ -1230,7 +1254,7 @@ function pickEvent(){
  let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'))}if(e.tag==='dgr')w*=Math.max(.2,1+B('dgrW'));tot+=w;return w});
  let x=rnd()*tot;for(let i=0;i<pool.length;i++){x-=ws[i];if(x<=0)return pool[i]}return pool[pool.length-1];
 }
-function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S.cd[e.id]=S.age+4;render()}
+function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S.cd[e.id]=S.age+(S.realm===0?9:4);render()}
 function renderEvent(){
  $('ePicks').className='picks';
  if(S.evId==='dice'){renderDice();return}
@@ -1258,7 +1282,7 @@ function renderYearEnd(){
  $('eDesc').textContent=can?`突破成功率約 ${Math.round(rate*100)}%。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）`;
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`:'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(b-40)/120+(S.stat.luck-30)/300-S.stress/250-(S.realm*.035)+(S.type==='heart'?.1:0)+(S.dao?.05:0)+(S.master?.05:0);if(S.items.includes('護身符'))r+=.05;r+=B('brk');return clamp(r,.08,.9)}
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(b-40)/120+(S.stat.luck-30)/300-S.stress/250-(S.realm*.045)+(S.type==='heart'?.1:0)+(S.dao?.05:0)+(S.master?.05:0);if(S.items.includes('護身符'))r+=.05;r+=B('brk');if(S.type==='sword'&&S.flags.swordIntent)r+=.05;const cap=S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];
  if(S.realm===9){ // 渡劫
@@ -1276,9 +1300,9 @@ function breakthrough(){
   $('ePicks').innerHTML=`<button class="btn brk" onclick="renderFruitPick()">🍑 選擇道果 →</button>`;save();
   $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);return;
  }else{
-  S.flags.brkFail=(S.flags.brkFail||0)+1;S.hp-=30;S.stress+=20;S.cul=Math.round(S.cul*.7);if(S.tier!==-1&&!B('noLifeLoss'))S.life-=Math.round(Rm.life*.05);
+  S.flags.brkFail=(S.flags.brkFail||0)+1;S.hp-=30+S.realm*3;S.stress+=20;S.cul=Math.round(S.cul*.7);let drop='';if(S.realm>=5&&rnd()<.25){S.realm--;S.cul=Math.round(REALMS[S.realm].need*.8);S.life=Math.min(S.life,REALMS[S.realm].life+200);drop='境界跌落至'+REALMS[S.realm].n;log('⚠️ 反噬過猛，'+drop+'！')}if(S.tier!==-1&&!B('noLifeLoss'))S.life-=Math.round(Rm.life*.05);
   log('💥 突破失敗，反噬受傷。');ach();
-  showRes(false,'靈力逆衝，經脈受創。你吐出一口血，境界仍在原地。',['體魄-30','心魔+20','修為-30%',(S.tier===-1||B('noLifeLoss'))?'不折壽':'壽元-'+Math.round(Rm.life*.05)]);
+  showRes(false,drop?'靈力逆衝，根基崩裂——你的境界跌落了！':'靈力逆衝，經脈受創。你吐出一口血，境界仍在原地。',['體魄-'+(30+S.realm*3),'心魔+20',drop||'修為-30%',(S.tier===-1||B('noLifeLoss'))?'不折壽':'壽元-'+Math.round(Rm.life*.05)]);
  }
  $('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();
  $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);
