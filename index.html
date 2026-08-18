@@ -364,7 +364,7 @@ function initSeed(s){
 function ovr(s=S){return Math.round(AK.reduce((a,k)=>a+s.stat[k]*OVR_W[k],0))}
 function addStat(k,v){const b=S.stat[k];S.stat[k]=clamp(S.stat[k]+v,5,S.cap[k]);return S.stat[k]-b}
 function log(t){S.log.unshift({y:S.age,t});if(S.log.length>300)S.log.length=300}
-function save(){try{localStorage.setItem(SK,JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(S,(k,v)=>k.startsWith('_')?undefined:v))}catch(e){}}
 function reseed(){RNG=mb32(hashStr(S.seed+'#'+S.step))}
 const HALL={all:JSON.parse(localStorage.getItem(HK)||'[]')};
 function saveHall(){localStorage.setItem(HK,JSON.stringify(HALL.all))}
@@ -628,7 +628,7 @@ const EV2=[
  opts:[{b:'借高利貸',cs:['靈石+','日後有債'],r:()=>{S.stone+=500;S.flags.debt=(S.flags.debt||0)+800;return[true,'眼下寬裕了。他們說三年後連本帶利八百。',['靈石+500','欠債800']]}},
  {b:'去礦洞打工',cs:['根骨','靈石+'],r:()=>{S.stone+=180;S.hp-=10;addStat('body',2);return[true,'挖了一年礦，手上全是繭。',['靈石+180','根骨+2','體魄-10']]}},
  {b:'去街上賣藝',cs:['人脈+'],r:()=>{S.stone+=90;addStat('social',2);return[true,'你發現自己講故事有一套。',['靈石+90','人脈+2']]}}]},
-{id:'debtCollect',realm:[1,2,3,4],w:14,cond:s=>(s.flags.debt||0)>0,tag:'dgr',t:'🔨 討債的來了',d:()=>`放債人帶著打手堵在你門口，要你還 ${S.flags.debt} 靈石。`,
+{id:'debtCollect',realm:[1,2,3,4,5,6],w:14,cond:s=>(s.flags.debt||0)>0,tag:'dgr',t:'🔨 討債的來了',d:()=>`放債人帶著打手堵在你門口，要你還 ${S.flags.debt} 靈石。`,
  opts:[{b:'還錢',cs:['靈石-'],r:()=>{const d=S.flags.debt;if(S.stone<d)return[false,'錢不夠。他們打斷了你一條腿，改天再來。',[(S.hp-=25,'體魄-25')]];S.stone-=d;S.flags.debt=0;return[true,'兩清。',['靈石-'+d]]}},
  {b:'打出去',cs:['根骨檢定','因果-'],r:()=>{if(chk('body',40)){S.flags.debt=0;S.karma-=8;S.fame+=50;return[true,'打手全趴下了。放債人再也沒來——但坊市傳你是狠角色。',['債務一筆勾銷','因果-8','名望+50']]}S.hp-=30;return[false,'寡不敵眾。',['體魄-30']]}}]},
 {id:'masterGift',realm:[1,2,3,4],w:8,cond:s=>!!s.master,tag:'acc',t:'🎁 師父的考題',d:()=>`${S.master} 丟給你一個難題：三日內在不用靈力的情況下劈開院中巨石。`,
@@ -848,7 +848,7 @@ const EV4=[
 {id:'lv_confess',realm:[0,1,2,3,4,5,6],w:16,cond:s=>!!s.love&&!s.dao&&s.love.aff>=60,tag:'acc',t:()=>`${LV().ic} 月下`,d:()=>`月圓之夜，你和${LV().n}並肩坐在崖邊。誰都沒說話。你覺得，是時候了。`,
  opts:[{b:'表白',cs:['好感檢定'],r:()=>{if(rnd()*100<S.love.aff+S.stat.social/4){S.dao=LV().n;S.love.aff=100;S.stress=Math.max(0,S.stress-25);S.flags.loveDao=S.love.id;return[true,`${LV().n}沉默了很久，然後說：「你怎麼這麼慢。」\n你們結為道侶。`,['結為道侶','心魔-25',R('mind',3)]]}const a=aff(-20);S.stress+=15;return[false,`「……再等等吧。」${LV().n}沒有看你。`,[a,'心魔+15']]}},
  {b:'再等等',cs:['—'],r:()=>[true,'月亮落下去了。你什麼也沒說。',[R('mind',1)]]}]},
-{id:'lv_fade',realm:[0,1,2,3,4,5,6],w:8,cond:s=>!!s.love&&!s.dao&&s.love.aff<=15,tag:'',t:()=>`${LV().ic} 漸行漸遠`,d:()=>`你已經很久沒見過${LV().n}了。聽說${LV().id==='mortal'?'他成親了':'對方去了很遠的地方'}。`,
+{id:'lv_fade',realm:[0,1,2,3,4,5,6],w:8,cond:s=>!!s.love&&!s.dao&&s.love.aff<=10,tag:'',t:()=>`${LV().ic} 漸行漸遠`,d:()=>`你已經很久沒見過${LV().n}了。聽說${LV().id==='mortal'?'他成親了':'對方去了很遠的地方'}。`,
  opts:[{b:'也好',cs:['結束感情線'],r:()=>{S.love=null;addStat('mind',2);return[true,'有些人只能陪你走一段。',['心境+2']]}}]},
 /* 道侶後 */
 {id:'lv_dual',realm:[1,2,3,4,5,6,7],w:10,cond:s=>!!s.dao&&!!s.love&&!!s.flags.loveDao,tag:'acc',t:()=>`${LV()?LV().ic:'💞'} 雙修`,d:()=>`你與${S.dao}靈息相通，共參大道。`,
@@ -880,7 +880,7 @@ EV.push(...EV4);
 const SYS=s=>s.type==='sys';
 const sysP=v=>{S.sys.pts=Math.max(0,S.sys.pts+v);return`系統積分${v>0?'+':''}${v}`};
 const EV5=[
-{id:'sys_wake',realm:[0],w:60,cond:s=>SYS(s)&&!s.flags.sysWake,tag:'acc',t:'📱 叮！系統綁定成功',d:'「檢測到宿主穿越成功，葬神系統已綁定。開局大禮包已發放，請宿主查收。」\n你腦子裡響起一個機械音。你捏了自己一下，很痛。',
+{id:'sys_wake',realm:[0,1,2],w:60,cond:s=>SYS(s)&&!s.flags.sysWake,tag:'acc',t:'📱 叮！系統綁定成功',d:'「檢測到宿主穿越成功，葬神系統已綁定。開局大禮包已發放，請宿主查收。」\n你腦子裡響起一個機械音。你捏了自己一下，很痛。',
  opts:[{b:'領取：開局神器',cs:['神器'],r:()=>{S.flags.sysWake=true;S.items.push('開局神器・弒神槍');addStat('body',5);S.fame+=100;return[true,'一桿黑槍出現在手中，槍身刻著「弒神」。你決定先藏起來。',['獲得弒神槍','根骨+5','名望+100']]}},
  {b:'領取：先天道體',cs:['六維上限+'],r:()=>{S.flags.sysWake=true;AK.forEach(k=>S.cap[k]+=5);S.cul+=100;return[true,'渾身骨頭喀喀作響。系統：「先天道體改造完成，宿主已是萬中無一的體質。」',['六維上限+5','修為+100']]}},
  {b:'領取：十連抽',cs:['隨機'],r:()=>{S.flags.sysWake=true;const r=rnd();if(r<.1){S.items.push('SSR・混沌鐘');S.sys.pts+=50;S.flags.ssr=true;return[true,'金光閃爍！SSR！系統：「宿主歐氣沖天！」',['獲得混沌鐘','系統積分+50']]}if(r<.5){S.stone+=1500;return[true,'十發九藍一紫，全是靈石和丹藥。',['靈石+1500']]}S.stone+=300;return[false,'十發全藍。系統：「歐皇之路，任重道遠。」',['靈石+300']]}}]},
