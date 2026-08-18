@@ -1275,7 +1275,7 @@ EV.push(...EV10);
 
 
 const EV11=[
-{id:'coup',realm:[1,2,3,4,5,6,7,8],w:8,cond:s=>!!s.sect&&s.sect!=='own'&&!s.flags.leader&&s.stone>=15000,tag:'dgr',t:'👑 篡位',d:()=>`你在 ${sectName(S)} 待得夠久了，也攢了足夠的靈石。掌門年邁，長老各懷心思——只要買通執法堂、收買半數長老，再在大典上發難，掌門之位就是你的。\n代價：一萬五千靈石。成功率……大約一成。`,
+{id:'coup',realm:[1,2,3,4,5,6,7,8,9],w:8,cond:s=>!!s.sect&&s.sect!=='own'&&!s.flags.leader&&s.stone>=15000,tag:'dgr',t:'👑 篡位',d:()=>`你在 ${sectName(S)} 待得夠久了，也攢了足夠的靈石。掌門年邁，長老各懷心思——只要買通執法堂、收買半數長老，再在大典上發難，掌門之位就是你的。\n代價：一萬五千靈石。成功率……大約一成。`,
  opts:[{b:'發動篡位（成功率 10%，失敗扣 15,000 靈石）',cs:['⚠️ 高風險','靈石 15000'],r:()=>{if(rnd()<.10){S.flags.leader=true;S.flags.coupWin=true;S.fame+=8000;S.karma-=15;S.stone+=20000;return[true,`大典之上，你一劍架在老掌門頸間。長老們面面相覷，最後齊齊躬身：「參見掌門。」\n你成了 ${sectName(S)} 的新掌門。`,['成為掌門','名望+8000','因果-15','靈石+20000（宗門庫房）']]}S.stone-=15000;S.flags.coupFail=(S.flags.coupFail||0)+1;S.stress+=15;S.fame=Math.max(0,S.fame-500);return[false,'我是宗門的狗',['靈石-15000','心魔+15','名望-500']]}},
  {b:'再忍忍',cs:['—'],r:()=>{addStat('mind',1);return[true,'時機未到。你把念頭壓了下去。',['心境+1']]}}]},
 ];
