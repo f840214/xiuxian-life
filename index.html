@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
-<title>修仙人生模擬器 V0.1</title>
+<title>修仙人生模擬器 V0.3</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
 <style>
 :root{--bg:#0b0f14;--bg2:#10161e;--card:#161e29;--line:#26313f;--line2:#354355;
@@ -183,7 +183,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 0 . 1</div>
+  <div class="en">X I A N　L I F E　V 0 . 3</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -855,7 +855,7 @@ const EV4=[
  {b:'親手做一樣東西',cs:['悟性檢定','好感+'],r:()=>{if(chk('insight',36)){const a=aff(18);return[true,`做得不算好，但${LV().n}一直帶在身上。`,[a,R('mind',1)]]}const a=aff(6);return[false,'做壞了。對方笑了很久，但還是收下了。',[a]]}},
  {b:'忘了',cs:['好感-'],r:()=>{const a=aff(-10);return[false,`${LV().n}沒說什麼。這比說什麼都糟。`,[a]]}}]},
 {id:'lv_side',realm:[0,1,2,3,4,5,6],w:10,cond:s=>!!s.love&&!s.dao,tag:'',t:()=>`${LV().ic} 與${LV().n}同行`,d:()=>({senior:'師姐約你一起下山歷練。路上她話依然很少，但會在岔路口等你。',mortal:'阿川帶你進山打獵，教你看腳印、辨風向。他說山裡的事你不懂的還多著。',demon:'花無眠約你去一處魔道遺跡。「別怕，有我在沒人敢動你。」她說得理所當然。',fox:'白霜拉你去看極光。「八百年了，每年都來，今年第一次帶人。」',friend:'顧長歌拉你去接一個危險任務。「兩個人分，一人一半，划算。」',empress:'洛九幽微服出巡，指名要你隨行。一路上她不說話，只在你替她擋下刺客時多看了你一眼。'}[S.love.id]||`${LV().n}約你同行。`),
- opts:[{b:'欣然同行',cs:['好感+','各有收穫'],r:()=>{const a=aff(12);const k=['body','luck','spirit','mind','social'][['senior','mortal','demon','fox','friend'].indexOf(S.love.id)];const g=addStat(k,rr(2,3));S.stress-=8;return[true,'這一路，你們說了很多從沒說過的話。',[a,AN[k]+'+'+g,'心魔-8']]}},
+ opts:[{b:'欣然同行',cs:['好感+','各有收穫'],r:()=>{const a=aff(12);const k=({senior:'body',mortal:'luck',demon:'spirit',fox:'mind',friend:'social',empress:'social'})[S.love.id]||'mind';const g=addStat(k,rr(2,3));S.stress-=8;return[true,'這一路，你們說了很多從沒說過的話。',[a,AN[k]+'+'+g,'心魔-8']]}},
  {b:'閉關要緊',cs:['修為+','好感-'],r:()=>{S.cul+=Math.round(REALMS[S.realm].need*.1);const a=aff(-8);return[true,'你選了修行。對方沒有再約第二次。',['修為+',a]]}}]},
 {id:'lv_misund',realm:[1,2,3,4,5,6],w:8,cond:s=>!!s.love&&!s.dao&&s.love.aff>=40,tag:'dgr',t:()=>`${LV().ic} 誤會`,d:()=>`有人告訴你，${LV().n}背地裡${({senior:'跟另一位師弟走得很近',mortal:'家裡已經在說親',demon:'接近你只是為了宗門的秘笈',fox:'在你洞府裡藏了什麼東西',friend:'把你們一起找到的寶物私吞了',empress:'早已和北域皇子定下婚約'})[S.love.id]||'另有所圖'}。`,
  opts:[{b:'當面問清楚',cs:['心境檢定'],r:()=>{if(chk('mind',40)){const a=aff(15);return[true,'是誤會。說開之後，反而更近了。',[a,R('mind',2)]]}const a=aff(-15);S.stress+=8;return[false,'你問得太衝，吵了一架。',[a,'心魔+8']]}},
