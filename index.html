@@ -1258,7 +1258,8 @@ function rndType(){RNG=Math.random;selType=pick(Object.keys(TYPES));renderStart(
 function rndGoal(){RNG=Math.random;selGoal=pick(Object.keys(GOALS));renderStart()}
 function rndSeed(){RNG=Math.random;const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='XL-';for(let i=0;i<5;i++)s+=c[Math.floor(Math.random()*c.length)];$('inSeed').value=s}
 function startGame(){
- const name=($('inName').value.trim()||pick(SURN)+pick(GIVEN)).slice(0,8);
+ const name=$('inName').value.trim().slice(0,8);
+ if(!name){dlg('還沒取名','請先輸入道號／姓名，或按「↺ 隨機」。',null);$('inName').focus();return}
  let seed=$('inSeed').value.trim();if(!seed){rndSeed();seed=$('inSeed').value}
  S=newState(name,selType,selGoal,seed);initSeed(S);if($('inVow').checked){S.flags.vowRogue=true;S.apMax++;S.ap=S.apMax}applyHallTiers(S);
  const T=SEED_TIER.find(t=>t.k===S.tier);
@@ -1284,7 +1285,7 @@ function dlgOpen(t,x,val,showFile,cb){dlg(t,x,cb);const ta=$('dArea');ta.style.d
 
 function dlgClose(ok){$('dlg').classList.remove('on');if(ok&&dlgCb)dlgCb();dlgCb=null}
 
-rndName();rndSeed();renderStart();
+rndSeed();renderStart();
 </script>
 </body>
 </html>
