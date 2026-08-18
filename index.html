@@ -439,6 +439,7 @@ const ACH=[
  {id:'ghostBeat',n:'🏆 後來居上',chk:s=>s.flags.ghostBeat},
  {id:'ghostDuel',n:'⚔️ 宿命對決',chk:s=>(s.flags.ghostWins||0)>=1},
  {id:'fruit3',n:'🍑 三果在身',chk:s=>s.fruits.length>=3},
+ {id:'work',n:'🧾 打工人的一生',chk:s=>s.flags.workLife},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
 function ach(){let n=0;ACH.forEach(a=>{if(!S.ach.includes(a.id)&&a.chk(S)){S.ach.push(a.id);n++;const b=ACH_BUFF[a.id];if(b){if(b.ap){S.apMax+=b.ap;S.ap+=b.ap}if(b.capK)Object.entries(b.capK).forEach(([k,v])=>S.cap[k]=Math.min(99,S.cap[k]+v));log('🏅 達成成就「'+a.n+'」→ 獲得稱號【'+b.t+'】：'+b.d)}else log('🏅 達成成就「'+a.n+'」');if(!HALL.all.includes(a.id)){HALL.all.push(a.id)}}});if(n)saveHall();return n}
@@ -1207,6 +1208,15 @@ const EV8=[
 ];
 EV.push(...EV8);
 
+
+const EV9=[
+{id:'m_job',realm:[0],w:6,tag:'',t:'🧾 一份安穩的差事',d:'縣衙缺個文書，月俸二兩，包吃住，做滿三十年有養老銀。掌櫃拍拍你的肩：「年輕人，別想那些飛來飛去的，踏實點。」',
+ opts:[{b:'認真上班一輩子（此生就此結束）',cs:['⚠️ 直接結局','打工人'],r:()=>{S.flags.workLife=true;S.dead=true;S.ending='work';S.age=Math.min(S.life,S.age+50);S.stone+=1200;log('你認真上班到退休，領了養老銀，隱居鄉里。此生無風無浪。');return[true,'你點頭。從此每天卯時上工、酉時下工，三十年如一日。',['靈石+1200','此生結束']]}},
+ {b:'幹兩年攢盤纏就跑',cs:['靈石+','人脈+'],r:()=>{S.age+=2;S.stone+=150;addStat('social',2);addStat('mind',1);return[true,'兩年後你留下辭呈翻牆走了。掌櫃在後面喊：「回來！文書還沒交接！」',['靈石+150','人脈+2','時光+2年']]}},
+ {b:'我要修仙',cs:['修為+'],r:()=>{S.cul+=40;return[true,'掌櫃搖搖頭：「又一個。」',['修為+40']]}}]},
+];
+EV.push(...EV9);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.05+S.stat.insight/1400+(S.master?.02:0)));S.cul+=g;S.stress+=7;return`修為+${g}`}},
@@ -1290,6 +1300,7 @@ function doOpt(i){
  log(`${e.t}｜${opts[i].b} → ${txt}`);
  showRes(win,txt,cs);
  S.phase=2;
+ if(S.dead){ach();$('ePicks').innerHTML=`<button class="btn cont" onclick="render()">查看結局 →</button>`;save();return}
  $('ePicks').innerHTML=`<button class="btn cont" onclick="render()">年末結算 →</button>`;
  save();
 }
@@ -1355,7 +1366,7 @@ function nextYear(){
 function renderEnd(){
  $('ePicks').className='picks';
  const G=GOALS[S.goal],gt=G.t(S);const T=SEED_TIER.find(t=>t.k===S.tier);
- const E={ascend:['🌌','白日飛升','九九天劫過後，紫氣東來，你踏著雲梯步入仙門。人間從此只剩傳說。'],trib:['⚡','身死道消','最後一道天雷落下時，你笑了。這一生，不枉。'],old:['🍂','壽終坐化','你在洞府中盤膝而坐，呼吸漸緩。徒弟們在外面跪了三天。'],hurt:['🩸','傷重殞落','傷勢終究沒能痊癒。你的故事到此為止。'],retire:['🍃','功成身退','你在山門前回望一眼，轉身走進了雲霧。從此江湖上只剩傳說。']}[S.ending];
+ const E={ascend:['🌌','白日飛升','九九天劫過後，紫氣東來，你踏著雲梯步入仙門。人間從此只剩傳說。'],trib:['⚡','身死道消','最後一道天雷落下時，你笑了。這一生，不枉。'],old:['🍂','壽終坐化','你在洞府中盤膝而坐，呼吸漸緩。徒弟們在外面跪了三天。'],hurt:['🩸','傷重殞落','傷勢終究沒能痊癒。你的故事到此為止。'],retire:['🍃','功成身退','你在山門前回望一眼，轉身走進了雲霧。從此江湖上只剩傳說。'],work:['🧾','打工人的一生','卯時上工，酉時下工，三十年如一日。退休那天你領了養老銀，回鄉種了兩畝地。\n偶爾抬頭看見天上有人御劍飛過，你會想：那也挺累的吧。']}[S.ending];
  const rec={name:S.name,realm:REALMS[S.realm].n,age:S.age,goal:gt,seed:S.seed};
  $('eTag').textContent='終章';$('eTag').className='tag lgd';
  $('eTitle').textContent='';$('eDesc').innerHTML='';
