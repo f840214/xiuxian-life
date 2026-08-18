@@ -1233,7 +1233,7 @@ EV.push(...EV9);
 
 /* ===================== 坊市（商店） ===================== */
 const SHOP=[
- {id:'qi',ic:'💊',n:'聚氣丹',d:()=>`修為 +${fmt(Math.round(REALMS[S.realm].need*.15))}（本境需求 15%）`,price:()=>Math.round(REALMS[S.realm].need*.35),limit:2,buy:()=>{S.cul+=Math.round(REALMS[S.realm].need*.15)}},
+ {id:'qi',ic:'💊',n:'聚氣丹',d:()=>{const e=qiEff();return`修為 +${fmt(Math.round(REALMS[S.realm].need*e))}（本境需求 ${Math.round(e*100)}%）。同一境界內每多服一顆效果 ×0.85（丹藥抗性），突破後重置。`},price:()=>Math.round(REALMS[S.realm].need*.35),limit:2,buy:()=>{S.cul+=Math.round(REALMS[S.realm].need*qiEff());S.shop.qiN=(S.shop.qiN||0)+1}},
  {id:'hui',ic:'❤️',n:'回春丹',d:()=>'體魄回滿、心魔 -15',price:()=>Math.round(REALMS[S.realm].need*.25),limit:1,buy:()=>{S.hp=100;S.stress=Math.max(0,S.stress-15)}},
  {id:'qing',ic:'🧘',n:'清心丹',d:()=>'心魔 -30',price:()=>Math.round(REALMS[S.realm].need*.2),limit:2,buy:()=>{S.stress=Math.max(0,S.stress-30)}},
  {id:'wen',ic:'🎋',n:'法寶溫養',d:()=>'六維各 +1（受資質上限限制）',price:()=>Math.round(REALMS[S.realm].need*.6),limit:1,buy:()=>{AK.forEach(k=>addStat(k,1))}},
@@ -1243,16 +1243,17 @@ const SHOP=[
  {id:'life',ic:'⏳',n:'延壽丹',d:()=>`壽元 +${Math.round(REALMS[S.realm].life*.04)}（每境限購一次）`,price:()=>Math.round(REALMS[S.realm].need*1.5),limit:1,min:3,max:()=>!!S.shop.lifeBought[S.realm],buy:()=>{S.life+=Math.round(REALMS[S.realm].life*.04);S.shop.lifeBought[S.realm]=1}},
  {id:'dice',ic:'🎲',n:'骰盅',d:()=>'一次性。天機賭局出現率翻倍（永久）',price:()=>Math.round(REALMS[S.realm].need*.5),limit:1,max:()=>S.shop.dice>0,buy:()=>{S.shop.dice=1}},
 ];
+const qiEff=()=>Math.max(.05,.15*Math.pow(.85,S.shop.qiN||0));
 function shopPrice(it){let p=it.price();if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);return p}
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
 function closeShop(){$('shop').classList.remove('on');render()}
 function renderShop(){
- $('shopSub').textContent=`身上靈石 ${fmt(S.stone)}。價格隨境界（${REALMS[S.realm].n}）浮動；每年有限購。買東西不耗行動點。`;
+ $('shopSub').textContent=`身上靈石 ${fmt(S.stone)}。價格隨境界（${REALMS[S.realm].n}）浮動；每回合有限購。買東西不耗行動點。`;
  $('shopList').innerHTML=SHOP.map(it=>{
   if(it.min&&S.realm<it.min)return'';
   const p=shopPrice(it),used=S.shop.buys[it.id]||0,maxed=it.max&&it.max();
   const dis=maxed||used>=it.limit||S.stone<p;
-  return`<div class="si"><div class="ic">${it.ic}</div><div class="tx"><b>${it.n}</b><i>${it.d()}${it.limit>1?`　（本年 ${used}/${it.limit}）`:''}</i></div><button class="buy" ${dis?'disabled':''} onclick="buyItem('${it.id}')">${maxed?'已滿':used>=it.limit?'今年已購':fmt(p)+' 靈石'}</button></div>`}).join('');
+  return`<div class="si"><div class="ic">${it.ic}</div><div class="tx"><b>${it.n}</b><i>${it.d()}${it.limit>1?`　（本回合 ${used}/${it.limit}）`:''}</i></div><button class="buy" ${dis?'disabled':''} onclick="buyItem('${it.id}')">${maxed?'已滿':used>=it.limit?'本回合已購':fmt(p)+' 靈石'}</button></div>`}).join('');
 }
 function buyItem(id){const it=SHOP.find(x=>x.id===id);const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
 
@@ -1366,7 +1367,7 @@ function breakthrough(){
   log(`🌟 突破成功！晉入 ${REALMS[S.realm].n}，壽元增至 ${fmt(S.life)}。`);ach();
   showRes(true,`天地靈氣灌體，你成功晉入 ${REALMS[S.realm].n}！`,['壽元+'+fmt(REALMS[S.realm].life-Rm.life),'六維全面提升','體魄回滿']);
   if(S.ghost){const g=S.ghost.curve.find(c=>c[1]>=S.realm);if(!g||g[0]>S.age)S.flags.ghostBeat=true}
-  recordCurve();offerFruits();S.phase=3;
+  if(S.shop)S.shop.qiN=0;recordCurve();offerFruits();S.phase=3;
   $('ePicks').innerHTML=`<button class="btn brk" onclick="renderFruitPick()">🍑 選擇道果 →</button>`;save();
   $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);return;
  }else{
