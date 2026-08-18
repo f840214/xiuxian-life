@@ -1244,7 +1244,8 @@ const SHOP=[
  {id:'dice',ic:'🎲',n:'骰盅',d:()=>'一次性。天機賭局出現率翻倍（永久）',price:()=>Math.round(REALMS[S.realm].need*.5),limit:1,max:()=>S.shop.dice>0,buy:()=>{S.shop.dice=1}},
 ];
 const qiEff=()=>Math.max(.05,.15*Math.pow(.85,S.shop.qiN||0));
-function shopPrice(it){let p=it.price();if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);return p}
+const FLOOR={qi:120,hui:90,qing:70,wen:200,vein:600,alch:900,guard:400,life:500,dice:180};
+function shopPrice(it){let p=Math.max(it.price(),Math.round((FLOOR[it.id]||0)*Math.pow(S.realm+1,1.5)));if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);return p}
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
 function closeShop(){$('shop').classList.remove('on');render()}
 function renderShop(){
@@ -1257,13 +1258,22 @@ function renderShop(){
 }
 function buyItem(id){const it=SHOP.find(x=>x.id===id);const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
 
+
+const EV10=[
+{id:'broke',realm:[0,1,2,3],w:14,cond:s=>(s.flags.broke||0)>0&&s.stone<50,tag:'dgr',t:'💸 囊中羞澀',d:()=>`${S.sect&&S.sect!=='own'?'執事堂來人催繳月例，說再拖就停你的功法傳授。':'房東把你的行李丟到門外，說要看見錢。'}你翻遍儲物袋，連一顆完整的靈石都沒有。`,
+ opts:[{b:'去礦洞打一年工',cs:['靈石+','根骨+','時間'],r:()=>{S.flags.broke=0;S.stone+=120*(S.realm+1);addStat('body',2);S.hp-=8;return[true,'一年後你帶著滿手繭和一小袋靈石回來。',['靈石+'+120*(S.realm+1),'根骨+2','體魄-8']]}},
+ {b:'典當隨身之物',cs:['失去一件物品','靈石+'],r:()=>{S.flags.broke=0;if(S.items.length){const it=S.items.shift();S.stone+=300*(S.realm+1);return[true,`你當掉了「${it}」。當鋪老闆笑得很開心。`,['失去'+it,'靈石+'+300*(S.realm+1)]]}S.stone+=60;addStat('mind',1);return[false,'你身上根本沒有值錢的東西。當鋪老闆給了六十靈石買你那件外袍。',['靈石+60']]}},
+ {b:'厚著臉皮賒',cs:['名望-','心魔+'],r:()=>{S.fame=Math.max(0,S.fame-60);S.stress+=8;return[false,'賒是賒到了，但坊市裡都在傳你窮到還不起月例。',['名望-60','心魔+8']]}}]},
+];
+EV.push(...EV10);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.035+S.stat.insight/2000+(S.master?.015:0)));S.cul+=g;S.stress+=7;return`修為+${g}`}},
  {id:'train',n:'💪 錘鍊肉身',c:'根骨+ · 體魄+',f:()=>{const a=addStat('body',rr(1,3));S.hp=clamp(S.hp+8,0,100);return`${a?'根骨+'+a:'根骨已達上限'}、體魄+8`}},
  {id:'read',n:'📚 研讀典籍',c:'悟性/神識+',f:()=>{const k=rnd()<.5?'insight':'spirit';const a=addStat(k,rr(1,3));return a?`${AN[k]}+${a}`:`${AN[k]}已達上限`}},
  {id:'wander',n:'🌄 遊歷紅塵',c:'心境/氣運+ · 心魔-',f:()=>{const k=rnd()<.5?'mind':'luck';const a=addStat(k,rr(1,3));S.stress=Math.max(0,S.stress-12);return`${a?AN[k]+'+'+a:AN[k]+'已達上限'}、心魔-12`}},
- {id:'work',n:'💰 接任務賺靈石',c:'靈石+ · 人脈+',f:()=>{const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1);S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`}},
+ {id:'work',n:'💰 接任務賺靈石',c:'靈石+ · 人脈+',f:()=>{const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1);S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`}},
  {id:'rest',n:'🛌 靜養',c:'體魄+ · 心魔-',f:()=>{S.hp=clamp(S.hp+25,0,100);S.stress=Math.max(0,S.stress-15);return'體魄+25、心魔-15'}},
 ];
 
@@ -1324,7 +1334,7 @@ function pickEvent(){
  let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'))}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));if(S.shop&&S.shop.guardUntil>S.age)w*=.5}tot+=w;return w});
  let x=rnd()*tot;for(let i=0;i<pool.length;i++){x-=ws[i];if(x<=0)return pool[i]}return pool[pool.length-1];
 }
-function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S._culBefore=S.cul;S.cd[e.id]=S.age+(S.realm===0?9:4);render()}
+function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S._culBefore=S.cul;S._stoneBefore=S.stone;S.cd[e.id]=S.age+(S.realm===0?9:4);render()}
 function renderEvent(){
  $('ePicks').className='picks';
  if(S.evId==='dice'){renderDice();return}
@@ -1336,7 +1346,7 @@ function renderEvent(){
 }
 function doOpt(i){
  const e=EV.find(x=>x.id===S.evId);const opts=typeof e.opts==='function'?e.opts():e.opts;
- S.step++;reseed();const cb=S._culBefore??S.cul;const [win,txt,cs]=opts[i].r();if(S.cul>cb)S.cul=Math.round(cb+(S.cul-cb)*(S.realm>=5?.45:.6));
+ S.step++;reseed();const cb=S._culBefore??S.cul,sb=S._stoneBefore??S.stone;const [win,txt,cs]=opts[i].r();if(S.realm<=2&&S.stone>sb)S.stone=Math.round(sb+(S.stone-sb)*.6);if(S.cul>cb)S.cul=Math.round(cb+(S.cul-cb)*(S.realm>=5?.45:.6));
  log(`${typeof e.t==='function'?e.t():e.t}｜${opts[i].b} → ${txt}`);
  showRes(win,txt,cs);
  S.phase=2;
@@ -1354,7 +1364,7 @@ function renderYearEnd(){
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`:'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.12,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.12));
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(S.realm===0?.25:S.realm===1?.15:S.realm===2?.08:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/250-(S.realm*.045)+(S.type==='heart'?.1:0)+(S.dao?.05:0)+(S.master?.05:0);if(S.items.includes('護身符'))r+=.05;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.05;const cap=S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(S.realm===0?.25:S.realm===1?.15:S.realm===2?.08:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/250-(S.realm*.045)+(S.type==='heart'?.1:0)+(S.dao?.05:0)+(S.master?.05:0);if(S.items.includes('護身符'))r+=.05;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.05;const cap=S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];
  if(S.realm===9){ // 渡劫
@@ -1394,6 +1404,7 @@ function nextYear(){
  if(S.type==='sys'&&S.flags.sysWake&&!S.flags.sysRebel){S.sys.pts+=2}
  S.stone+=B('stone')*(S.realm+1);S.cul+=Math.round(REALMS[S.realm].need*B('cul'));S.stress=clamp(S.stress-B('calm'),0,100);S.karma+=B('karma');S.hp=clamp(S.hp+B('hp'),0,100);S.fame=Math.max(0,S.fame+B('fame')*(S.realm+1));
  recordCurve();
+ {const up=Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'?1.3:1));if(S.stone>=up){S.stone-=up}else{S.stone=0;S.flags.broke=(S.flags.broke||0)+1;S.stress+=5;log(`💸 ${S.sect&&S.sect!=='own'?'宗門月例':'生活開銷'}付不出來（需 ${up} 靈石），只能賒帳。`)}}
  S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};S.shop.buys={};
  if(S.shop.vein)S.cul+=Math.round(REALMS[S.realm].need*.02*S.shop.vein);
  if(S.shop.alch)S.stone+=300*S.shop.alch*(S.realm+1);
