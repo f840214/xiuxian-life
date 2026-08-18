@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
-<title>修仙人生模擬器 V0.6</title>
+<title>修仙人生模擬器 V0.7</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
 <style>
 :root{--bg:#0b0f14;--bg2:#10161e;--card:#161e29;--line:#26313f;--line2:#354355;
@@ -183,7 +183,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 0 . 6</div>
+  <div class="en">X I A N　L I F E　V 0 . 7</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -452,6 +452,8 @@ const ACH=[
  {id:'fruit3',n:'🍑 三果在身',chk:s=>s.fruits.length>=3},
  {id:'shop1',n:'🏪 坊市常客',chk:s=>(s.flags.shopSpent||0)>=100000},
  {id:'vein5',n:'🏔️ 坐擁靈脈',chk:s=>s.shop&&s.shop.vein>=5},
+ {id:'coupWin',n:'👑 篡位者',chk:s=>s.flags.coupWin},
+ {id:'coupFail',n:'🐕 我是宗門的狗',chk:s=>(s.flags.coupFail||0)>=1},
  {id:'work',n:'🧾 打工人的一生',chk:s=>s.flags.workLife},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
@@ -1266,6 +1268,14 @@ const EV10=[
  {b:'厚著臉皮賒',cs:['名望-','心魔+'],r:()=>{S.fame=Math.max(0,S.fame-60);S.stress+=8;return[false,'賒是賒到了，但坊市裡都在傳你窮到還不起月例。',['名望-60','心魔+8']]}}]},
 ];
 EV.push(...EV10);
+
+
+const EV11=[
+{id:'coup',realm:[1,2,3,4,5,6,7,8],w:8,cond:s=>!!s.sect&&s.sect!=='own'&&!s.flags.leader&&s.stone>=15000,tag:'dgr',t:'👑 篡位',d:()=>`你在 ${sectName(S)} 待得夠久了，也攢了足夠的靈石。掌門年邁，長老各懷心思——只要買通執法堂、收買半數長老，再在大典上發難，掌門之位就是你的。\n代價：一萬五千靈石。成功率……大約一成。`,
+ opts:[{b:'發動篡位（成功率 10%，失敗扣 15,000 靈石）',cs:['⚠️ 高風險','靈石 15000'],r:()=>{if(rnd()<.10){S.flags.leader=true;S.flags.coupWin=true;S.fame+=8000;S.karma-=15;S.stone+=20000;return[true,`大典之上，你一劍架在老掌門頸間。長老們面面相覷，最後齊齊躬身：「參見掌門。」\n你成了 ${sectName(S)} 的新掌門。`,['成為掌門','名望+8000','因果-15','靈石+20000（宗門庫房）']]}S.stone-=15000;S.flags.coupFail=(S.flags.coupFail||0)+1;S.stress+=15;S.fame=Math.max(0,S.fame-500);return[false,'我是宗門的狗',['靈石-15000','心魔+15','名望-500']]}},
+ {b:'再忍忍',cs:['—'],r:()=>{addStat('mind',1);return[true,'時機未到。你把念頭壓了下去。',['心境+1']]}}]},
+];
+EV.push(...EV11);
 
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
