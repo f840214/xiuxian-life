@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
-<title>修仙人生模擬器 V0.5</title>
+<title>修仙人生模擬器 V0.6</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
 <style>
 :root{--bg:#0b0f14;--bg2:#10161e;--card:#161e29;--line:#26313f;--line2:#354355;
@@ -183,7 +183,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 0 . 5</div>
+  <div class="en">X I A N　L I F E　V 0 . 6</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -460,20 +460,20 @@ function ach(){let n=0;ACH.forEach(a=>{if(!S.ach.includes(a.id)&&a.chk(S)){S.ach
 
 /* ===================== 成就 → 稱號 → 被動 ===================== */
 const ACH_BUFF={
- fail3:{t:'不折',d:'突破率 +3%',brk:.03},
- fail5:{t:'百折不撓',d:'突破率再 +3%',brk:.03},
- tribu:{t:'雷劫餘生',d:'突破率 +2%、根骨檢定 +3',brk:.02,chkK:{body:3}},
+ fail3:{t:'不折',d:'突破率 +2%',brk:.02},
+ fail5:{t:'百折不撓',d:'突破率再 +2%',brk:.02},
+ tribu:{t:'雷劫餘生',d:'突破率 +1%、根骨檢定 +3',brk:.01,chkK:{body:3}},
  saint:{t:'大善人',d:'機緣事件出現率 +25%、每年心魔 -2',accW:.25,calm:2},
  demon:{t:'魔頭',d:'根骨/神識檢定 +4',chkK:{body:4,spirit:4}},
  rival:{t:'斬宿怨者',d:'所有檢定 +2',chk:2},
  master:{t:'名師高徒',d:'每年額外修為 +2%',cul:.02},
- lv_dao:{t:'比翼',d:'每年心魔 -3、突破率 +2%',calm:3,brk:.02},
+ lv_dao:{t:'比翼',d:'每年心魔 -3、突破率 +1%',calm:3,brk:.01},
  fame1:{t:'小有名氣',d:'每年靈石 +100×境界',stone:100},
  fame2:{t:'名動天下',d:'人脈檢定 +6',chkK:{social:6}},
  stone2:{t:'散財童子',d:'人脈檢定 +3、每年靈石 +200×境界',chkK:{social:3},stone:200},
  dice5:{t:'賭神',d:'天機賭局永久可偷看一顆骰',peek:1},
  sys_face:{t:'裝逼之王',d:'人脈檢定 +4、機緣事件 +10%',chkK:{social:4},accW:.1},
- turtle:{t:'龜仙',d:'突破率 +2%、每年心魔 -2',brk:.02,calm:2},
+ turtle:{t:'龜仙',d:'突破率 +1%、每年心魔 -2',brk:.01,calm:2},
  allA:{t:'六藝通神',d:'所有檢定 +3',chk:3},
  noKill:{t:'不沾殺孽',d:'機緣事件 +15%、心境檢定 +4',accW:.15,chkK:{mind:4}},
  ten:{t:'桃李滿門',d:'每年靈石 +200×境界、人脈檢定 +2',stone:200,chkK:{social:2}},
@@ -1122,10 +1122,10 @@ const FRUITS=[
  {id:'jianxin',n:'⚔️ 劍心通明',d:'根骨檢定 +5；心境檢定 -2',chkK:{body:5,mind:-2}},
  {id:'yiye',n:'🍃 一葉障目',d:'凶險事件 -40%；機緣事件 -25%',dgrW:-.4,accW:-.25},
  {id:'caimi',n:'💰 財迷心竅',d:'每年靈石 +300×境界；每年因果 -1',stone:300,karma:-1},
- {id:'daqi',n:'🐢 大器晚成',d:'每年修為 +4%；突破率 -4%',cul:.04,brk:-.04},
+ {id:'daqi',n:'🐢 大器晚成',d:'每年修為 +4%；突破率 -3%',cul:.04,brk:-.03},
  {id:'fangu',n:'🔥 天生反骨',d:'所有檢定 +2；每年心魔 +2',chk:2,calm:-2},
  {id:'jingshui',n:'🌊 靜水流深',d:'每年心魔 -4；機緣事件 -10%',calm:4,accW:-.1},
- {id:'mingying',n:'🪨 命硬',d:'壽元 +15%（立即）；突破率 -2%',lifeP:.15,brk:-.02},
+ {id:'mingying',n:'🪨 命硬',d:'壽元 +15%（立即）；突破率 -1%',lifeP:.15,brk:-.01},
  {id:'tanbei',n:'🍶 貪杯',d:'人脈檢定 +3、每年心魔 -3；悟性檢定 -3',chkK:{social:3,insight:-3},calm:3},
  {id:'cibei',n:'🙏 慈悲為懷',d:'每年因果 +2；每年靈石 -100×境界',karma:2,stone:-100},
  {id:'shafa',n:'🗡️ 殺伐果斷',d:'根骨/神識檢定 +3；每年因果 -1',chkK:{body:3,spirit:3},karma:-1},
@@ -1136,8 +1136,8 @@ const FRUITS=[
  {id:'guangjie',n:'🤝 廣結善緣',d:'人脈檢定 +5；每年靈石 -50×境界',chkK:{social:5},stone:-50},
  {id:'biguan',n:'🧘 閉關狂',d:'每年修為 +3%；每年心魔 +3',cul:.03,calm:-3},
  {id:'fuxing',n:'🌟 福星高照',d:'氣運檢定 +4；人脈檢定 -1',chkK:{luck:4,social:-1}},
- {id:'nilin',n:'🐉 逆鱗',d:'突破失敗不折壽；突破率 -2%',noLifeLoss:1,brk:-.02},
- {id:'dunwu',n:'💡 頓悟體質',d:'突破率 +5%；壽元 -5%（立即）',brk:.05,lifeP:-.05},
+ {id:'nilin',n:'🐉 逆鱗',d:'突破失敗不折壽；突破率 -1%',noLifeLoss:1,brk:-.01},
+ {id:'dunwu',n:'💡 頓悟體質',d:'突破率 +3%；壽元 -5%（立即）',brk:.03,lifeP:-.05},
  {id:'lingshi',n:'👃 靈石鼻',d:'每年靈石 +200×境界；機緣事件 -5%',stone:200,accW:-.05},
  {id:'zhishui',n:'🕯️ 心如止水',d:'每年心魔 -5；所有檢定 -1',calm:5,chk:-1},
  {id:'xingdong',n:'⚡ 雷厲風行',d:'行動點 +1（立即）；每年心魔 +2',ap:1,calm:-2},
@@ -1360,11 +1360,11 @@ function renderYearEnd(){
  const Rm=REALMS[S.realm];const can=S.cul>=Rm.need&&S.realm<10;
  const rate=can?brkRate():0;
  $('eTitle').textContent=can?`修為圓滿，可嘗試突破至「${REALMS[S.realm+1].n}」`:'又是一年';
- $('eDesc').textContent=can?`突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +12%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`;
+ $('eDesc').textContent=can?`突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`;
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`:'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
-const overflowBonus=()=>Math.min(.12,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.12));
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/250-(S.realm*.045)+(S.type==='heart'?.1:0)+(S.dao?.05:0)+(S.master?.05:0);if(S.items.includes('護身符'))r+=.05;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.05;const cap=S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
+const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/250-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;const cap=S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];
  if(S.realm===9){ // 渡劫
