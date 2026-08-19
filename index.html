@@ -193,6 +193,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 .si .tx{flex:1;min-width:0}.si .tx b{display:block;font-size:.9rem}.si .tx i{display:block;font-style:normal;font-size:.72rem;color:var(--sub);line-height:1.5}
 .si .buy{flex:0 0 auto;min-width:96px;padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(100deg,#8a6d1f,var(--gold));color:#1a1400;font:inherit;font-weight:900;font-size:.78rem;cursor:pointer;text-align:center}
 .si .buy:disabled{opacity:.4;cursor:not-allowed}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.8rem;align-items:center}.kv span{color:var(--dim)}.kv b{color:var(--txt);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -203,7 +204,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 2 . 3</div>
+  <div class="en">X I A N　L I F E　V 2 . 4</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1680,6 +1681,22 @@ function sideQuest(id){const arr=SIDEQUEST[id];if(!arr||rnd()>=.12)return'';retu
 function repeatLast(){if(!S.lastActs||!S.lastActs.length)return;for(const i of S.lastActs){if(S.ap<=0)break;doAct(i,true)}render()}
 function allCul(){while(S.ap>0)doAct(0,true);render()}
 
+
+/* ===================== 持有物說明 ===================== */
+const ITEM_INFO={
+ '護身符':['🧿','突破率 +3%'],'陣法心得':['🧭','解陣類檢定 +10（前輩遺府）'],'禁制':['🔒','「閉關被擾」可直接擋下'],'戰傀':['🪆','「閉關被擾」可直接擋下'],'靈獸':['🥚','「閉關被擾」可擋；日後可能化形為幫手'],'妖獸之友':['🐺','「閉關被擾」可直接擋下'],
+ '墨玉小瓶':['🍶','每回合靈石 +150×境界；觸發催熟靈藥事件'],'無字天書':['📜','每回合修為 +2%；觸發天書新篇事件'],'龍珠':['🐉','凡人期吞服所得，根骨已加成'],'龍鱗':['🐲','助蛟化龍之證，名望已加成'],'龍之逆鱗':['🐲','真龍所贈'],
+ '祖師遺劍':['⚔️','萬劍宗傳承，神識/悟性已加成'],'鋒劍':['🗡️','劍塚所選，根骨已加成'],'古劍':['🗡️','斷崖下認主之劍'],'殘劍':['🗡️','血煞古戰場所得'],'名劍青霜':['🗡️','坊市名劍：行動點 +1（已生效）'],
+ '靈鷹':['🦅','千里傳訊之伴'],'老狗':['🐕','陪伴多年（會觸發相關事件）'],'崖底傳承':['📖','跳崖所得功法'],'石上刻文':['🪨','夢中所得吐納法'],'三十年前的包裹':['📦','來歷不明'],
+ '上古法寶':['✨','上古秘境所得'],'異界靈物':['🌀','虛空裂縫所得'],'仙城令':['🏰','天空之城路標'],'仙盟令':['📯','仙盟徵召之功'],'神格碎片':['⚰️','葬神所得'],'開局神器・弒神槍':['🔱','系統開局神器'],'SSR・混沌鐘':['🔔','系統 SSR'],'SSR・誅仙劍陣圖':['🗺️','系統 SSR'],'SSR・崑崙鏡':['🪞','系統 SSR'],'SSR・東皇鐘':['🔔','系統 SSR'],
+ '前任遺書':['📜','前任宿主的警告'],'魚吐珠':['🔮','放生池金魚所贈'],'靈光珠':['💡','燈謎彩頭'],'古銅鏡':['🪞','照不出人的鏡子'],'隕鐵':['☄️','流星所落'],'天外隕鐵':['☄️','流星群所得'],'雷精':['⚡','煉入法寶可增威'],'鳳凰羽':['🪶','夜裡發光，氣運已加成'],'鳳羽法寶':['🔥','帶火之器'],'千年樹心':['🌳','古樹樹心（因果已扣）'],'血煉魔器':['🩸','魔道法寶，神識已加成'],
+ '護身甲':['🛡️','藏寶閣靈甲'],'玄武甲':['🐢','天下無雙的護身甲'],'大能遺物':['📿','前輩遺府所得'],'撿漏法器':['🔍','坊市撿漏'],'陶匠的碗':['🏺','用了幾百年都沒破'],'琴譜':['🎶','心煩時可彈'],'念珠':['📿','老僧遺物'],'舍利':['🕯️','已消心魔 15'],'半塊玉佩':['🪙','刻著奇怪紋路'],'仙人玉符':['🧧','危急時捏碎（劇情向）'],'鐘紋玉簡':['🔔','上古鐘下所得'],'天書殘頁':['📜','字會動的紙'],'娘的棉衣':['🧥','穿了很多年'],'老怪的洞府':['🏠','賭約贏來的洞府'],'長老贈禮':['🎁','謝絕入門的交情'],
+ '渡劫護命符':['🧧','渡劫失敗保命一次'],'開光玉佩':['🧿','氣運 +5、強盜機率減半（已生效）'],'紫金丹爐':['🔥','聚氣丹 +50%、丹房 +50%（已生效）'],'靜心蒲團':['🪷','每回合心魔 −4（已生效）'],
+};
+const itemInfo=n=>ITEM_INFO[n]||(n.endsWith('的法寶')?['💞','道侶親手所煉']:['📦','紀念之物']);
+const ITEM_NOTE='所有持有物皆可在天雷／小天劫事件中犧牲一件擋災，或在囊中羞澀時典當。';
+function itemChips(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<span class="chip c-neu" title="${esc(d)}" style="cursor:help">${ic} ${esc(n)}</span>`}).join(' ')}
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06)*(DEMON(S)?1.3:1)*W('cul'));S.cul+=g;if(!W('noStress',0))S.stress+=7;return`修為+${g}`+sideQuest('cul')}},
@@ -1701,7 +1718,7 @@ function renderSide(){
  $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,lifeWarn()?'f-bad':'f-blu',`${S.age} / ${fmt(S.life)}${S.realm<10?`　<span style="color:${lifeWarn()?'var(--red)':'var(--dim)'};font-weight:400">約 ${turnsLeft()} 回合</span>`:''}`);
  $('mindBars2').innerHTML=$('mindBars').innerHTML;
  const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
- $('sideInfo').innerHTML=`名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}<br>${S.master?'師承 '+S.master+'<br>':''}${S.dao?'💞 '+S.dao+'<br>':S.love?LV().ic+' '+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.ghost?'⚔️ 宿敵 '+esc(S.ghost.n)+'<br>':''}${S.items.length?'持有 '+S.items.slice(-4).join('、'):''}`;
+ $('sideInfo').innerHTML=`<div class="kv"><span>📯 名望</span><b>${fmt(S.fame)}</b><span>☯️ 因果</span><b style="color:${S.karma>=0?'var(--jade)':'var(--red)'}">${S.karma>0?'+':''}${S.karma}</b>${S.master?`<span>🙇 師承</span><b>${esc(S.master)}</b>`:''}${S.dao?`<span>💞 道侶</span><b>${esc(S.dao)}</b>`:S.love?`<span>${LV().ic} 心上人</span><b>${esc(LV().n)}（${S.love.aff}）</b>`:''}${S.ghost?`<span>⚔️ 宿敵</span><b>${esc(S.ghost.n)}</b>`:''}${S.flags.disciples?`<span>🧒 徒弟</span><b>${S.flags.disciples} 人</b>`:''}</div>${S.items.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px">${itemChips(S.items.slice(-8))}${S.items.length>8?`<span class="chip c-neu">…共 ${S.items.length} 件</span>`:''}</div>`:''}`;
  $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。';
 }
 function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}const l2=$('s2Life');if(l2)l2.style.color=lifeWarn()?'var(--red)':'';}
@@ -1725,7 +1742,7 @@ function render(){
  const tl=S.ach.filter(id=>ACH_BUFF[id]).map(id=>`<span class="chip c-mon" title="${esc(ACH_BUFF[id].d)}">${esc(ACH_BUFF[id].t)}</span>`).join(' ');
  const fr=S.fruits.map(id=>{const f=FRUITS.find(x=>x.id===id);return f?`<span class="chip c-dif" title="${esc(f.d)}">${esc(f.n)}</span>`:''}).join(' ');
  const gh=S.ghost?(()=>{const g=ghostAt(S.age);return`<div style="margin:8px 0;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#0d131b">⚔️ 宿敵 <b>${esc(S.ghost.n)}</b>　${g.ended?'（'+(g.lost?'杳無音訊':'已'+({ascend:'飛升',trib:'隕落',old:'坐化',hurt:'殞落',retire:'歸隱',work:'退休'}[S.ghost.end.ending]||'結束'))+'）':`同齡時：${REALMS[g.realm].n}・綜合 ${g.ovr}　<span style="color:${g.realm>S.realm?'var(--red)':g.realm<S.realm?'var(--jade)':'var(--gold)'}">${g.realm>S.realm?'▲ 領先你':g.realm<S.realm?'▼ 落後你':'＝ 並駕齊驅'}</span>`}<br><span style="font-size:.72rem;color:var(--dim)">對決 勝 ${S.flags.ghostWins||0}／敗 ${S.flags.ghostLoss||0}</span></div>`})():'';
- $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LV().ic+' 心上人：'+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${DEMON(S)?'<span style="color:var(--red)">⚫ 已墮魔道</span>（閉關 +30%、突破 +6%；每回合心魔 +4、因果 −2；坊市 ×1.2；天劫加重）<br>':S.flags.redeemed?'🕊️ 曾入魔道，已回頭<br>':''}${(S.shop&&(S.shop.vein||S.shop.alch||S.shop.guardUntil>S.age))?'🏪 產業：'+[S.shop.vein?'靈脈 Lv.'+S.shop.vein:'',S.shop.alch?'丹房 Lv.'+S.shop.alch:'',S.shop.guardUntil>S.age?'護法至 '+S.shop.guardUntil+' 歲':''].filter(Boolean).join('、')+'<br>':''}${S.type==='sword'?'⚔️ 劍意 '+(S.flags.swordQi||0)+' 點（每 3 點突破 +1%，≥5 可劍意破境）<br>':S.type==='alch'?'⚗️ 丹道 '+['未入品','一品','二品','三品'][danLv()]+'（煉丹成功 '+(S.flags.danOk||0)+' 次）<br>':S.type==='phys'?'🪨 金身 '+['未成','一重','二重','三重'][goldBody()]+'（體魄上限 '+hpMax()+'）<br>':S.type==='heart'?'🕯️ 道心 '+(S.flags.daoxin||0)+'（心境上限已 +'+(S.flags.daoxinCap||0)+'）<br>':S.type==='fate'?'🍀 天命骰：檢定擲兩次取優<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?'持有：'+S.items.join('、'):''}`;
+ $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LV().ic+' 心上人：'+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${DEMON(S)?'<span style="color:var(--red)">⚫ 已墮魔道</span>（閉關 +30%、突破 +6%；每回合心魔 +4、因果 −2；坊市 ×1.2；天劫加重）<br>':S.flags.redeemed?'🕊️ 曾入魔道，已回頭<br>':''}${(S.shop&&(S.shop.vein||S.shop.alch||S.shop.guardUntil>S.age))?'🏪 產業：'+[S.shop.vein?'靈脈 Lv.'+S.shop.vein:'',S.shop.alch?'丹房 Lv.'+S.shop.alch:'',S.shop.guardUntil>S.age?'護法至 '+S.shop.guardUntil+' 歲':''].filter(Boolean).join('、')+'<br>':''}${S.type==='sword'?'⚔️ 劍意 '+(S.flags.swordQi||0)+' 點（每 3 點突破 +1%，≥5 可劍意破境）<br>':S.type==='alch'?'⚗️ 丹道 '+['未入品','一品','二品','三品'][danLv()]+'（煉丹成功 '+(S.flags.danOk||0)+' 次）<br>':S.type==='phys'?'🪨 金身 '+['未成','一重','二重','三重'][goldBody()]+'（體魄上限 '+hpMax()+'）<br>':S.type==='heart'?'🕯️ 道心 '+(S.flags.daoxin||0)+'（心境上限已 +'+(S.flags.daoxinCap||0)+'）<br>':S.type==='fate'?'🍀 天命骰：檢定擲兩次取優<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?`<div style="margin-top:8px"><div class="ct" style="margin-bottom:6px">持有物（${S.items.length}）</div><div style="display:flex;flex-wrap:wrap;gap:5px">${itemChips(S.items)}</div><div class="hint">滑鼠移到物品上可看效果。${ITEM_NOTE}</div></div>`:''}`;
  renderHall('hallGrid2');
  $('logBox').innerHTML=S.log.map(l=>`<div class="log"><b>${l.y}歲</b>${esc(l.t)}</div>`).join('')||'<div class="hint">尚無記錄</div>';
  // 舞台
