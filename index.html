@@ -260,7 +260,7 @@ body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c)
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 4 . 1</div>
+  <div class="en">X I A N　L I F E　V 4 . 2</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -985,14 +985,14 @@ const EV4=[
  opts:[{b:'一起喝',cs:['開啟感情線'],r:()=>{S.love={id:'friend',aff:25,met:S.age};addStat('social',2);return[true,'一壺酒喝到天亮。你多了一個朋友——也許不只是朋友。',['遇見顧長歌','人脈+2']]}},
  {b:'酒是我的',cs:['—'],r:()=>[true,'你一個人喝完了。有點寂寞。',[R('mind',1)]]}]},
 /* 相處（通用，帶對象文字） */
-{id:'lv_gift',realm:[0,1,2,3,4,5,6],w:12,cond:s=>!!s.love&&!s.dao,tag:'',t:()=>`${LV().ic} 給${LV().n}的禮物`,d:()=>`${LV().n}的生辰快到了。你想送點什麼。`,
+{id:'lv_gift',realm:[0,1,2,3,4,5,6,7,8,9],w:22,cond:s=>!!s.love&&!s.dao,tag:'',t:()=>`${LV().ic} 給${LV().n}的禮物`,d:()=>`${LV().n}的生辰快到了。你想送點什麼。`,
  opts:[{b:'花大錢買珍稀之物',cs:['靈石-','好感+'],r:()=>{const c=200*(S.realm+1);S.stone-=c;const a=aff(LV().id==='mortal'?8:15);return[true,`${LV().n}收下了，${LV().id==='mortal'?'但說「太貴重了，以後別這樣」。':'眼睛亮了一下。'}`,['靈石-'+c,a]]}},
  {b:'親手做一樣東西',cs:['悟性檢定','好感+'],r:()=>{if(chk('insight',36)){const a=aff(18);return[true,`做得不算好，但${LV().n}一直帶在身上。`,[a,R('mind',1)]]}const a=aff(6);return[false,'做壞了。對方笑了很久，但還是收下了。',[a]]}},
  {b:'忘了',cs:['好感-'],r:()=>{const a=aff(-10);return[false,`${LV().n}沒說什麼。這比說什麼都糟。`,[a]]}}]},
-{id:'lv_side',realm:[0,1,2,3,4,5,6],w:10,cond:s=>!!s.love&&!s.dao,tag:'',t:()=>`${LV().ic} 與${LV().n}同行`,d:()=>({senior:'師姐約你一起下山歷練。路上她話依然很少，但會在岔路口等你。',mortal:'阿川帶你進山打獵，教你看腳印、辨風向。他說山裡的事你不懂的還多著。',demon:'花無眠約你去一處魔道遺跡。「別怕，有我在沒人敢動你。」她說得理所當然。',fox:'白霜拉你去看極光。「八百年了，每年都來，今年第一次帶人。」',friend:'顧長歌拉你去接一個危險任務。「兩個人分，一人一半，划算。」',empress:'洛九幽微服出巡，指名要你隨行。一路上她不說話，只在你替她擋下刺客時多看了你一眼。'}[S.love.id]||`${LV().n}約你同行。`),
+{id:'lv_side',realm:[0,1,2,3,4,5,6,7,8,9],w:20,cond:s=>!!s.love&&!s.dao,tag:'',t:()=>`${LV().ic} 與${LV().n}同行`,d:()=>({senior:'師姐約你一起下山歷練。路上她話依然很少，但會在岔路口等你。',mortal:'阿川帶你進山打獵，教你看腳印、辨風向。他說山裡的事你不懂的還多著。',demon:'花無眠約你去一處魔道遺跡。「別怕，有我在沒人敢動你。」她說得理所當然。',fox:'白霜拉你去看極光。「八百年了，每年都來，今年第一次帶人。」',friend:'顧長歌拉你去接一個危險任務。「兩個人分，一人一半，划算。」',empress:'洛九幽微服出巡，指名要你隨行。一路上她不說話，只在你替她擋下刺客時多看了你一眼。'}[S.love.id]||`${LV().n}約你同行。`),
  opts:[{b:'欣然同行',cs:['好感+','各有收穫'],r:()=>{const a=aff(12);const k=({senior:'body',mortal:'luck',demon:'spirit',fox:'mind',friend:'social',empress:'social'})[S.love.id]||'mind';const g=addStat(k,rr(2,3));S.stress-=8;return[true,'這一路，你們說了很多從沒說過的話。',[a,AN[k]+'+'+g,'心魔-8']]}},
  {b:'閉關要緊',cs:['修為+','好感-'],r:()=>{S.cul+=Math.round(REALMS[S.realm].need*.1);const a=aff(-8);return[true,'你選了修行。對方沒有再約第二次。',['修為+',a]]}}]},
-{id:'lv_misund',realm:[1,2,3,4,5,6],w:8,cond:s=>!!s.love&&!s.dao&&s.love.aff>=40,tag:'dgr',t:()=>`${LV().ic} 誤會`,d:()=>`有人告訴你，${LV().n}背地裡${({senior:'跟另一位師弟走得很近',mortal:'家裡已經在說親',demon:'接近你只是為了宗門的秘笈',fox:'在你洞府裡藏了什麼東西',friend:'把你們一起找到的寶物私吞了',empress:'早已和北域皇子定下婚約'})[S.love.id]||'另有所圖'}。`,
+{id:'lv_misund',realm:[1,2,3,4,5,6,7,8,9],w:8,cond:s=>!!s.love&&!s.dao&&s.love.aff>=40,tag:'dgr',t:()=>`${LV().ic} 誤會`,d:()=>`有人告訴你，${LV().n}背地裡${({senior:'跟另一位師弟走得很近',mortal:'家裡已經在說親',demon:'接近你只是為了宗門的秘笈',fox:'在你洞府裡藏了什麼東西',friend:'把你們一起找到的寶物私吞了',empress:'早已和北域皇子定下婚約'})[S.love.id]||'另有所圖'}。`,
  opts:[{b:'當面問清楚',cs:['心境檢定'],r:()=>{if(chk('mind',40)){const a=aff(15);return[true,'是誤會。說開之後，反而更近了。',[a,R('mind',2)]]}const a=aff(-15);S.stress+=8;return[false,'你問得太衝，吵了一架。',[a,'心魔+8']]}},
  {b:'不問，自己憋著',cs:['心魔+','好感-'],r:()=>{S.stress+=12;const a=aff(-10);return[false,'你們之間多了一層看不見的東西。',['心魔+12',a]]}},
  {b:'選擇相信',cs:['好感+'],r:()=>{const a=aff(10);return[true,'後來證明是造謠。對方知道你沒動搖，很久之後才說「謝謝」。',[a]]}}]},
@@ -1001,7 +1001,7 @@ const EV4=[
  {b:'直接找他打一架',cs:['根骨檢定','名望'],r:()=>{if(chk('body',42)){S.fame+=200;const a=aff(LV().id==='demon'?20:8);S.rival=S.rival||'情敵';return[true,'打贏了。有人覺得你魯莽，有人覺得你帥。',['名望+200',a,'結下樑子']]}S.hp-=25;const a=aff(-5);return[false,'打輸了，還丟臉。',['體魄-25',a]]}},
  {b:'放手成全',cs:['心境+','結束感情線'],r:()=>{S.love=null;addStat('mind',4);S.stress+=10;return[true,'你祝他們幸福。你沒騙人，只是很難。',['心境+4','心魔+10']]}}]},
 /* 表白 */
-{id:'lv_confess',realm:[0,1,2,3,4,5,6],w:16,cond:s=>!!s.love&&!s.dao&&s.love.aff>=60,tag:'acc',t:()=>`${LV().ic} 月下`,d:()=>`月圓之夜，你和${LV().n}並肩坐在崖邊。誰都沒說話。你覺得，是時候了。`,
+{id:'lv_confess',realm:[0,1,2,3,4,5,6,7,8,9],w:30,cond:s=>!!s.love&&!s.dao&&s.love.aff>=60,tag:'acc',t:()=>`${LV().ic} 月下`,d:()=>`月圓之夜，你和${LV().n}並肩坐在崖邊。誰都沒說話。你覺得，是時候了。`,
  opts:[{b:'表白',cs:['好感檢定'],r:()=>{if(rnd()*100<S.love.aff+S.stat.social/4){S.dao=LV().n;S.love.aff=100;S.stress=Math.max(0,S.stress-25);S.flags.loveDao=S.love.id;return[true,`${LV().n}沉默了很久，然後說：「你怎麼這麼慢。」\n你們結為道侶。`,['結為道侶','心魔-25',R('mind',3)]]}const a=aff(-20);S.stress+=15;return[false,`「……再等等吧。」${LV().n}沒有看你。`,[a,'心魔+15']]}},
  {b:'再等等',cs:['—'],r:()=>[true,'月亮落下去了。你什麼也沒說。',[R('mind',1)]]}]},
 {id:'lv_fade',realm:[0,1,2,3,4,5,6],w:8,cond:s=>!!s.love&&!s.dao&&(s.love.aff<=10||(s.love.id==='mortal'&&s.age-s.love.met>=40)),tag:'',t:()=>`${LV().ic} 漸行漸遠`,d:()=>`你已經很久沒見過${LV().n}了。聽說${LV().id==='mortal'?'他成親了':'對方去了很遠的地方'}。`,
@@ -1666,7 +1666,7 @@ const EVC=[
 {id:'c21',realm:[1,2,3,4,5,6],w:6,cond:s=>!!s.dao&&!!s.love,tag:'',t:()=>`💞 與${S.dao}的第一次爭吵`,d:()=>`為了一件小事，你們冷戰了三個月。`,opts:[{b:'先低頭',cs:['好感+','心境+'],r:()=>{S.love.aff=Math.min(100,S.love.aff+8);return[true,'「對不起。」——說出口沒那麼難。',['好感+8',R('mind',2)]]}},{b:'等對方先低頭',cs:['心魔+'],r:()=>{S.love.aff=Math.max(0,S.love.aff-6);S.stress+=8;return[false,'又冷了三個月。',['好感-6','心魔+8']]}}]},
 {id:'c22',realm:[2,3,4,5,6],w:5,cond:s=>!!s.dao&&!!s.love,tag:'acc',t:()=>`💞 ${S.dao}的禮物`,d:()=>`${S.dao}花了三年，親手為你煉了一件法寶。`,opts:[{b:'收下',cs:['法寶','好感+'],r:()=>{S.items.push(`${S.dao}的法寶`);if(S.love)S.love.aff=100;return[true,'不算頂級，卻是你最珍惜的一件。',['獲得道侶法寶','好感滿']]}}]},
 {id:'c23',realm:[3,4,5,6,7],w:4,cond:s=>!!s.dao&&!!s.love,tag:'dgr',t:()=>`💞 ${S.dao}的道心`,d:()=>`${S.dao}的道心出了問題——為了你，${LV().who==='女帝'?'她':'對方'}放棄了太多，開始懷疑自己的路。`,opts:[{b:'陪伴',cs:['心境檢定'],r:()=>chk('mind',46)?[true,'你們一起走了一年，什麼也沒說。回來時，對方的眼睛又亮了。',[R('mind',3),'好感滿',(S.love.aff=100,'')].filter(Boolean)]:[false,'你不知道怎麼幫。你們之間多了一道牆。',[X_(10),'好感-10',(S.love.aff-=10,'')].filter(Boolean)]},{b:'放手讓對方去追自己的道',cs:['心境+','可能失去道侶'],r:()=>rnd()<.5?[true,'對方走了三十年，回來時已經與你同境。',[R('mind',4),'好感滿',(S.love.aff=100,'')].filter(Boolean)]:[false,'對方走了，沒有回來。',[R('mind',3),X_(20),(S.dao=null,S.love=null,S.flags.loveDao=null,'失去道侶')]]}]},
-{id:'c24',realm:[1,2,3,4],w:5,cond:s=>!!s.love&&!s.dao&&s.love.aff>=40,tag:'',t:()=>`${LV().ic} 一起看的日出`,d:()=>`你們在山頂坐了一夜，等日出。`,opts:[{b:'什麼也不說',cs:['好感+'],r:()=>{S.love.aff=Math.min(100,S.love.aff+10);S.stress-=8;return[true,'太陽出來的那一刻，你覺得不用說什麼。',['好感+10','心魔-8']]}},{b:'說了很多',cs:['好感+/-'],r:()=>rnd()<.6?[true,'越說越近。',['好感+12',(S.love.aff=Math.min(100,S.love.aff+12),'')].filter(Boolean)]:[false,'說錯了一句話。',['好感-6',(S.love.aff-=6,'')].filter(Boolean)]}]},
+{id:'c24',realm:[1,2,3,4,5,6,7,8,9],w:14,cond:s=>!!s.love&&!s.dao&&s.love.aff>=40,tag:'',t:()=>`${LV().ic} 一起看的日出`,d:()=>`你們在山頂坐了一夜，等日出。`,opts:[{b:'什麼也不說',cs:['好感+'],r:()=>{S.love.aff=Math.min(100,S.love.aff+10);S.stress-=8;return[true,'太陽出來的那一刻，你覺得不用說什麼。',['好感+10','心魔-8']]}},{b:'說了很多',cs:['好感+/-'],r:()=>rnd()<.6?[true,'越說越近。',['好感+12',(S.love.aff=Math.min(100,S.love.aff+12),'')].filter(Boolean)]:[false,'說錯了一句話。',['好感-6',(S.love.aff-=6,'')].filter(Boolean)]}]},
 {id:'c25',realm:[2,3,4,5,6],w:4,cond:s=>!!s.dao&&s.flags.child&&!s.flags.childGrown,tag:'',t:'👶 孩子的第一次',d:'孩子第一次引氣入體。他跑來告訴你的時候，臉上全是光。',opts:[{b:'抱起他轉三圈',cs:['心魔-','因果+'],r:()=>[true,'你很久沒這麼開心了。',[X_(-15),K_(3)]]},{b:'「才煉氣，別驕傲」',cs:['心境'],r:()=>[true,'他的臉垮了下來。你晚上偷偷給他做了他愛吃的。',[R('mind',1),X_(3)]]}]},
 /* 宗門／散修補充 */
 {id:'c26',realm:[2,3,4,5],w:5,cond:s=>!!s.sect&&s.sect!=='own',tag:'sch',t:()=>`🏯 ${sectName(S)}的百年慶典`,d:'宗門百年大慶，各方來賀。你負責接待一位脾氣古怪的老前輩。',opts:[{b:'細心接待',cs:['人脈檢定'],r:()=>chk('social',42)?[true,'老前輩臨走塞給你一枚丹藥：「小子不錯。」',[R('social',3),C_(.12)]]:[false,'老前輩嫌你話多，拂袖而去。掌門臉色難看。',[F_(-100)]]},{b:'找藉口推掉',cs:['—'],r:()=>[true,'你去後山躲了三天。',[X_(-3)]]}]},
@@ -2152,6 +2152,7 @@ function pickEvent(){
  S.step++;reseed();
  // 劇情線接續：進行中的劇情優先
  {const act=Object.entries(STORY).filter(([k,v])=>{const st=ST(k);return st>0&&st<v.max}).map(([k])=>k);if(act.length){const k=act[(S.storyRR||0)%act.length];S.storyRR=(S.storyRR||0)+1;const e=EV.find(x=>x.id===k+(ST(k)+1));if(e&&(!e.cond||e.cond(S))&&e.realm.includes(S.realm))return e}}
+ if(S.love&&!S.dao&&rnd()<.3){const ids=['lv_gift','lv_side','c24','lv_misund','lv_rivalLove','lv_confess'];const pool=ids.map(id=>EV.find(x=>x.id===id)).filter(e=>e&&(!e.cond||e.cond(S))&&e.realm.includes(S.realm)&&!(S.cd[e.id]>S.age));if(pool.length)return pool[Math.floor(rnd()*pool.length)]}
  if(S._forceEv){const e=EV.find(x=>x.id===S._forceEv);delete S._forceEv;if(e&&(!e.cond||e.cond(S)))return e}
  if(S.stone>=50&&rnd()<(S.shop&&S.shop.dice?.14:.07))return DICE;
  const T=SEED_TIER.find(t=>t.k===S.tier);
