@@ -266,13 +266,13 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
     <button class="btn go" onclick="startGame()">⚔️ 踏上仙途</button>
     <button class="btn cont" id="btnCont" style="display:none" onclick="loadGame()">▶ 繼續上次進度</button>
     <button class="btn ghost" onclick="useDaily()">📅 今日挑戰種子（與全世界同一顆）</button>
-    <button class="btn ghost" onclick="openHall()">🏆 成就殿堂／排行</button>
+    <button class="btn ghost" onclick="openHall()">🏆 成就殿堂</button>
     <button class="btn ghost" onclick="importSave()">📥 匯入存檔碼／檔案</button>
    </div>
   </div>
   <div class="card pad full" id="hallBox" style="display:none">
    <div class="ct">成就殿堂 <span id="hallCnt" style="margin-left:auto"></span></div>
-   <div class="ct" style="margin-top:4px">殿堂里程碑（跨局永久）</div><div class="hall" id="hallTiers" style="margin-bottom:14px"></div><div id="boardBox"></div><div class="ct" style="margin-top:14px">成就一覽</div><div class="hall" id="hallGrid"></div>
+   <div class="ct" style="margin-top:4px">殿堂里程碑（跨局永久）</div><div class="hall" id="hallTiers" style="margin-bottom:14px"></div><div class="ct" style="margin-top:14px">成就一覽</div><div class="hall" id="hallGrid"></div>
   </div>
   <div class="foot">⚠️ 本作品為純虛構創作。所有宗門、人物、功法皆為虛構設定。<br>原創 · 單檔離線可玩 · 存檔在本機瀏覽器<br><b style="color:var(--gold)">Produced by Benji</b> · © 2026 Benji · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hant" target="_blank" rel="license noopener" style="color:var(--sub)">CC BY-NC-SA 4.0</a>（可分享、可改作，須署名、<b>禁止商業使用</b>、相同方式分享）</div>
  </div></div>
@@ -1823,7 +1823,7 @@ function showFx(kind,big,small,ms){const el=$('fx');if(!el||!el.classList)return
 /* ===================== 每日挑戰與排行 ===================== */
 const todayKey=()=>{const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')};
 function score(){const asc=S.realm>=10?3000:0;return Math.round(S.realm*1000+asc+Math.min(S.age,12000)/10+Math.min(S.fame,200000)/100+S.ach.length*50+(S.flags.bossKills||0)*200)};
-function useDaily(){$('inSeed').value='XL-'+todayKey();$('inName').focus&&$('inName').focus();dlg('📅 今日挑戰','種子已設為 XL-'+todayKey()+'。今天所有人的命格、天賦、事件順序完全相同——比的是選擇。\n結束後會計分並記入本機排行；把分數截圖給朋友吧。',null)}
+function useDaily(){$('inSeed').value='XL-'+todayKey();$('inName').focus&&$('inName').focus();dlg('📅 今日挑戰','種子已設為 XL-'+todayKey()+'。今天所有人的命格、天賦、事件順序完全相同——比的是選擇。\n結束時會顯示總分，把戰績卡片分享給朋友比比看。',null)}
 function saveBoard(){if(!S||S.flags.boarded)return;S.flags.boarded=true;const rec={d:todayKey(),daily:S.seed==='XL-'+todayKey(),n:S.name,t:S.type,realm:S.realm,age:S.age,sc:score(),end:S.ending,seed:S.seed};HALL.board=HALL.board||[];HALL.board.push(rec);HALL.board.sort((a,b)=>b.sc-a.sc);if(HALL.board.length>50)HALL.board.length=50;localStorage.setItem('xianlife_board',JSON.stringify(HALL.board));save()}
 function renderBoard(){const b=HALL.board||[];const today=b.filter(r=>r.daily&&r.d===todayKey());const row=(r,i)=>`<div class="row"><b>#${i+1}</b><span>${esc(r.n)}</span><span style="color:var(--dim)">${TYPES[r.t]?TYPES[r.t].name.slice(0,2):''}</span><span>${REALMS[r.realm].n}・${fmt(r.age)}歲</span><i>${r.sc} 分</i></div>`;return`<div class="ct" style="margin-top:14px">📅 今日挑戰排行（${todayKey()}）</div><div class="board">${today.length?today.slice(0,10).map(row).join(''):'<div class="hint">今天還沒有人挑戰。開局按「📅 今日挑戰」試試。</div>'}</div><div class="ct" style="margin-top:14px">🏆 歷史前十</div><div class="board">${b.length?b.slice(0,10).map(row).join(''):'<div class="hint">尚無紀錄</div>'}</div>`}
 /* ===================== 戰績卡片 ===================== */
@@ -2219,7 +2219,7 @@ function loadGame(){try{const s=JSON.parse(localStorage.getItem(SK));if(!s||s.v!
 function askRetire(){dlg('歸隱','就此封山歸隱、不再問道？這一世將在此結束並結算，成就與目標照常計入殿堂。',()=>{S.dead=true;S.ending='retire';log('封山歸隱，此生功成身退。');ach();render();window.scrollTo(0,0)})}
 function askReset(){dlg('重新開始','將清除目前存檔，這一生的記錄只保留成就。確定？',()=>{localStorage.removeItem(SK);S=null;$('pgGame').style.display='none';$('pgStart').style.display='block';renderStart();window.scrollTo(0,0)})}
 function openHall(){const b=$('hallBox');b.style.display=b.style.display==='none'?'block':'none';renderHall('hallGrid')}
-function renderHall(id){const got=id==='hallGrid'?HALL.all:(S?S.ach:[]);$(id).innerHTML=ACH.map(a=>{const b=ACH_BUFF[a.id];const g=got.includes(a.id);return`<div class="ac ${g?'got':''}">${g?a.n:'❔ ???'}${b&&g?`<br><span style="font-size:.66rem;color:var(--gold)">【${b.t}】${b.d}</span>`:b?`<br><span style="font-size:.66rem">✨ 附帶稱號被動</span>`:''}${a.lock&&!g?`<br><span style="font-size:.66rem">🔒 ${a.lock}</span>`:''}</div>`}).join('');if(id==='hallGrid'){$('hallCnt').textContent=`${HALL.all.length}/${ACH.length}`;if($('boardBox'))$('boardBox').innerHTML=renderBoard();$('hallTiers').innerHTML=HALL_TIERS.map(t=>`<div class="ac ${HALL.all.length>=t.n?'got':''}">${HALL.all.length>=t.n?'✅':'🔒'} ${t.n} 個成就・${t.t}<br><span style="font-size:.66rem">${t.d}</span></div>`).join('')}}
+function renderHall(id){const got=id==='hallGrid'?HALL.all:(S?S.ach:[]);$(id).innerHTML=ACH.map(a=>{const b=ACH_BUFF[a.id];const g=got.includes(a.id);return`<div class="ac ${g?'got':''}">${g?a.n:'❔ ???'}${b&&g?`<br><span style="font-size:.66rem;color:var(--gold)">【${b.t}】${b.d}</span>`:b?`<br><span style="font-size:.66rem">✨ 附帶稱號被動</span>`:''}${a.lock&&!g?`<br><span style="font-size:.66rem">🔒 ${a.lock}</span>`:''}</div>`}).join('');if(id==='hallGrid'){$('hallCnt').textContent=`${HALL.all.length}/${ACH.length}`;$('hallTiers').innerHTML=HALL_TIERS.map(t=>`<div class="ac ${HALL.all.length>=t.n?'got':''}">${HALL.all.length>=t.n?'✅':'🔒'} ${t.n} 個成就・${t.t}<br><span style="font-size:.66rem">${t.d}</span></div>`).join('')}}
 function placeNav(){const nav=document.querySelector('.nav');if(!nav)return;const bar1=document.querySelector('#pgGame .bar1');const home=$('pgGame');if(window.innerWidth>=900){if(nav.parentNode!==bar1)bar1.appendChild(nav)}else{if(nav.parentNode!==home)home.appendChild(nav)}}
 window.addEventListener('resize',placeNav);
 function tab(t){document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.id==='tab'+t));document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0)}
