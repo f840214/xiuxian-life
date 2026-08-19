@@ -1153,7 +1153,7 @@ function diceGo(bet){
  delete S._peek;delete S._diceDesc;delete S._diceStakes;
  $('ePicks').innerHTML=`<div class="dice">${d.map(x=>`<div class="die">${x}</div>`).join('')}</div><button class="btn cont" onclick="S.phase=2;render()">年末結算 →</button>`;
  showRes(win>=0,txt,bet===null?[R('mind',1)]:[(win>0?'靈石+':'靈石')+win]);
- $('sStone').textContent=fmt(S.stone);syncStrip();S.phase=2;save();
+ $('sStone').textContent=fmt(S.stone);syncStrip();renderSide();S.phase=2;save();
 }
 
 
@@ -1668,6 +1668,15 @@ const ACTIONS=[
 const yrsPerTurn=()=>S.realm>=2?Math.max(1,Math.round(REALMS[S.realm].life/32)):1;
 const turnsLeft=()=>Math.max(0,Math.floor((S.life-S.age)/yrsPerTurn()));
 const lifeWarn=()=>S.realm<10&&turnsLeft()<=3;
+function renderSide(){
+ if(!S)return;
+ const bar=(n,v,mx,cls,txt)=>`<div class="pbar"><div class="lb"><i>${n}</i><b>${txt||v}</b></div><div class="trk"><div class="fil ${cls}" style="width:${clamp(v/mx*100,0,100)}%"></div></div></div>`;
+ $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,lifeWarn()?'f-bad':'f-blu',`${S.age} / ${fmt(S.life)}${S.realm<10?`　<span style="color:${lifeWarn()?'var(--red)':'var(--dim)'};font-weight:400">約 ${turnsLeft()} 回合</span>`:''}`);
+ $('mindBars2').innerHTML=$('mindBars').innerHTML;
+ const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
+ $('sideInfo').innerHTML=`名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}<br>${S.master?'師承 '+S.master+'<br>':''}${S.dao?'💞 '+S.dao+'<br>':S.love?LV().ic+' '+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.ghost?'⚔️ 宿敵 '+esc(S.ghost.n)+'<br>':''}${S.items.length?'持有 '+S.items.slice(-4).join('、'):''}`;
+ $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。';
+}
 function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}const l2=$('s2Life');if(l2)l2.style.color=lifeWarn()?'var(--red)':'';}
 function render(){
  if(!S)return;
@@ -1683,12 +1692,7 @@ function render(){
  const o=ovr();$('kOvr').textContent=o;$('ringC').style.strokeDashoffset=289-289*Math.min(1,o/100);$('kGrade').textContent=o>=90?'SSS':o>=80?'SS':o>=70?'S':o>=60?'A':o>=45?'B':o>=30?'C':'D';
  $('kStone').textContent=fmt(S.stone);$('kFame').textContent=fmt(S.fame);$('kKarma').textContent=(S.karma>0?'+':'')+S.karma;
  $('kSect').textContent=sectName(S);
- const bar=(n,v,mx,cls,txt)=>`<div class="pbar"><div class="lb"><i>${n}</i><b>${txt||v}</b></div><div class="trk"><div class="fil ${cls}" style="width:${clamp(v/mx*100,0,100)}%"></div></div></div>`;
- $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,lifeWarn()?'f-bad':'f-blu',`${S.age} / ${fmt(S.life)}${S.realm<10?`　<span style="color:${lifeWarn()?'var(--red)':'var(--dim)'};font-weight:400">約 ${turnsLeft()} 回合</span>`:''}`);
- $('mindBars2').innerHTML=$('mindBars').innerHTML;
- const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
- $('sideInfo').innerHTML=`名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}<br>${S.master?'師承 '+S.master+'<br>':''}${S.dao?'💞 '+S.dao+'<br>':S.love?LV().ic+' '+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.ghost?'⚔️ 宿敵 '+esc(S.ghost.n)+'<br>':''}${S.items.length?'持有 '+S.items.slice(-4).join('、'):''}`;
- $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。';
+ renderSide();
  const G=GOALS[S.goal],gt=G.t(S);
  $('goalBox').innerHTML=`<b>${G.name}</b><br><span style="color:var(--sub);font-size:.78rem">${G.desc}</span><br>目前：${['未達成','🥉 銅','🥈 銀','🥇 金'][gt]}`;
  const tl=S.ach.filter(id=>ACH_BUFF[id]).map(id=>`<span class="chip c-mon" title="${esc(ACH_BUFF[id].d)}">${esc(ACH_BUFF[id].t)}</span>`).join(' ');
@@ -1713,7 +1717,7 @@ function renderActions(){
   `<button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
 function doAct(i){if(S.ap<=0)return;const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[])[i];if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);showRes(true,`${a.n}`,[r]);
- $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();
+ $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();renderSide();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
  $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
 function showRes(win,txt,cs){const r=$('eRes');r.className='res '+(win?'win':'lose');r.style.display='block';$('eResTxt').textContent=txt;$('eResChips').innerHTML=chips(cs)}
