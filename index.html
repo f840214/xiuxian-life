@@ -52,7 +52,6 @@ background:linear-gradient(100deg,var(--gold),#fff3c4 45%,var(--jade));-webkit-b
 .sc i{font-style:normal;font-size:.6rem;color:var(--dim);white-space:nowrap}
 @media(max-width:520px){.sc i{display:none}.sc{gap:4px;padding:5px 4px}.sc em{font-size:.8rem}.sc b{font-size:.8rem}.picks.grid2{grid-template-columns:1fr}}
 .strip{overflow:hidden}
-.app{overflow-x:hidden}
 .body{padding:12px 12px calc(var(--nav) + var(--sab) + 20px)}
 .stack{display:flex;flex-direction:column;gap:11px}
 .card{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
@@ -155,6 +154,11 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 .picks.grid2 .cont,.picks.grid2 .brk{grid-column:1/-1}
 @media(min-width:900px){
  .app{max-width:1180px}
+ .bar{display:flex;align-items:center;gap:18px;padding-top:calc(var(--sat) + 8px);padding-bottom:8px}
+ .bar1{flex:1;min-width:0}
+ .strip{margin-top:0;flex:0 0 auto;gap:8px}
+ .sc{flex:0 0 auto;padding:6px 14px}
+ .sc b{font-size:.92rem}
  .body{padding:16px 20px calc(var(--nav) + 24px)}
  .body .stack{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
  .body .stack>.full{grid-column:1/-1}
