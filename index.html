@@ -154,11 +154,12 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 .picks.grid2 .cont,.picks.grid2 .brk{grid-column:1/-1}
 @media(min-width:900px){
  .app{max-width:1180px}
- .bar{display:flex;align-items:center;gap:18px;padding-top:calc(var(--sat) + 8px);padding-bottom:8px}
- .bar1{flex:1;min-width:0}
- .strip{margin-top:0;flex:0 0 auto;gap:8px}
- .sc{flex:0 0 auto;padding:6px 14px}
- .sc b{font-size:.92rem}
+ .bar{padding-top:calc(var(--sat) + 8px);padding-bottom:8px}
+ .bar .strip{display:none}
+ .sstrip{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px}
+ .sstrip .sc{justify-content:flex-start;padding:8px 12px;border-radius:12px}
+ .sstrip .sc b{font-size:1rem}
+ .sstrip .sc i{font-size:.66rem}
  .body{padding:16px 20px calc(var(--nav) + 24px)}
  .body .stack{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
  .body .stack>.full{grid-column:1/-1}
@@ -271,7 +272,16 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
     <div class="picks" id="ePicks"></div>
    </div>
    <div class="card pad side" id="sideCard" style="display:none">
-    <div class="ct">身心狀態</div><div class="bars" id="mindBars2"></div>
+    <div class="ct">當前狀態</div>
+    <div class="sstrip" id="sideStrip">
+     <div class="sc"><em>⚡</em><b id="s2AP">3/3</b><i>行動點</i></div>
+     <div class="sc"><em>💎</em><b id="s2Stone">0</b><i>靈石</i></div>
+     <div class="sc"><em>❤️</em><b id="s2HP">100</b><i>體魄</i></div>
+     <div class="sc"><em>⏳</em><b id="s2Life">80</b><i>壽元</i></div>
+     <div class="sc"><em>✨</em><b id="s2Ovr">0</b><i>綜合</i></div>
+     <div class="sc"><em>🎂</em><b id="s2Age">16</b><i>歲</i></div>
+    </div>
+    <div class="ct" style="margin-top:14px">身心狀態</div><div class="bars" id="mindBars2"></div>
     <div class="ct" style="margin-top:14px">六維資質</div><div class="bars" id="statBars2"></div>
     <div class="ct" style="margin-top:14px">近況</div><div id="sideInfo" style="font-size:.8rem;line-height:1.8;color:var(--sub)"></div>
    </div>
@@ -1140,7 +1150,7 @@ function diceGo(bet){
  delete S._peek;delete S._diceDesc;delete S._diceStakes;
  $('ePicks').innerHTML=`<div class="dice">${d.map(x=>`<div class="die">${x}</div>`).join('')}</div><button class="btn cont" onclick="S.phase=2;render()">年末結算 →</button>`;
  showRes(win>=0,txt,bet===null?[R('mind',1)]:[(win>0?'靈石+':'靈石')+win]);
- $('sStone').textContent=fmt(S.stone);S.phase=2;save();
+ $('sStone').textContent=fmt(S.stone);syncStrip();S.phase=2;save();
 }
 
 
@@ -1296,7 +1306,7 @@ function renderShopList(){
   return`<div class="si"><div class="ic">${it.ic}</div><div class="tx"><b>${it.n}</b><i>${it.d()}${it.limit>1?`　（本回合 ${used}/${it.limit}）`:''}</i></div><button class="buy" ${dis?'disabled':''} onclick="buyItem('${it.id}')">${it.pts?(maxed?'積分不足/已有':used>=it.limit?'本回合已購':it.pts+' 積分'):(maxed?'已滿':used>=it.limit?'本回合已購':fmt(p)+' 靈石')}</button></div>`}).join('');
 }
 function buyItem(id){const it=SHOP.find(x=>x.id===id);if(!it||(it.type&&it.type!==S.type)||(it.min&&S.realm<it.min))return;const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.step++;reseed();
- let robP=S.shop.guardUntil>S.age?.05:.15;if(S.shop.yu)robP/=2;if(it.pts)robP=0;if(rnd()<robP){const loss=Math.min(S.stone,Math.round(S.stone*(S.shop.bag?.05:.10)));S.stone=Math.max(0,S.stone-loss);S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 坊市歸途遇強盜！「${it.n}」被搶走，還被洗劫 ${fmt(loss)} 靈石。`);$('shopSub').innerHTML=`<span style="color:var(--red)">🏴‍☠️ 歸途遇強盜！「${it.n}」被搶，另損失 ${fmt(loss)} 靈石。</span>`;renderShopList();$('sStone').textContent=fmt(S.stone);save();return}
+ let robP=S.shop.guardUntil>S.age?.05:.15;if(S.shop.yu)robP/=2;if(it.pts)robP=0;if(rnd()<robP){const loss=Math.min(S.stone,Math.round(S.stone*(S.shop.bag?.05:.10)));S.stone=Math.max(0,S.stone-loss);S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 坊市歸途遇強盜！「${it.n}」被搶走，還被洗劫 ${fmt(loss)} 靈石。`);$('shopSub').innerHTML=`<span style="color:var(--red)">🏴‍☠️ 歸途遇強盜！「${it.n}」被搶，另損失 ${fmt(loss)} 靈石。</span>`;renderShopList();$('sStone').textContent=fmt(S.stone);syncStrip();save();return}
  S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
 
 
@@ -1612,6 +1622,7 @@ const ACTIONS=[
 
 /* ===================== 流程 ===================== */
 // phase 0: 年初行動（花完 AP） → phase 1: 事件 → phase 2: 年末結算 / 突破
+function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}}
 function render(){
  if(!S)return;
  const T=SEED_TIER.find(t=>t.k===S.tier),Rm=REALMS[S.realm];
@@ -1644,7 +1655,7 @@ function render(){
  $('eRes').style.display='none';
  if(S.dead){renderEnd();return}
  if(S.phase===0)renderActions();else if(S.phase===1)renderEvent();else if(S.phase===3&&S.fruitOffer)renderFruitPick();else renderYearEnd();
- save();
+ syncStrip();save();
 }
 function chips(arr){return arr.map(c=>{const cls=/[-]/.test(c)&&!/檢定/.test(c)?'c-dn':/靈石\+/.test(c)?'c-mon':/檢定/.test(c)?'c-dif':/\+/.test(c)?'c-up':'c-neu';return`<span class="chip ${cls}">${esc(c)}</span>`}).join('')}
 function renderActions(){
@@ -1656,7 +1667,7 @@ function renderActions(){
   `<button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
 function doAct(i){if(S.ap<=0)return;const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[])[i];S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);showRes(true,`${a.n}`,[r]);
- $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();
+ $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
  $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
 function showRes(win,txt,cs){const r=$('eRes');r.className='res '+(win?'win':'lose');r.style.display='block';$('eResTxt').textContent=txt;$('eResChips').innerHTML=chips(cs)}
