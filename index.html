@@ -194,6 +194,11 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 .si .buy{flex:0 0 auto;min-width:96px;padding:8px 10px;border-radius:10px;border:0;background:linear-gradient(100deg,#8a6d1f,var(--gold));color:#1a1400;font:inherit;font-weight:900;font-size:.78rem;cursor:pointer;text-align:center}
 .si .buy:disabled{opacity:.4;cursor:not-allowed}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.8rem;align-items:center}.kv span{color:var(--dim)}.kv b{color:var(--txt);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tip{position:relative}
+.tip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(4px);min-width:180px;max-width:280px;padding:8px 10px;border-radius:10px;background:#1c2634;border:1px solid var(--line2);color:var(--txt);font-size:.74rem;font-weight:500;line-height:1.5;white-space:normal;text-align:left;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.15s;z-index:70}
+.tip::before{content:'';position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--line2);opacity:0;transition:.15s;pointer-events:none}
+.tip:hover::after,.tip:hover::before{opacity:1;transform:translateX(-50%) translateY(0)}
+.tip:hover::before{transform:translateX(-50%)}
 </style>
 </head>
 <body>
@@ -204,7 +209,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 2 . 6</div>
+  <div class="en">X I A N　L I F E　V 2 . 7</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1709,7 +1714,7 @@ const ITEM_INFO={
 };
 const itemInfo=n=>{const base=ITEM_INFO[n]||(n.endsWith('的法寶')?['💞','道侶親手所煉']:['📦','紀念之物']);const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.02,calm:1}:null);const t=b?buffTxt(b):'';return t?[base[0],base[1]+'｜被動：'+t]:base};
 const ITEM_NOTE='所有持有物皆可在天雷／小天劫事件中犧牲一件擋災，或在囊中羞澀時典當。';
-function itemChips(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<span class="chip c-neu" title="${esc(d)}" style="cursor:pointer" onclick="dlg('${esc(ic+' '+n)}','${esc(d)}\n\n${ITEM_NOTE}',null)">${ic} ${esc(n)}</span>`}).join(' ')}
+function itemChips(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<span class="chip c-neu tip" data-tip="${esc(d)}" style="cursor:pointer" onclick="dlg('${esc(ic+' '+n)}','${esc(d)}\n\n${ITEM_NOTE}',null)">${ic} ${esc(n)}</span>`}).join(' ')}
 function itemRows(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:.8rem"><span style="flex:0 0 auto">${ic}</span><b style="flex:0 0 auto;min-width:6em">${esc(n)}</b><span style="color:var(--sub)">${esc(d)}</span></div>`}).join('')}
 
 /* ===================== 年度行動 ===================== */
