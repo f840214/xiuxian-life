@@ -197,7 +197,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 1 . 5</div>
+  <div class="en">X I A N　L I F E　V 1 . 6</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -330,9 +330,9 @@ const TCOL={sword:['#7dd3fc','#1e5aa0'],alch:['#86efac','#0f6b48'],phys:['#fdba7
 const TYPES={
  sword:{name:'⚔️ 劍修',desc:'【論劍】積劍意提升突破率、可【劍意破境】；凶險事件根骨檢定 +4',bonus:{body:10,spirit:7,insight:3,mind:-1,luck:0,social:-4}},
  alch:{name:'⚗️ 丹修',desc:'【煉丹】自產丹藥、累積丹道品級；坊市丹藥 7 折、抗性減半、突破率 +2%',bonus:{insight:8,social:8,spirit:2,body:-4,mind:0,luck:0}},
- phys:{name:'🪨 體修',desc:'【淬體】換根骨；根骨越高解鎖金身（體魄上限至 150、凶險傷害減免）、突破率 +3%',bonus:{body:13,mind:3,insight:-5,spirit:-3,luck:0,social:-2}},
+ phys:{name:'🪨 體修',desc:'【淬體】換根骨；根骨 >50 的部分加成突破率；金身（體魄上限至 150、凶險傷害減免、突破率+）',bonus:{body:13,mind:3,insight:-3,spirit:-3,luck:0,social:-2}},
  heart:{name:'🕯️ 心修',desc:'【入定】驅心魔；心魔歸零累積道心提升心境上限；心魔對突破影響減半',bonus:{mind:12,insight:5,spirit:3,body:-3,luck:0,social:-3}},
- fate:{name:'🍀 氣運之子',desc:'【尋寶】；天命骰：所有檢定擲兩次取優；每回合 8% 白撿機緣',bonus:{luck:14,social:4,insight:0,body:-4,spirit:-2,mind:-4}},
+ fate:{name:'🍀 氣運之子',desc:'【尋寶】；天命骰：所有檢定擲兩次取優；每回合 5% 白撿機緣',bonus:{luck:14,social:4,insight:0,body:-4,spirit:-2,mind:-4}},
  sys:{name:'📱 系統',desc:'簽到、抽獎、任務、女帝；【系統日常】賺積分，坊市可用積分兌換，滿 100 自動升級',bonus:{luck:7,social:5,insight:2,body:-3,spirit:-4,mind:-7}},
 };
 const GOALS={
@@ -521,7 +521,7 @@ function applyHallTiers(s){HALL_TIERS.forEach(t=>{if(HALL.all.length>=t.n)t.f(s)
 /* ===================== 事件 ===================== */
 const DF=n=>n; // 難度基準
 function chk(k,d,bonus=0){ // 檢定：屬性+骰 vs 難度（含稱號被動）
- const roll=S.type==='fate'?Math.max(rr(-12,12),rr(-12,12)):rr(-12,12);const v=S.stat[k]+bonus+roll+(S.stat.luck-30)/6+B('chk')+B('chkK',k)+(S.type==='sword'&&k==='body'&&S.evId&&(EV.find(e=>e.id===S.evId)||{}).tag==='dgr'?4:0);return v>=d}
+ const roll=S.type==='fate'?Math.max(rr(-12,12),rr(-12,4)):rr(-12,12);const v=S.stat[k]+bonus+roll+(S.stat.luck-30)/6+B('chk')+B('chkK',k)+(S.type==='sword'&&k==='body'&&S.evId&&(EV.find(e=>e.id===S.evId)||{}).tag==='dgr'?4:0);return v>=d}
 const R=(k,v)=>{const g=addStat(k,v);return g?`${AN[k]}${g>0?'+':''}${g}`:`${AN[k]}已達上限`};
 const EV=[
 /* --- 凡人期 --- */
@@ -1693,7 +1693,7 @@ function renderYearEnd(){
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`+(S.type==='sword'&&(S.flags.swordQi||0)>=5?`<button class="btn brk" style="background:linear-gradient(100deg,#1e5aa0,#7dd3fc)" onclick="S.flags.swordBurst=true;breakthrough()">⚔️ 劍意破境（消耗 5 劍意，+8% → ${Math.min(99,Math.round(rate*100)+8)}%）</button>`:''):'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3;let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(S.type==='phys')r+=.03;if(S.type==='alch')r+=.02;const cap=S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9;return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];if(S.flags.swordBurst){S.flags.swordQi=Math.max(0,(S.flags.swordQi||0)-5);S.flags.swordBurst=false;log('⚔️ 以劍意破境！')}
  if(S.realm===9){ // 渡劫
@@ -1742,7 +1742,7 @@ function nextYear(){
  S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};S.shop.buys={};
  if(S.shop.vein)S.cul+=Math.round(REALMS[S.realm].need*.015*S.shop.vein);
  if(S.shop.alch)S.stone+=Math.round(300*S.shop.alch*(S.realm+1)*(S.shop.lu?1.5:1));
- if(S.type==='fate'&&rnd()<.08){const g=rr(1,3);if(g===1){S.stone+=300*(S.realm+1);log('🍀 氣運之子：路上撿到一袋靈石 +'+300*(S.realm+1))}else if(g===2){S.cul+=Math.round(REALMS[S.realm].need*.08);log('🍀 氣運之子：夢中得一段口訣，修為+')}else{const k=pick(AK);addStat(k,2);log('🍀 氣運之子：莫名其妙'+AN[k]+'+2')}}
+ if(S.type==='fate'&&rnd()<.05){const g=rr(1,3);if(g===1){S.stone+=300*(S.realm+1);log('🍀 氣運之子：路上撿到一袋靈石 +'+300*(S.realm+1))}else if(g===2){S.cul+=Math.round(REALMS[S.realm].need*.08);log('🍀 氣運之子：夢中得一段口訣，修為+')}else{const k=pick(AK);addStat(k,2);log('🍀 氣運之子：莫名其妙'+AN[k]+'+2')}}
  if(S.type==='sys'&&S.flags.sysWake&&!S.flags.sysRebel&&S.sys.pts>=100){S.sys.pts-=100;S.sys.lvl++;AK.forEach(k=>S.cap[k]=Math.min(99,S.cap[k]+1));log('📱 系統升級 Lv.'+S.sys.lvl+'：六維上限 +1（消耗 100 積分）')}
  if(S.shop.pu)S.stress=Math.max(0,S.stress-4);if(S.shop.ye)S.hp=clamp(S.hp+5,0,100);if(S.shop.vip&&S.type==='sys'&&!S.flags.sysRebel)S.sys.pts+=3;
  if(S.flags.consort){S.stone+=3000}
