@@ -2129,7 +2129,7 @@ function renderActions(){
 function doAct(i,quiet){if(S.ap<=0)return;const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div style="font-size:.76rem;color:var(--sub);line-height:1.5;white-space:normal">${esc(v.d)}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}(S.curActs=S.curActs||[]).push(i);S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
  $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();renderSide();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
- $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
+ if(!quiet)renderActions();save()}
 function showRes(win,txt,cs){const r=$('eRes');r.className='res '+(win?'win':'lose');r.style.display='block';$('eResTxt').textContent=txt;$('eResChips').innerHTML=chips(cs)}
 function pickEvent(){
  S.step++;reseed();
