@@ -260,7 +260,7 @@ body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c)
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 4 . 2</div>
+  <div class="en">X I A N　L I F E　V 4 . 3</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -586,6 +586,9 @@ const ACH=[
  {id:'sealed',n:'⛓️ 萬年封印',chk:s=>!!s.flags.sealed},
  {id:'reborn1',n:'♻️ 轉世重修',chk:s=>(s.flags.reborn||0)>=1},
  {id:'reborn3',n:'🔁 三世因果',chk:s=>(s.flags.reborn||0)>=3},
+ {id:'af',n:'🌸 渣修',chk:s=>(s.flags.affair||0)>=1},
+ {id:'cuck',n:'💔 被綠',chk:s=>!!s.flags.cuckold},
+ {id:'liuxia',n:'🍃 柳下惠',chk:s=>(s.flags.afRefuse||0)>=3},
  {id:'work',n:'🧾 打工人的一生',chk:s=>s.flags.workLife},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
@@ -2075,6 +2078,20 @@ function reincarnate(){if(!S||!S.dead)return;const items=S.items.slice();
  $('dText').parentNode.insertBefore(box,$('dArea'))}
 function doReincarnate(n){const carry={item:n,from:S.name,realm:S.realm,ending:S.ending,count:(S.flags.reborn||0)+1,type:S.type};localStorage.setItem('xianlife_carry',JSON.stringify(carry));localStorage.removeItem(SK);S=null;$('dlg').classList.remove('on');if(document.body&&document.body.classList)document.body.classList.remove('demon');$('pgGame').style.display='none';$('pgStart').style.display='block';renderStart();window.scrollTo(0,0);dlg('♻️ 轉世準備就緒',`前世 ${carry.from}（${REALMS[carry.realm].n}）的「${carry.item}」將隨你進入下一世。\n選好靈根與出身，踏上新的仙途吧。`,null)}
 function applyCarry(){try{const c=JSON.parse(localStorage.getItem('xianlife_carry')||'null');if(!c)return;localStorage.removeItem('xianlife_carry');S.flags.reborn=c.count;S.flags.prevLife={n:c.from,realm:c.realm,ending:c.ending};if(c.item==='前世記憶'){S.stat.insight=Math.min(S.cap.insight,S.stat.insight+3)}else{S.items.push(c.item)}log(`♻️ 第 ${c.count} 世。前世 ${c.from} 於${REALMS[c.realm].n}${c.ending==='ascend'?'飛升':'隕落'}，留下「${c.item}」隨你轉世。`)}catch(e){}}
+
+
+/* ===================== 外遇／桃花劫 ===================== */
+const EV22=[
+{id:'af1',realm:[1,2,3,4,5,6,7],w:7,cond:s=>!!s.dao&&!!s.love,tag:'',t:'🌸 桃花劫',d:()=>{const who=pick(['一位天資出眾的小師妹','坊市裡的花魁','一位境界比你高的女修','同門的俊朗師兄','一位總是送你丹藥的丹修']);S._afWho=who;return`${who}對你示好得毫不掩飾。${S.dao}還不知道。`},
+ opts:[{b:'明確拒絕',cs:['心境+','道侶好感+'],r:()=>{S.flags.afRefuse=(S.flags.afRefuse||0)+1;addStat('mind',3);if(S.love)S.love.aff=Math.min(100,S.love.aff+5);return[true,'「我有道侶。」你說得很平靜。',['心境+3','道侶好感+5']]}},
+ {b:'曖昧一下，不越界',cs:['好處','25% 被發現'],r:()=>{S.stone+=300*(S.realm+1);S.stress-=5;if(rnd()<.25){if(S.love)S.love.aff=Math.max(0,S.love.aff-30);S.stress+=15;return[false,`${S.dao}知道了。那一夜你們吵到天亮。`,['靈石+'+300*(S.realm+1),'道侶好感-30','心魔+15']]}return[true,'你收了禮、喝了酒，什麼也沒發生。大概。',['靈石+'+300*(S.realm+1),'心魔-5']]}},
+ {b:'出軌，另結新歡',cs:['換心上人','因果-','名望-'],r:()=>{const old=S.dao;S.flags.affair=(S.flags.affair||0)+1;S.dao=null;S.flags.loveDao=null;S.love={id:'custom',name:S._afWho||'新歡',aff:45,met:S.age};S.karma-=10;S.fame=Math.max(0,S.fame-300);S.stress+=10;return[true,`${old}走了，沒有回頭。坊市很快就傳遍了。`,['失去道侶：'+old,'新心上人','因果-10','名望-300','心魔+10']]}}]},
+{id:'af2',realm:[1,2,3,4,5,6,7],w:6,cond:s=>!!s.dao&&!!s.love&&s.love.aff<50,tag:'dgr',t:'💔 道侶的秘密',d:()=>`你發現${S.dao}最近總是晚歸——他／她和一位同門走得太近了。`,
+ opts:[{b:'原諒，好好談',cs:['心境檢定'],r:()=>chk('mind',44)?[true,'談了一夜。你們都承認冷落了彼此。從頭再來。',[R('mind',3),'道侶好感+20',(S.love&&(S.love.aff=Math.min(100,S.love.aff+20)),'')].filter(Boolean)]:[false,'談崩了。',[X_(15),'道侶好感-10',(S.love&&(S.love.aff=Math.max(0,S.love.aff-10)),'')].filter(Boolean)]},
+ {b:'分手',cs:['失去道侶','心境+'],r:()=>{const old=S.dao;S.flags.cuckold=true;S.dao=null;S.love=null;S.flags.loveDao=null;addStat('mind',4);S.stress+=10;return[true,`你們平靜地分開了。${old}沒有辯解。`,['失去道侶','心境+4','心魔+10']]}},
+ {b:'殺了那個人',cs:['因果--','道侶離去'],r:()=>{const old=S.dao;S.flags.killed=true;S.flags.cuckold=true;S.karma-=20;S.dao=null;S.love=null;S.flags.loveDao=null;S.stress+=20;return[true,`你殺了他。${old}看你的眼神像看一個陌生人，然後走了。`,['失去道侶','因果-20','心魔+20']]}}]},
+];
+EV.push(...EV22);
 
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
