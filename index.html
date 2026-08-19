@@ -203,7 +203,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 2 . 2</div>
+  <div class="en">X I A N　L I F E　V 2 . 3</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1297,7 +1297,7 @@ const SHOP=[
 ];
 const qiEff=()=>Math.max(.04,.10*(S.shop.lu?1.5:1)*Math.pow(S.type==='alch'?.925:.85,S.shop.qiN||0));
 const FLOOR={qi:120,hui:90,qing:70,wen:200,vein:600,alch:900,guard:400,life:500,dice:180};
-function shopPrice(it){if(it.pts)return 0;let p=Math.max(it.price(),0);p=Math.max(p,Math.round((FLOOR[it.id]||0)*Math.pow(S.realm+1,1.5)));if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);if(S.type==='alch'&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.7*(danLv()?.9:1));if(DEMON(S))p=Math.round(p*1.2);return p}
+function shopPrice(it){if(it.pts)return 0;let p=Math.max(it.price(),0);p=Math.max(p,Math.round((FLOOR[it.id]||0)*Math.pow(S.realm+1,1.5)));if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);if(S.type==='alch'&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.7*(danLv()?.9:1));if(DEMON(S))p=Math.round(p*1.2);p=Math.round(p*W('shop'));return p}
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
 function closeShop(){$('shop').classList.remove('on');render()}
 function renderShop(){
@@ -1653,14 +1653,41 @@ const EV14=[
 ];
 EV.push(...EV14);
 
+
+/* ===================== 天時（回合修飾）與行動小插曲 ===================== */
+const WEATHER=[
+ {id:'qi',ic:'🌬️',n:'靈氣潮湧',d:'今年天地靈氣濃郁：閉關修煉效果 ×1.5',cul:1.5},
+ {id:'fair',ic:'🏮',n:'坊市大集',d:'各地商隊雲集：坊市價格 8 折',shop:.8},
+ {id:'beast',ic:'🐺',n:'妖獸躁動',d:'山林不寧：凶險事件出現率 ×1.5，但錘鍊肉身效果 ×1.5',dgr:1.5,train:1.5},
+ {id:'lit',ic:'📜',n:'文會之年',d:'各派論道講經：研讀典籍效果 ×2',read:2},
+ {id:'drought',ic:'☀️',n:'大旱',d:'民生凋敝：接任務收入 ×0.6，賑濟事件增加',work:.6},
+ {id:'cloud',ic:'☁️',n:'祥雲罩頂',d:'紫氣東來：機緣事件出現率 ×1.5',acc:1.5},
+ {id:'storm',ic:'⛈️',n:'雷雨連月',d:'天象紊亂：突破率 −5%，但閉關心魔不增',brk:-.05,noStress:1},
+ {id:'calm',ic:'🍃',n:'風平浪靜',d:'四海無事：遊歷紅塵心魔 ×2、靜養效果 ×1.5',wander:2,rest:1.5},
+ {id:'star',ic:'✨',n:'星辰歸位',d:'百年一遇的天象：突破率 +5%',brk:.05},
+];
+const W=(k,def=1)=>(S&&S.weather&&WEATHER.find(w=>w.id===S.weather)&&WEATHER.find(w=>w.id===S.weather)[k]!==undefined)?WEATHER.find(w=>w.id===S.weather)[k]:def;
+function rollWeather(){S.weather=rnd()<.6?pick(WEATHER).id:null}
+const SIDEQUEST={
+ cul:[()=>{S.cul+=Math.round(N_()*.06);return'✨ 閉關中忽有所悟，修為額外+6%'},()=>{S.hp-=8;S.stress+=5;return'⚡ 練功太急，走火受了點小傷：體魄-8、心魔+5'},()=>{addStat('insight',2);return'📖 入定時想通一個舊疑問：悟性+2'}],
+ train:[()=>{addStat('body',2);return'💪 一位路過的體修看你練得認真，指點了兩招：根骨+2'},()=>{S.hp-=10;return'🩹 練過頭拉傷了：體魄-10'}],
+ read:[()=>{S.cul+=Math.round(N_()*.05);return'📜 典籍夾頁裡掉出一張前人筆記：修為+5%'},()=>{addStat('spirit',2);return'👁️ 讀到一段觀想法：神識+2'}],
+ wander:[()=>{S.stress=Math.max(0,S.stress-15);return'🍶 路上遇到多年不見的故人，喝了一夜：心魔-15'},()=>{S.stone+=100*(S.realm+1);return'🪙 在河邊撿到一個沒人要的儲物袋：靈石+'+100*(S.realm+1)},()=>{if(S.love&&!S.dao){S.love.aff=Math.min(100,S.love.aff+6);return'💞 路上偶遇心上人，同行一程：好感+6'}addStat('luck',1);return'🍀 遇見一隻白鹿，跟著牠走了一段：氣運+1'}],
+ work:[()=>{S.stone+=300*(S.realm+1);return'💰 委託人是個大方的富商，多給了一份：靈石+'+300*(S.realm+1)},()=>{addStat('social',2);return'🤝 任務中認識了幾個可靠的同道：人脈+2'}],
+ rest:[()=>{S.stress=Math.max(0,S.stress-10);return'☕ 睡了一個很長的覺，夢裡什麼都沒有：心魔再-10'},()=>{addStat('mind',1);return'🌙 靜養時看了三個月的月亮：心境+1'}],
+};
+function sideQuest(id){const arr=SIDEQUEST[id];if(!arr||rnd()>=.12)return'';return'　｜　'+pick(arr)()}
+function repeatLast(){if(!S.lastActs||!S.lastActs.length)return;for(const i of S.lastActs){if(S.ap<=0)break;doAct(i,true)}render()}
+function allCul(){while(S.ap>0)doAct(0,true);render()}
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
- {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06)*(DEMON(S)?1.3:1));S.cul+=g;S.stress+=7;return`修為+${g}`}},
- {id:'train',n:'💪 錘鍊肉身',c:'根骨+ · 體魄+',f:()=>{const a=addStat('body',rr(1,3));S.hp=clamp(S.hp+8,0,100);return`${a?'根骨+'+a:'根骨已達上限'}、體魄+8`}},
- {id:'read',n:'📚 研讀典籍',c:'悟性/神識+',f:()=>{const k=rnd()<.5?'insight':'spirit';const a=addStat(k,rr(1,3));return a?`${AN[k]}+${a}`:`${AN[k]}已達上限`}},
- {id:'wander',n:'🌄 遊歷紅塵',c:'心境/氣運+ · 心魔-',f:()=>{const k=rnd()<.5?'mind':'luck';const a=addStat(k,rr(1,3));S.stress=Math.max(0,S.stress-12);return`${a?AN[k]+'+'+a:AN[k]+'已達上限'}、心魔-12`}},
- {id:'work',n:'💰 接任務賺靈石',c:'80% 靈石+ · 人脈+ ｜ 20% 任務失敗',f:()=>{if(rnd()<.2){S.hp-=5;return pick(['任務失敗：護送的貨被劫了','任務失敗：委託人跑路沒付錢','任務失敗：找了三個月都沒找到那隻靈兔'])+'，體魄-5'}const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1);S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`}},
- {id:'rest',n:'🛌 靜養',c:'體魄+ · 心魔-',f:()=>{S.hp=clamp(S.hp+25,0,100);S.stress=Math.max(0,S.stress-15);return'體魄+25、心魔-15'}},
+ {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06)*(DEMON(S)?1.3:1)*W('cul'));S.cul+=g;if(!W('noStress',0))S.stress+=7;return`修為+${g}`+sideQuest('cul')}},
+ {id:'train',n:'💪 錘鍊肉身',c:'根骨+ · 體魄+',f:()=>{const a=addStat('body',Math.round(rr(1,3)*W('train')));S.hp=clamp(S.hp+8,0,hpMax());return`${a?'根骨+'+a:'根骨已達上限'}、體魄+8`+sideQuest('train')}},
+ {id:'read',n:'📚 研讀典籍',c:'悟性/神識+',f:()=>{const k=rnd()<.5?'insight':'spirit';const a=addStat(k,Math.round(rr(1,3)*W('read')));return (a?`${AN[k]}+${a}`:`${AN[k]}已達上限`)+sideQuest('read')}},
+ {id:'wander',n:'🌄 遊歷紅塵',c:'心境/氣運+ · 心魔-',f:()=>{const k=rnd()<.5?'mind':'luck';const a=addStat(k,rr(1,3));const d=Math.round(12*W('wander'));S.stress=Math.max(0,S.stress-d);return`${a?AN[k]+'+'+a:AN[k]+'已達上限'}、心魔-${d}`+sideQuest('wander')}},
+ {id:'work',n:'💰 接任務賺靈石',c:'80% 靈石+ · 人脈+ ｜ 20% 任務失敗',f:()=>{if(rnd()<.2){S.hp-=5;return pick(['任務失敗：護送的貨被劫了','任務失敗：委託人跑路沒付錢','任務失敗：找了三個月都沒找到那隻靈兔'])+'，體魄-5'}const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1)*W('work');S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`+sideQuest('work')}},
+ {id:'rest',n:'🛌 靜養',c:'體魄+ · 心魔-',f:()=>{const m=W('rest');S.hp=clamp(S.hp+Math.round(25*m),0,hpMax());S.stress=Math.max(0,S.stress-Math.round(15*m));return`體魄+${Math.round(25*m)}、心魔-${Math.round(15*m)}`+sideQuest('rest')}},
 ];
 
 /* ===================== 流程 ===================== */
@@ -1711,12 +1738,13 @@ function chips(arr){return arr.map(c=>{const cls=/[-]/.test(c)&&!/檢定/.test(c
 function renderActions(){
  $('eTag').textContent=`${S.age} 歲・年初`+(lifeWarn()?'・⏳ 大限將至':'');$('eTag').className=lifeWarn()?'tag dgr':'tag sch';
  $('eTitle').textContent='今年如何安排？';
- $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合（${S.life-S.age} 年）。\n`:'')+`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
+ const wx=S.weather?WEATHER.find(w=>w.id===S.weather):null;
+ $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合（${S.life-S.age} 年）。\n`:'')+(wx?`${wx.ic} 天時【${wx.n}】：${wx.d}\n`:'')+`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
  const ACTS=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]);
  $('ePicks').className='picks grid2';$('ePicks').innerHTML=ACTS.map((a,i)=>`<button class="btn" ${a.id==='t_dao'?'style="border-color:#f9a8d488;background:linear-gradient(135deg,#4a1030,#111823)"':a.id==='t_demon'?'style="border-color:#e0525288;background:linear-gradient(135deg,#3a0d0d,#111823)"':a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
-  `<button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
+  `<div style="grid-column:1/-1;display:flex;gap:8px">${S.lastActs&&S.lastActs.length&&S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="repeatLast()">🔁 重複上回合安排</button>`:''}${S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="allCul()">🧘 剩餘全部閉關</button>`:''}</div><button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
-function doAct(i){if(S.ap<=0)return;const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[])[i];if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);showRes(true,`${a.n}`,[r]);
+function doAct(i,quiet){if(S.ap<=0)return;(S.curActs=S.curActs||[]).push(i);const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[])[i];if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
  $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();renderSide();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
  $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
@@ -1726,7 +1754,7 @@ function pickEvent(){
  if(S.stone>=50&&rnd()<(S.shop&&S.shop.dice?.14:.07))return DICE;
  const T=SEED_TIER.find(t=>t.k===S.tier);
  const pool=EV.filter(e=>e.realm.includes(S.realm)&&(!e.cond||e.cond(S))&&!(S.cd[e.id]>S.age));
- let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'));if(S.shop&&S.shop.tieUntil>=S.age)w*=2}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));if(S.shop&&S.shop.guardUntil>S.age)w*=.5}tot+=w;return w});
+ let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'));if(S.shop&&S.shop.tieUntil>=S.age)w*=2;w*=W('acc')}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));if(S.shop&&S.shop.guardUntil>S.age)w*=.5;w*=W('dgr')}tot+=w;return w});
  let x=rnd()*tot;for(let i=0;i<pool.length;i++){x-=ws[i];if(x<=0)return pool[i]}return pool[pool.length-1];
 }
 function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S._culBefore=S.cul;S._stoneBefore=S.stone;S.cd[e.id]=S.age+(S.realm===0?9:4);render()}
@@ -1759,7 +1787,7 @@ function renderYearEnd(){
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`+(S.type==='sword'&&(S.flags.swordQi||0)>=5?`<button class="btn brk" style="background:linear-gradient(100deg,#1e5aa0,#7dd3fc)" onclick="S.flags.swordBurst=true;breakthrough()">⚔️ 劍意破境（消耗 5 劍意，+8% → ${Math.min(99,Math.round(rate*100)+8)}%）</button>`:''):'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(DEMON(S))r+=.06;if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=(S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9)-(DEMON(S)&&S.realm>=8?.05:0);return clamp(r,.08,cap)}
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(DEMON(S))r+=.06;r+=W('brk',0);if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=(S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9)-(DEMON(S)&&S.realm>=8?.05:0);return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];if(S.flags.swordBurst){S.flags.swordQi=Math.max(0,(S.flags.swordQi||0)-5);S.flags.swordBurst=false;log('⚔️ 以劍意破境！')}
  if(S.realm===9){ // 渡劫
@@ -1791,6 +1819,7 @@ function breakthrough(){
 }
 function nextYear(){
  if(S.sect)S.flags.everSect=true;
+ S.lastActs=S.curActs||[];S.curActs=[];rollWeather();
  // 年度被動
  const yrs=S.realm>=2?Math.max(1,Math.round(REALMS[S.realm].life/32)):1; // 高境界一回合過多年
  S.age+=yrs;S.year+=yrs;S.ap=S.apMax;S.phase=0;
@@ -1852,7 +1881,7 @@ function startGame(){
  const name=$('inName').value.trim().slice(0,8);
  if(!name){dlg('還沒取名','請先輸入道號／姓名，或按「↺ 隨機」。',null);$('inName').focus();return}
  let seed=$('inSeed').value.trim();if(!seed){rndSeed();seed=$('inSeed').value}
- S=newState(name,selType,selGoal,seed);initSeed(S);if($('inVow').checked){S.flags.vowRogue=true;S.apMax++;S.ap=S.apMax}applyHallTiers(S);const dn=$('inDao').value.trim().slice(0,8);if(dn){S.love={id:'custom',name:dn,aff:80,met:16};S.dao=dn;S.flags.loveDao='custom';log(`你與青梅竹馬 ${dn} 早已結為道侶，攜手踏上仙途。`)}const gc=$('inGhost').value.trim();if(gc){const g=parseGhost(gc);if(!g){dlg('宿敵碼無效','格式不正確，已忽略。',null)}else{S.ghost=g;S.rival=g.n;log(`此生宿敵：${g.n}（${TYPES[g.type]?TYPES[g.type].name:''}）。你們的路，從此交錯。`)}}recordCurve();
+ S=newState(name,selType,selGoal,seed);initSeed(S);if($('inVow').checked){S.flags.vowRogue=true;S.apMax++;S.ap=S.apMax}applyHallTiers(S);rollWeather();S.curActs=[];const dn=$('inDao').value.trim().slice(0,8);if(dn){S.love={id:'custom',name:dn,aff:80,met:16};S.dao=dn;S.flags.loveDao='custom';log(`你與青梅竹馬 ${dn} 早已結為道侶，攜手踏上仙途。`)}const gc=$('inGhost').value.trim();if(gc){const g=parseGhost(gc);if(!g){dlg('宿敵碼無效','格式不正確，已忽略。',null)}else{S.ghost=g;S.rival=g.n;log(`此生宿敵：${g.n}（${TYPES[g.type]?TYPES[g.type].name:''}）。你們的路，從此交錯。`)}}recordCurve();
  const T=SEED_TIER.find(t=>t.k===S.tier);
  log(`${name} 出生於凡人之家，靈根：${TYPES[selType].name}。命格揭曉：${T.ic}${T.n}——${T.say}`);
  $('pgStart').style.display='none';$('pgGame').style.display='block';
