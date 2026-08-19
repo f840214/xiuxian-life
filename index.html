@@ -1723,13 +1723,13 @@ function allCul(){while(S.ap>0)doAct(0,true);render()}
 const ITEM_BUFF={
  '龍珠':{chkK:{body:2}},'龍鱗':{chkK:{spirit:2}},'龍之逆鱗':{dgrW:-.2},
  '祖師遺劍':{chkK:{body:3,spirit:3}},'古劍':{chkK:{body:2}},'鋒劍':{chkK:{body:2}},'殘劍':{chkK:{body:1}},'血煉魔器':{chkK:{body:3,spirit:3},calm:-1},
- '上古法寶':{brk:.02},'仙城令':{brk:.02},'神格碎片':{brk:.01,chk:1},'異界靈物':{cul:.01},'大能遺物':{cul:.01},'崖底傳承':{cul:.01},'鐘紋玉簡':{chkK:{spirit:3}},'天書殘頁':{chkK:{insight:2}},
+ '上古法寶':{brk:.015},'仙城令':{brk:.015},'神格碎片':{brk:.01},'異界靈物':{cul:.01},'大能遺物':{cul:.01},'崖底傳承':{cul:.01},'鐘紋玉簡':{chkK:{spirit:3}},'天書殘頁':{chkK:{insight:2}},
  'SSR・混沌鐘':{chk:2},'SSR・誅仙劍陣圖':{chkK:{body:4,spirit:2}},'SSR・崑崙鏡':{chkK:{luck:4}},'SSR・東皇鐘':{chk:2},'開局神器・弒神槍':{chkK:{body:4}},'黑風鬼頭刀':{chkK:{body:2}},'血魔功殘卷':{chkK:{spirit:3},calm:-1},
  '護身甲':{dgrHp:.15},'玄武甲':{dgrHp:.3},'鳳羽法寶':{chkK:{spirit:2}},'鳳凰羽':{chkK:{luck:2}},'雷精':{chkK:{body:2}},'天外隕鐵':{chkK:{body:1}},'隕鐵':{chkK:{luck:1}},
  '舍利':{calm:1},'念珠':{calm:1},'琴譜':{calm:1},'靜心蒲團':{},'老怪的洞府':{cul:.01},'仙人玉符':{dgrW:-.1},'魚吐珠':{chkK:{luck:2}},'靈光珠':{chkK:{insight:1}},'古銅鏡':{chkK:{spirit:1}},'半塊玉佩':{chkK:{luck:1}},
  '靈鷹':{accW:.05},'靈獸':{chkK:{body:1}},'老狗':{calm:1},'娘的棉衣':{calm:1},'陶匠的碗':{calm:1},'長老贈禮':{chk:1},'撿漏法器':{chkK:{spirit:1}},'石上刻文':{cul:.005},'千年樹心':{chkK:{spirit:2}},'仙盟令':{accW:.05},'三十年前的包裹':{chkK:{mind:1}},
 };
-const IB=(k,sub)=>S?S.items.reduce((a,n)=>{const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.02,calm:1}:null);if(!b)return a;if(sub)return a+((b[k]||{})[sub]||0);return a+(typeof b[k]==='number'?b[k]:0)},0):0;
+const IB=(k,sub)=>S?S.items.reduce((a,n)=>{const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.01,calm:1}:null);if(!b)return a;if(sub)return a+((b[k]||{})[sub]||0);return a+(typeof b[k]==='number'?b[k]:0)},0):0;
 const buffTxt=b=>{const o=[];if(b.brk)o.push('突破率 '+(b.brk>0?'+':'')+Math.round(b.brk*100)+'%');if(b.chk)o.push('所有檢定 '+(b.chk>0?'+':'')+b.chk);if(b.chkK)for(const k in b.chkK)o.push(AN[k]+'檢定 '+(b.chkK[k]>0?'+':'')+b.chkK[k]);if(b.cul)o.push('每回合修為 +'+(b.cul*100)+'%');if(b.calm)o.push('每回合心魔 '+(b.calm>0?'−':'+')+Math.abs(b.calm));if(b.dgrW)o.push('凶險事件 '+Math.round(b.dgrW*100)+'%');if(b.dgrHp)o.push('凶險傷害 −'+Math.round(b.dgrHp*100)+'%');if(b.accW)o.push('機緣事件 +'+Math.round(b.accW*100)+'%');return o.join('、')};
 
 /* ===================== 持有物說明 ===================== */
@@ -1743,7 +1743,7 @@ const ITEM_INFO={
  '護身甲':['🛡️','藏寶閣靈甲'],'玄武甲':['🐢','天下無雙的護身甲'],'大能遺物':['📿','前輩遺府所得'],'撿漏法器':['🔍','坊市撿漏'],'陶匠的碗':['🏺','用了幾百年都沒破'],'琴譜':['🎶','心煩時可彈'],'念珠':['📿','老僧遺物'],'舍利':['🕯️','已消心魔 15'],'半塊玉佩':['🪙','刻著奇怪紋路'],'仙人玉符':['🧧','危急時捏碎（劇情向）'],'鐘紋玉簡':['🔔','上古鐘下所得'],'天書殘頁':['📜','字會動的紙'],'娘的棉衣':['🧥','穿了很多年'],'老怪的洞府':['🏠','賭約贏來的洞府'],'長老贈禮':['🎁','謝絕入門的交情'],
  '渡劫護命符':['🧧','渡劫失敗保命一次'],'黑風鬼頭刀':['🔪','黑風寨主的刀'],'血魔功殘卷':['📕','血手魔頭遺物'],'開光玉佩':['🧿','氣運 +5、強盜機率減半（已生效）'],'紫金丹爐':['🔥','聚氣丹 +50%、丹房 +50%（已生效）'],'靜心蒲團':['🪷','每回合心魔 −4（已生效）'],
 };
-const itemInfo=n=>{const base=ITEM_INFO[n]||(n.endsWith('的法寶')?['💞','道侶親手所煉']:['📦','紀念之物']);const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.02,calm:1}:null);const t=b?buffTxt(b):'';return t?[base[0],base[1]+'｜被動：'+t]:base};
+const itemInfo=n=>{const base=ITEM_INFO[n]||(n.endsWith('的法寶')?['💞','道侶親手所煉']:['📦','紀念之物']);const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.01,calm:1}:null);const t=b?buffTxt(b):'';return t?[base[0],base[1]+'｜被動：'+t]:base};
 const ITEM_NOTE='所有持有物皆可在天雷／小天劫事件中犧牲一件擋災，或在囊中羞澀時典當。';
 function itemChips(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<span class="chip c-neu tip" data-tip="${esc(d)}" style="cursor:pointer" onclick="dlg('${esc(ic+' '+n)}','${esc(d)}\n\n${ITEM_NOTE}',null)">${ic} ${esc(n)}</span>`}).join(' ')}
 function itemRows(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<div style="display:flex;gap:6px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:.76rem;line-height:1.45"><span style="flex:0 0 auto">${ic}</span><b style="flex:0 0 auto;min-width:5.5em">${esc(n)}</b><span style="color:var(--sub)">${esc(d)}</span></div>`}).join('')}
@@ -1760,17 +1760,17 @@ const EV15=[
  opts:[{b:'夜襲',cs:['根骨檢定'],r:()=>{S.flags.killed=true;if(chk('body',40)){S.flags.st_bf=2;return[true,'你趁夜殺進去，放火燒了糧倉。山賊大亂，寨主帶親信逃了。',[F_(200),K_(5),'劇情：黑風寨 2/3']]}S.hp-=30;S.flags.st_bf=2;return[false,'寨裡有埋伏。你重傷退走，但摸清了地形。',[H_(0),'體魄-30','劇情：黑風寨 2/3']]}},
  {b:'聯絡官府與附近散修',cs:['人脈檢定'],r:()=>{if(chk('social',38)){S.flags.st_bf=2;return[true,'三十多人響應。你們把寨子圍了。',[R('social',3),'劇情：黑風寨 2/3']]}return[false,'沒人願意惹黑風寨。你只能自己想辦法。',[X_(5)]]}}]},
 {id:'bf3',realm:[1,2,3,4],w:16,cond:s=>ST('bf')===2,tag:'dgr',t:'⛰️ 黑風寨・決戰',d:'寨主「黑風」現身——一個滿臉刀疤的築基修士，手裡是一柄沾滿血的鬼頭刀。「你毀我寨子，今日不死不休！」',
- opts:[{b:'⚔️ 擊殺黑風',cs:['根骨+神識檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',44,S.stat.spirit/4)){S.flags.st_bf=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.items.push('黑風鬼頭刀');return[true,'三十招後，鬼頭刀落地。黑風寨從此除名，三個村子的人跪了一地。你在寨子裡搜出他們多年的積蓄。',[F_(800),K_(15),$_(1500*(S.realm+1)),'獲得黑風鬼頭刀','劇情完成：黑風寨']]}S.hp-=40;S.flags.everLost=true;return[false,'黑風的刀比你想的快。你重傷被村民救走。他逃進了深山。',['體魄-40',X_(10)]]}},
+ opts:[{b:'⚔️ 擊殺黑風',cs:['根骨+神識檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',44,S.stat.spirit/4)){S.flags.st_bf=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.items.push('黑風鬼頭刀');return[true,'三十招後，鬼頭刀落地。黑風寨從此除名，三個村子的人跪了一地。你在寨子裡搜出他們多年的積蓄。',[F_(500),K_(12),$_(800*(S.realm+1)),'獲得黑風鬼頭刀','劇情完成：黑風寨']]}S.hp-=40;S.flags.everLost=true;return[false,'黑風的刀比你想的快。你重傷被村民救走。他逃進了深山。',['體魄-40',X_(10)]]}},
  {b:'招降',cs:['人脈檢定'],r:()=>{if(chk('social',44)){S.flags.st_bf=3;S.flags.disciples=(S.flags.disciples||0)+1;return[true,'黑風放下刀。他說他也曾是被逼上山的良民。你收了他做護法。',[K_(10),F_(300),'徒弟+1','劇情完成：黑風寨']]}S.hp-=25;return[false,'他假意投降，暗中偷襲。',['體魄-25']]}}]},
-{id:'bh1',realm:[3,4,5,6],w:10,cond:s=>ST('bh')===0,tag:'dgr',t:'🩸 血手魔頭・案',d:'一年之內，七座城發生同樣的血案：受害者全被抽乾精血，牆上留下一個血手印。正道懸賞十萬靈石。',
+{id:'bh1',realm:[3,4,5,6],w:10,cond:s=>ST('bh')===0,tag:'dgr',t:'🩸 血手魔頭・案',d:'一年之內，七座城發生同樣的血案：受害者全被抽乾精血，牆上留下一個血手印。正道懸賞三萬靈石。',
  opts:[{b:'接下懸賞',cs:['神識檢定','劇情推進'],r:()=>{S.flags.st_bh=1;return chk('spirit',44)?[true,'你在第七座城找到一縷殘留的魔氣——來自西域的血魔功。',[R('spirit',2),'劇情：血手魔頭 1/3']]:[false,'線索太少。但你知道下一座城會是哪一座。',['劇情：血手魔頭 1/3']]}},
  {b:'不蹚渾水',cs:['—'],r:()=>{S.flags.st_bh=-1;return[true,'血案又持續了十年。',[K_(-5)]]}}]},
 {id:'bh2',realm:[3,4,5,6,7],w:14,cond:s=>ST('bh')===1,tag:'dgr',t:'🩸 血手魔頭・巢穴',d:'你追到魔頭的巢穴——一座廢棄礦洞，洞裡關著上百個活人，都是他的「糧食」。魔頭不在。',
  opts:[{b:'先救人',cs:['因果+','神識檢定'],r:()=>{S.flags.st_bh=2;return chk('spirit',46)?[true,'你破了洞口的血陣，救出一百二十七人。魔頭回來時只看到空洞。',[K_(20),F_(500),R('spirit',2),'劇情：血手魔頭 2/3']]:[false,'血陣反噬，你受了傷，但人還是救出來了大半。',[K_(15),H_(-25),'劇情：血手魔頭 2/3']]}},
  {b:'埋伏等他回來',cs:['心境檢定'],r:()=>{S.flags.st_bh=2;return chk('mind',46)?[true,'你在洞裡等了七天。他回來了。你們打了一場，他逃了，但你傷了他。',[F_(300),'劇情：血手魔頭 2/3']]:[false,'你等得心浮氣躁，被他先發現。他放火燒了洞——連同裡面的人。',[K_(-10),X_(20),'劇情：血手魔頭 2/3']]}}]},
 {id:'bh3',realm:[3,4,5,6,7,8],w:16,cond:s=>ST('bh')===2,tag:'dgr',t:'🩸 血手魔頭・決戰',d:'血手魔頭在一座死城裡等你。他的修為比你高半境，血手功大成，每殺一人就更強。「你毀我道糧，我便以你的血補回來。」',
- opts:[{b:'⚔️ 擊殺血手魔頭',cs:['根骨+神識+心境檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',50,S.stat.spirit/4+S.stat.mind/6)){S.flags.st_bh=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.items.push('血魔功殘卷');return[true,'一日一夜。最後你一劍穿透他的心口，血手功隨之消散。七座城為你立了碑。正道懸賞如數奉上。',[F_(3000),K_(25),$_(100000),'獲得血魔功殘卷','劇情完成：血手魔頭']]}S.hp-=50;S.stress+=15;S.flags.everLost=true;return[false,'他的血手功太邪。你重傷遁走。他躲回西域，多年後才再出現。',['體魄-50','心魔+15']]}},
- {b:'以命換命（自爆一半修為）',cs:['修為-50%','必勝'],r:()=>{S.flags.st_bh=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.cul=Math.round(S.cul*.5);S.hp-=30;S.flags.killed=true;return[true,'你自爆了一半修為，血魔功抵不住這一擊。他死了。你活著，但花了很久才恢復。',['修為-50%','體魄-30',F_(3000),K_(25),$_(100000),'劇情完成：血手魔頭']]}}]},
+ opts:[{b:'⚔️ 擊殺血手魔頭',cs:['根骨+神識+心境檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',50,S.stat.spirit/4+S.stat.mind/6)){S.flags.st_bh=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.items.push('血魔功殘卷');return[true,'一日一夜。最後你一劍穿透他的心口，血手功隨之消散。七座城為你立了碑。正道懸賞如數奉上。',[F_(1500),K_(20),$_(30000),'獲得血魔功殘卷','劇情完成：血手魔頭']]}S.hp-=50;S.stress+=15;S.flags.everLost=true;return[false,'他的血手功太邪。你重傷遁走。他躲回西域，多年後才再出現。',['體魄-50','心魔+15']]}},
+ {b:'以命換命（自爆一半修為）',cs:['修為-50%','必勝'],r:()=>{S.flags.st_bh=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.cul=Math.round(S.cul*.5);S.hp-=30;S.flags.killed=true;return[true,'你自爆了一半修為，血魔功抵不住這一擊。他死了。你活著，但花了很久才恢復。',['修為-50%','體魄-30',F_(1500),K_(20),$_(30000),'劇情完成：血手魔頭']]}}]},
 {id:'ms1',realm:[2,3,4,5,6],w:10,cond:s=>!!s.master&&ST('ms')===0,tag:'',t:()=>`🙇 ${S.master}的過去・故人`,d:()=>`一位陌生老者來訪，指名要見${S.master}。兩人在密室談了一夜。師父出來時，你第一次看見他眼裡有懼色。`,
  opts:[{b:'問師父',cs:['人脈檢定','劇情推進'],r:()=>{S.flags.st_ms=1;return chk('social',40)?[true,`師父嘆氣：「當年我犯過一個錯，害死了一個人。他的兒子，長大了。」`,[R('mind',2),'劇情：師父的過去 1/3']]:[false,'師父什麼也不肯說。但你偷聽到了「三個月後」。',['劇情：師父的過去 1/3']]}},
  {b:'不多問',cs:['—'],r:()=>{S.flags.st_ms=-1;return[true,'師父的事，你不便多問。',[R('mind',1)]]}}]},
@@ -1778,8 +1778,8 @@ const EV15=[
  opts:[{b:'替師父去見那人',cs:['心境檢定'],r:()=>{S.flags.st_ms=2;return chk('mind',44)?[true,'你找到了他——一個眼裡全是恨的年輕修士。他看了信，撕了。「叫他自己來。」',[R('mind',3),'劇情：師父的過去 2/3']]:[false,'你話沒說完他就出手了。你帶傷回來。',[H_(-25),'劇情：師父的過去 2/3']]}},
  {b:'守著師父養傷',cs:['因果+'],r:()=>{S.flags.st_ms=2;return[true,'你守了師父半年。他好了，但更沉默了。',[K_(5),R('mind',2),'劇情：師父的過去 2/3']]}}]},
 {id:'ms3',realm:[2,3,4,5,6,7,8],w:16,cond:s=>!!s.master&&ST('ms')===2,tag:'dgr',t:()=>`🙇 ${S.master}的過去・了結`,d:()=>`那人終於上門。他要${S.master}的命。師父沒有還手的意思。你站在中間。`,
- opts:[{b:'⚔️ 替師父戰，擊殺復仇者',cs:['根骨+神識檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',46,S.stat.spirit/4)){S.flags.st_ms=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.karma-=8;return[true,'你殺了他。師父跪在屍體前很久，然後對你說：「你不該替我背這個。」但你知道他鬆了口氣。',[F_(600),'因果-8',C_(.15),R('body',3),'劇情完成：師父的過去']]}S.hp-=40;S.flags.everLost=true;S.flags.st_ms=3;return[false,'你不是他的對手。師父最後還是出手了——他殺了那人，也廢了自己一半修為。',['體魄-40',X_(15),'劇情完成：師父的過去']]}},
- {b:'以命相護，求他放過師父',cs:['心境檢定','因果++'],r:()=>{if(chk('mind',50)){S.flags.st_ms=3;S.karma+=20;addStat('mind',5);S.life+=30;return[true,'你跪下了。他看了你很久，扔下劍走了。師父後來把一生所學都教了你。',['因果+20','心境+5','壽元+30',C_(.25),'劇情完成：師父的過去']]}S.hp-=30;S.flags.st_ms=3;return[false,'他沒有停手。你替師父擋了一劍。師父殺了他。',['體魄-30',K_(5),'劇情完成：師父的過去']]}}]},
+ opts:[{b:'⚔️ 替師父戰，擊殺復仇者',cs:['根骨+神識檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',46,S.stat.spirit/4)){S.flags.st_ms=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.karma-=8;return[true,'你殺了他。師父跪在屍體前很久，然後對你說：「你不該替我背這個。」但你知道他鬆了口氣。',[F_(400),'因果-8',C_(.1),R('body',2),'劇情完成：師父的過去']]}S.hp-=40;S.flags.everLost=true;S.flags.st_ms=3;return[false,'你不是他的對手。師父最後還是出手了——他殺了那人，也廢了自己一半修為。',['體魄-40',X_(15),'劇情完成：師父的過去']]}},
+ {b:'以命相護，求他放過師父',cs:['心境檢定','因果++'],r:()=>{if(chk('mind',50)){S.flags.st_ms=3;S.karma+=15;addStat('mind',4);S.life+=20;return[true,'你跪下了。他看了你很久，扔下劍走了。師父後來把一生所學都教了你。',['因果+15','心境+4','壽元+20',C_(.15),'劇情完成：師父的過去']]}S.hp-=30;S.flags.st_ms=3;return[false,'他沒有停手。你替師父擋了一劍。師父殺了他。',['體魄-30',K_(5),'劇情完成：師父的過去']]}}]},
 ];
 EV.push(...EV15);
 /* ===================== 成就 toast ===================== */
