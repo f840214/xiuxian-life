@@ -203,7 +203,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 1 . 7</div>
+  <div class="en">X I A N　L I F E　V 1 . 8</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1287,6 +1287,7 @@ const SHOP=[
  {id:'sp1',ic:'🎁',n:'積分兌換：靈石大禮包',d:()=>`系統專屬。消耗 30 積分（目前 ${S.sys.pts}），獲得靈石 ${fmt(500*(S.realm+1))}`,price:()=>0,limit:2,type:'sys',pts:30,max:()=>S.sys.pts<30,buy:()=>{S.sys.pts-=30;S.stone+=500*(S.realm+1)}},
  {id:'sp2',ic:'💡',n:'積分兌換：頓悟卡',d:()=>`系統專屬。消耗 60 積分（目前 ${S.sys.pts}），修為 +25%`,price:()=>0,limit:1,type:'sys',pts:60,max:()=>S.sys.pts<60,buy:()=>{S.sys.pts-=60;S.cul+=Math.round(REALMS[S.realm].need*.25)}},
  {id:'sp3',ic:'🛡️',n:'積分兌換：免死金牌',d:()=>`系統專屬・一次性。消耗 200 積分（目前 ${S.sys.pts}），渡劫失敗時保命一次`,price:()=>0,limit:1,type:'sys',pts:200,max:()=>S.sys.pts<200||!!S.flags.freeDeath,buy:()=>{S.sys.pts-=200;S.flags.freeDeath=true}},
+ {id:'talis',ic:'🧧',n:'渡劫護命符',d:()=>'渡劫期限定・一次性。渡劫失敗時保住性命（境界不跌、修為減半、重傷）。固定 20,000 靈石',price:()=>20000,limit:1,min:9,max:()=>!!S.flags.freeDeath,buy:()=>{S.flags.freeDeath=true;S.items.push('渡劫護命符')}},
  {id:'bag',ic:'👝',n:'防盜儲物袋',d:()=>'一次性。被強盜洗劫時損失減半（10% → 5%）',price:()=>Math.round(REALMS[S.realm].need*1.5),limit:1,max:()=>!!S.shop.bag,buy:()=>{S.shop.bag=1}},
  {id:'tie',ic:'📨',n:'拜帖',d:()=>'消耗品。下一回合機緣事件出現率 ×2',price:()=>Math.round(REALMS[S.realm].need*.8),limit:1,buy:()=>{S.shop.tieUntil=S.age+1}},
  {id:'dice',ic:'🎲',n:'骰盅',d:()=>'一次性。天機賭局出現率翻倍（永久）',price:()=>Math.round(REALMS[S.realm].need*.5),limit:1,max:()=>S.shop.dice>0,buy:()=>{S.shop.dice=1}},
@@ -1705,7 +1706,7 @@ function renderYearEnd(){
  const Rm=REALMS[S.realm];const can=S.cul>=Rm.need&&S.realm<10;
  const rate=can?brkRate():0;
  $('eTitle').textContent=can?`修為圓滿，可嘗試突破至「${REALMS[S.realm+1].n}」`:'又是一年';
- $('eDesc').textContent=can?`${S.realm===9?'⚡ 九九天劫：成敗在此一舉。失敗 75% 身死道消、25% 僥倖跌回化神（修為減半、六維×0.7）。\n':''}突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`;
+ $('eDesc').textContent=can?`${S.realm===9?'⚡ 九九天劫：成敗在此一舉。失敗 75% 身死道消、25% 僥倖跌回化神（修為減半、六維×0.7）。坊市可購「渡劫護命符」保命一次。\n':''}突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`;
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`+(S.type==='sword'&&(S.flags.swordQi||0)>=5?`<button class="btn brk" style="background:linear-gradient(100deg,#1e5aa0,#7dd3fc)" onclick="S.flags.swordBurst=true;breakthrough()">⚔️ 劍意破境（消耗 5 劍意，+8% → ${Math.min(99,Math.round(rate*100)+8)}%）</button>`:''):'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
@@ -1720,7 +1721,7 @@ function breakthrough(){
    showRes(false,'第九道天雷落下，你的元嬰碎了一半。醒來時已是三百年後，境界只剩化神。\n但你還活著。',['境界跌回化神期','修為減半','六維×0.7','體魄→15','心魔+35','壽元受限']);
    $('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();
    $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);return}
-  if(S.flags.freeDeath){S.flags.freeDeath=false;S.hp=10;S.stress+=30;S.cul=Math.round(S.cul*.5);log('⚡ 渡劫失敗——免死金牌碎裂，你保住一命。');ach();showRes(false,'最後一道天雷落下的瞬間，系統的免死金牌碎成光屑。你活著，境界未跌，但半身焦黑。',['免死金牌消耗','體魄→10','心魔+30','修為-50%']);$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();return}
+  if(S.flags.freeDeath){S.flags.freeDeath=false;S.hp=10;S.stress+=30;S.cul=Math.round(S.cul*.5);const tal=S.items.includes('渡劫護命符');if(tal)S.items=S.items.filter(x=>x!=='渡劫護命符');log('⚡ 渡劫失敗——'+(tal?'護命符':'免死金牌')+'碎裂，你保住一命。');ach();showRes(false,'最後一道天雷落下的瞬間，'+(tal?'護命符燃成灰燼':'系統的免死金牌碎成光屑')+'。你活著，境界未跌，但半身焦黑。',[(tal?'護命符':'免死金牌')+'消耗','體魄→10','心魔+30','修為-50%']);$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();return}
   S.dead=true;S.ending='trib';log('⚡ 渡劫失敗，身死道消。');ach();render();return
  }
  if(rnd()<r){
