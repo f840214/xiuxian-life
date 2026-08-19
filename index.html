@@ -209,7 +209,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 2 . 7</div>
+  <div class="en">X I A N　L I F E　V 2 . 8</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1715,7 +1715,7 @@ const ITEM_INFO={
 const itemInfo=n=>{const base=ITEM_INFO[n]||(n.endsWith('的法寶')?['💞','道侶親手所煉']:['📦','紀念之物']);const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.02,calm:1}:null);const t=b?buffTxt(b):'';return t?[base[0],base[1]+'｜被動：'+t]:base};
 const ITEM_NOTE='所有持有物皆可在天雷／小天劫事件中犧牲一件擋災，或在囊中羞澀時典當。';
 function itemChips(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<span class="chip c-neu tip" data-tip="${esc(d)}" style="cursor:pointer" onclick="dlg('${esc(ic+' '+n)}','${esc(d)}\n\n${ITEM_NOTE}',null)">${ic} ${esc(n)}</span>`}).join(' ')}
-function itemRows(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:.8rem"><span style="flex:0 0 auto">${ic}</span><b style="flex:0 0 auto;min-width:6em">${esc(n)}</b><span style="color:var(--sub)">${esc(d)}</span></div>`}).join('')}
+function itemRows(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<div style="display:flex;gap:6px;padding:4px 0;border-bottom:1px dashed var(--line);font-size:.76rem;line-height:1.45"><span style="flex:0 0 auto">${ic}</span><b style="flex:0 0 auto;min-width:5.5em">${esc(n)}</b><span style="color:var(--sub)">${esc(d)}</span></div>`}).join('')}
 
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
@@ -1738,7 +1738,7 @@ function renderSide(){
  $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,lifeWarn()?'f-bad':'f-blu',`${S.age} / ${fmt(S.life)}${S.realm<10?`　<span style="color:${lifeWarn()?'var(--red)':'var(--dim)'};font-weight:400">約 ${turnsLeft()} 回合</span>`:''}`);
  $('mindBars2').innerHTML=$('mindBars').innerHTML;
  const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
- $('sideInfo').innerHTML=`<div class="kv"><span>📯 名望</span><b>${fmt(S.fame)}</b><span>☯️ 因果</span><b style="color:${S.karma>=0?'var(--jade)':'var(--red)'}">${S.karma>0?'+':''}${S.karma}</b>${S.master?`<span>🙇 師承</span><b>${esc(S.master)}</b>`:''}${S.dao?`<span>💞 道侶</span><b>${esc(S.dao)}</b>`:S.love?`<span>${LV().ic} 心上人</span><b>${esc(LV().n)}（${S.love.aff}）</b>`:''}${S.ghost?`<span>⚔️ 宿敵</span><b>${esc(S.ghost.n)}</b>`:''}${S.flags.disciples?`<span>🧒 徒弟</span><b>${S.flags.disciples} 人</b>`:''}</div>${S.items.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:5px">${itemChips(S.items.slice(-8))}${S.items.length>8?`<span class="chip c-neu">…共 ${S.items.length} 件</span>`:''}</div>`:''}`;
+ $('sideInfo').innerHTML=`<div class="kv"><span>📯 名望</span><b>${fmt(S.fame)}</b><span>☯️ 因果</span><b style="color:${S.karma>=0?'var(--jade)':'var(--red)'}">${S.karma>0?'+':''}${S.karma}</b>${S.master?`<span>🙇 師承</span><b>${esc(S.master)}</b>`:''}${S.dao?`<span>💞 道侶</span><b>${esc(S.dao)}</b>`:S.love?`<span>${LV().ic} 心上人</span><b>${esc(LV().n)}（${S.love.aff}）</b>`:''}${S.ghost?`<span>⚔️ 宿敵</span><b>${esc(S.ghost.n)}</b>`:''}${S.flags.disciples?`<span>🧒 徒弟</span><b>${S.flags.disciples} 人</b>`:''}</div>${S.items.length?`<div style="margin-top:8px"><div style="font-size:.68rem;color:var(--dim);letter-spacing:1px;margin-bottom:2px">持有物（${S.items.length}）</div>${itemRows(S.items.slice(-8))}${S.items.length>8?`<div class="hint">…還有 ${S.items.length-8} 件，完整清單見「狀態」頁</div>`:''}</div>`:''}`;
  $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。';
 }
 function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}const l2=$('s2Life');if(l2)l2.style.color=lifeWarn()?'var(--red)':'';}
