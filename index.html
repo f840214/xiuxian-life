@@ -2001,7 +2001,7 @@ const ACTIONS=[
  {id:'train',n:'💪 錘鍊肉身',c:'根骨+ · 體魄+',f:()=>{const a=addStat('body',Math.round(rr(1,3)*W('train')));S.hp=clamp(S.hp+8,0,hpMax());return`${a?'根骨+'+a:'根骨已達上限'}、體魄+8`+sideQuest('train')}},
  {id:'read',n:'📚 研讀典籍',c:'悟性/神識+',f:()=>{const k=rnd()<.5?'insight':'spirit';const a=addStat(k,Math.round(rr(1,3)*W('read')));return (a?`${AN[k]}+${a}`:`${AN[k]}已達上限`)+sideQuest('read')}},
  {id:'wander',n:'🌄 遊歷紅塵',c:'心境/氣運+ · 心魔-',f:()=>{const k=rnd()<.5?'mind':'luck';const a=addStat(k,rr(1,3));const d=Math.round(12*W('wander'));S.stress=Math.max(0,S.stress-d);return`${a?AN[k]+'+'+a:AN[k]+'已達上限'}、心魔-${d}`+sideQuest('wander')}},
- {id:'work',n:'💰 接任務賺靈石',c:'80% 靈石+ · 人脈+ ｜ 20% 任務失敗',f:()=>{if(rnd()<.2){S.hp-=5;return pick(['任務失敗：護送的貨被劫了','任務失敗：委託人跑路沒付錢','任務失敗：找了三個月都沒找到那隻靈兔'])+'，體魄-5'}const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1)*W('work');S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`+sideQuest('work')}},
+ {id:'work',n:'💰 接任務賺靈石',c:'80% 靈石+ · 人脈+ ｜ 20% 任務失敗',f:()=>{if(rnd()<.2){S.hp-=5;return pick(['任務失敗：護送的貨被劫了','任務失敗：委託人跑路沒付錢','任務失敗：找了三個月都沒找到那隻靈兔'])+'，體魄-5'}const g=rr(120,280)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1)*W('work');S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`+sideQuest('work')}},
  {id:'rest',n:'🛌 靜養',c:'體魄+ · 心魔-',f:()=>{const m=W('rest');S.hp=clamp(S.hp+Math.round(25*m),0,hpMax());S.stress=Math.max(0,S.stress-Math.round(15*m));return`體魄+${Math.round(25*m)}、心魔-${Math.round(15*m)}`+sideQuest('rest')}},
 ];
 
