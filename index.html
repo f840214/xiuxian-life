@@ -260,7 +260,7 @@ body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c)
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 4 . 3</div>
+  <div class="en">X I A N　L I F E　V 4 . 4</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -2122,7 +2122,7 @@ function render(){
  if(!S)return;
  const T=SEED_TIER.find(t=>t.k===S.tier),Rm=REALMS[S.realm];
  $('bAv').textContent=S.name[0];$('bName').textContent=S.name;
- $('bSub').innerHTML=`<span style="color:${TCOL[S.type][0]};font-weight:800">${TYPES[S.type].name}</span>｜${sectName(S)}｜${T.ic} ${T.n}${S.origin&&S.origin!=='farm'?'｜'+ORIGINS[S.origin].n:''}`;$('bName').style.color=TCOL[S.type][0];$('bAv').style.background=`linear-gradient(135deg,#fff,${TCOL[S.type][0]} 45%,${TCOL[S.type][1]})`;$('bAv').style.boxShadow=`0 0 0 2px var(--bg),0 0 0 3.5px ${TCOL[S.type][0]}88`;
+ $('bSub').innerHTML=`<span style="color:${TCOL[S.type][0]};font-weight:800">${(S.flags.affair||0)>=1?'🌸 渣修':S.flags.mozun?'👹 魔尊':S.flags.emperor?'👑 皇帝':TYPES[S.type].name}</span>｜${sectName(S)}｜${T.ic} ${T.n}${S.origin&&S.origin!=='farm'?'｜'+ORIGINS[S.origin].n:''}`;$('bName').style.color=TCOL[S.type][0];$('bAv').style.background=`linear-gradient(135deg,#fff,${TCOL[S.type][0]} 45%,${TCOL[S.type][1]})`;$('bAv').style.boxShadow=`0 0 0 2px var(--bg),0 0 0 3.5px ${TCOL[S.type][0]}88`;
  $('bAge').textContent=S.age;$('bYear').textContent='歲';
  {const lw=lifeWarn();const lb=$('lifeBar');if(lb&&lb.classList){lb.classList.toggle('on',lw&&!S.dead);if(lw)$('lifeBarTxt').innerHTML=`大限將至：壽元只剩 <b>${S.life-S.age}</b> 年（約 <b>${turnsLeft()}</b> 回合）。趁還來得及——突破、延壽，或把該交代的交代。`}const ab=document.querySelector('.agebox');if(ab&&ab.classList)ab.classList.toggle('warn',lw&&!S.dead);if(document.body&&document.body.classList)document.body.classList.toggle('demon',DEMON(S))}
  $('sOvr').textContent=ovr();$('sStone').textContent=fmt(S.stone);$('sAP').textContent=`${S.ap}/${S.apMax}`;
