@@ -480,7 +480,7 @@ function initSeed(s){
  s.life=80+T.life;s.apMax=3+(tk===-1?1:0);s.ap=s.apMax;
 }
 function ovr(s=S){return Math.round(AK.reduce((a,k)=>a+s.stat[k]*OVR_W[k],0))}
-function addStat(k,v){const b=S.stat[k];S.stat[k]=clamp(S.stat[k]+v,5,S.cap[k]);return S.stat[k]-b}
+function addStat(k,v){const b=S.stat[k];if(v>0&&S.stat[k]>=S.cap[k]&&S.cap[k]<99&&rnd()<.15){S.cap[k]+=1;S.flags.capBreaks=(S.flags.capBreaks||0)+1}S.stat[k]=clamp(S.stat[k]+v,5,S.cap[k]);return S.stat[k]-b}
 function log(t){S.log.unshift({y:S.age,t});if(S.log.length>300)S.log.length=300}
 function save(){try{localStorage.setItem(SK,JSON.stringify(S,(k,v)=>k.startsWith('_')?undefined:v))}catch(e){}}
 function reseed(){RNG=mb32(hashStr(S.seed+'#'+S.step))}
@@ -2081,7 +2081,7 @@ function renderSide(){
  $('mindBars2').innerHTML=$('mindBars').innerHTML;
  const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
  $('sideInfo').innerHTML=`<div class="kv"><span>📯 名望</span><b>${fmt(S.fame)}</b><span>☯️ 因果</span><b style="color:${S.karma>=0?'var(--jade)':'var(--red)'}">${S.karma>0?'+':''}${S.karma}</b>${S.master?`<span>🙇 師承</span><b>${esc(S.master)}</b>`:''}${S.dao?`<span>💞 道侶</span><b>${esc(S.dao)}</b>`:S.love?`<span>${LV().ic} 心上人</span><b>${esc(LV().n)}（${S.love.aff}）</b>`:''}${S.ghost?`<span>⚔️ 宿敵</span><b>${esc(S.ghost.n)}</b>`:''}${S.flags.disciples?`<span>🧒 徒弟</span><b>${S.flags.disciples} 人</b>`:''}</div>${S.items.length?`<div style="margin-top:8px"><div style="font-size:.68rem;color:var(--dim);letter-spacing:1px;margin-bottom:2px">持有物（${S.items.length}）</div>${itemRows(S.items.slice(-8))}${S.items.length>8?`<div class="hint">…還有 ${S.items.length-8} 件，完整清單見「狀態」頁</div>`:''}</div>`:''}`;
- $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。';
+ $('capHint').textContent='灰色數字為資質上限（由命格種子決定）。每次突破成功上限 +2；已達上限時再獲得加成有 15% 機率使上限 +1。';
 }
 function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}const l2=$('s2Life');if(l2)l2.style.color=lifeWarn()?'var(--red)':'';}
 function render(){
@@ -2172,7 +2172,7 @@ function renderYearEnd(){
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`+(S.type==='sword'&&(S.flags.swordQi||0)>=5?`<button class="btn brk" style="background:linear-gradient(100deg,#1e5aa0,#7dd3fc)" onclick="S.flags.swordBurst=true;breakthrough()">⚔️ 劍意破境（消耗 5 劍意，+8% → ${Math.min(99,Math.round(rate*100)+8)}%）</button>`:''):'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(DEMON(S))r+=.06;r+=W('brk',0);r+=JL('tj')*.006;if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=(S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9)-(DEMON(S)&&S.realm>=8?.05:0);return clamp(r,.08,cap)}
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/150+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.05)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(DEMON(S))r+=.06;r+=W('brk',0);r+=JL('tj')*.006;if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=(S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9)-(DEMON(S)&&S.realm>=8?.05:0);return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];if(S.flags.swordBurst){S.flags.swordQi=Math.max(0,(S.flags.swordQi||0)-5);S.flags.swordBurst=false;log('⚔️ 以劍意破境！')}
  if(S.realm===9){ // 渡劫
@@ -2188,9 +2188,9 @@ function breakthrough(){
  }
  if(rnd()<r){
   S.realm++;S.cul=Math.max(0,S.cul-Rm.need);const T=SEED_TIER.find(t=>t.k===S.tier);if(S.realm<=(S.flags.maxRealm||0)){S.life=Math.max(S.life,S.age+50,REALMS[S.realm].life+T.life)}else{S.life+=REALMS[S.realm].life-Rm.life;S.flags.maxRealm=S.realm}S.apMax=REALMS[S.realm].ap+(S.tier===-1?1:0)+(S.flags.vowRogue?1:0);S.hp=100;S.stress=Math.max(0,S.stress-20);
-  AK.forEach(k=>addStat(k,rr(2,5)));S.fame+=100*S.realm*S.realm;
+  AK.forEach(k=>{S.cap[k]=Math.min(99,S.cap[k]+2);addStat(k,rr(2,5))});S.fame+=100*S.realm*S.realm;
   log(`🌟 突破成功！晉入 ${REALMS[S.realm].n}，壽元增至 ${fmt(S.life)}。`);showFx('',REALMS[S.realm].n,'境 界 提 升',1900);ach();
-  showRes(true,`天地靈氣灌體，你成功晉入 ${REALMS[S.realm].n}！`,['壽元+'+fmt(REALMS[S.realm].life-Rm.life),'六維全面提升','體魄回滿']);
+  showRes(true,`天地靈氣灌體，你成功晉入 ${REALMS[S.realm].n}！`,['壽元+'+fmt(REALMS[S.realm].life-Rm.life),'六維上限 +2、六維提升','體魄回滿']);
   if(S.shop)S.shop.qiN=0;recordCurve();offerFruits();
   if(S.fruitOffer&&S.fruitOffer.length){S.phase=3;$('ePicks').innerHTML=`<button class="btn brk" onclick="renderFruitPick()">🍑 選擇道果 →</button>`}else{delete S.fruitOffer;S.phase=2;$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`}save();
   $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);return;
