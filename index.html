@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0f14">
 <title>修仙人生模擬器 XianLife｜免費線上修仙文字人生模擬遊戲</title>
-<meta name="description" content="修仙人生模擬器 XianLife：免費、免安裝的修仙文字人生模擬遊戲。選擇靈根與命格種子，從凡人一路煉氣、築基、金丹到渡劫飛升；390+ 事件、宗門、感情線、系統流、天機賭局、成就稱號、宿敵挑戰。作者 Benji，僅供非商業使用。">
+<meta name="description" content="修仙人生模擬器 XianLife：免費、免安裝的修仙文字人生模擬遊戲。選擇靈根與命格種子，從凡人一路煉氣、築基、金丹到渡劫飛升；440+ 事件、宗門、感情線、系統流、天機賭局、成就稱號、宿敵挑戰。作者 Benji，僅供非商業使用。">
 <meta name="keywords" content="修仙,模擬器,人生模擬,文字遊戲,修真,飛升,放置,免費遊戲,XianLife,Benji">
 <meta name="author" content="Benji">
 <meta name="google-site-verification" content="OniWxQTuELTrLphSqtlPbHSMsBO5-PovQS7hvETtezo" />
@@ -14,7 +14,7 @@
 <link rel="canonical" href="https://f840214.github.io/xiuxian-life/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="修仙人生模擬器 XianLife">
-<meta property="og:description" content="從凡人到飛升的修仙文字人生模擬：390+ 事件、宗門、感情線、系統流、宿敵挑戰。作者 Benji。">
+<meta property="og:description" content="從凡人到飛升的修仙文字人生模擬：440+ 事件、宗門、感情線、系統流、宿敵挑戰。作者 Benji。">
 <meta property="og:url" content="https://f840214.github.io/xiuxian-life/">
 <meta property="og:locale" content="zh_TW">
 <meta name="twitter:card" content="summary">
@@ -232,7 +232,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 3 . 2</div>
+  <div class="en">X I A N　L I F E　V 3 . 3</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -546,6 +546,11 @@ const ACH=[
  {id:'job8',n:'📚 八階大師',chk:s=>(s.jobLv||0)>=8},
  {id:'flesh4',n:'🪨 肉身四重',chk:s=>fleshLv()>=4},
  {id:'clone',n:'👥 一氣化三清',chk:s=>!!s.flags.clone||!!s.flags.cloneSeen&&(s.log||[]).some(l=>/分身替死/.test(l.t))},
+ {id:'emperor',n:'👑 修士皇帝',chk:s=>!!s.flags.emperor},
+ {id:'regent',n:'🏛️ 攝政三十年',chk:s=>s.flags.emperorEnd==='return'},
+ {id:'runaway',n:'🪣 盆滿缽滿，提桶跑路',chk:s=>ST('ly')>=3},
+ {id:'boss6',n:'🏆 六大劇情完結',chk:s=>['bf','bh','ms','em','ly','au'].every(k=>ST(k)>=3)},
+ {id:'tjBoss',n:'🔮 篡改天機',chk:s=>ST('tj')>=3&&s.items.includes('命運線圖')},
  {id:'work',n:'🧾 打工人的一生',chk:s=>s.flags.workLife},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
@@ -1745,7 +1750,7 @@ const ITEM_BUFF={
  '龍珠':{chkK:{body:2}},'龍鱗':{chkK:{spirit:2}},'龍之逆鱗':{dgrW:-.2},
  '祖師遺劍':{chkK:{body:3,spirit:3}},'古劍':{chkK:{body:2}},'鋒劍':{chkK:{body:2}},'殘劍':{chkK:{body:1}},'血煉魔器':{chkK:{body:3,spirit:3},calm:-1},
  '上古法寶':{brk:.015},'仙城令':{brk:.015},'神格碎片':{brk:.01},'異界靈物':{cul:.01},'大能遺物':{cul:.01},'崖底傳承':{cul:.01},'鐘紋玉簡':{chkK:{spirit:3}},'天書殘頁':{chkK:{insight:2}},
- 'SSR・混沌鐘':{chk:2},'SSR・誅仙劍陣圖':{chkK:{body:4,spirit:2}},'SSR・崑崙鏡':{chkK:{luck:4}},'SSR・東皇鐘':{chk:2},'開局神器・弒神槍':{chkK:{body:4}},'前世殘寶':{chk:1,brk:.01},'父母遺物':{chkK:{mind:2,luck:2}},'血靈功全本':{cul:.015,calm:-1},'詛咒法寶（逆轉）':{chkK:{body:3},hp:10},'黑風鬼頭刀':{chkK:{body:2}},'血魔功殘卷':{chkK:{spirit:3},calm:-1},
+ 'SSR・混沌鐘':{chk:2},'SSR・誅仙劍陣圖':{chkK:{body:4,spirit:2}},'SSR・崑崙鏡':{chkK:{luck:4}},'SSR・東皇鐘':{chk:2},'開局神器・弒神槍':{chkK:{body:4}},'前世殘寶':{chk:1,brk:.01},'大燕免死金券':{dgrW:-.15},'城主府令牌':{chkK:{social:3}},'仙器殘片':{brk:.02,chk:1},'命運線圖':{brk:.02,chkK:{luck:3}},'月桂枝':{calm:2},'父母遺物':{chkK:{mind:2,luck:2}},'血靈功全本':{cul:.015,calm:-1},'詛咒法寶（逆轉）':{chkK:{body:3},hp:10},'黑風鬼頭刀':{chkK:{body:2}},'血魔功殘卷':{chkK:{spirit:3},calm:-1},
  '護身甲':{dgrHp:.15},'玄武甲':{dgrHp:.3},'鳳羽法寶':{chkK:{spirit:2}},'鳳凰羽':{chkK:{luck:2}},'雷精':{chkK:{body:2}},'天外隕鐵':{chkK:{body:1}},'隕鐵':{chkK:{luck:1}},
  '舍利':{calm:1},'念珠':{calm:1},'琴譜':{calm:1},'靜心蒲團':{},'老怪的洞府':{cul:.01},'仙人玉符':{dgrW:-.1},'魚吐珠':{chkK:{luck:2}},'靈光珠':{chkK:{insight:1}},'古銅鏡':{chkK:{spirit:1}},'半塊玉佩':{chkK:{luck:1}},
  '靈鷹':{accW:.05},'靈獸':{chkK:{body:1}},'老狗':{calm:1},'娘的棉衣':{calm:1},'陶匠的碗':{calm:1},'長老贈禮':{chk:1},'撿漏法器':{chkK:{spirit:1}},'石上刻文':{cul:.005},'千年樹心':{chkK:{spirit:2}},'仙盟令':{accW:.05},'三十年前的包裹':{chkK:{mind:1}},
@@ -1762,7 +1767,7 @@ const ITEM_INFO={
  '上古法寶':['✨','上古秘境所得'],'異界靈物':['🌀','虛空裂縫所得'],'仙城令':['🏰','天空之城路標'],'仙盟令':['📯','仙盟徵召之功'],'神格碎片':['⚰️','葬神所得'],'開局神器・弒神槍':['🔱','系統開局神器'],'SSR・混沌鐘':['🔔','系統 SSR'],'SSR・誅仙劍陣圖':['🗺️','系統 SSR'],'SSR・崑崙鏡':['🪞','系統 SSR'],'SSR・東皇鐘':['🔔','系統 SSR'],
  '前任遺書':['📜','前任宿主的警告'],'魚吐珠':['🔮','放生池金魚所贈'],'靈光珠':['💡','燈謎彩頭'],'古銅鏡':['🪞','照不出人的鏡子'],'隕鐵':['☄️','流星所落'],'天外隕鐵':['☄️','流星群所得'],'雷精':['⚡','煉入法寶可增威'],'鳳凰羽':['🪶','夜裡發光，氣運已加成'],'鳳羽法寶':['🔥','帶火之器'],'千年樹心':['🌳','古樹樹心（因果已扣）'],'血煉魔器':['🩸','魔道法寶，神識已加成'],
  '護身甲':['🛡️','藏寶閣靈甲'],'玄武甲':['🐢','天下無雙的護身甲'],'大能遺物':['📿','前輩遺府所得'],'撿漏法器':['🔍','坊市撿漏'],'陶匠的碗':['🏺','用了幾百年都沒破'],'琴譜':['🎶','心煩時可彈'],'念珠':['📿','老僧遺物'],'舍利':['🕯️','已消心魔 15'],'半塊玉佩':['🪙','刻著奇怪紋路'],'仙人玉符':['🧧','危急時捏碎（劇情向）'],'鐘紋玉簡':['🔔','上古鐘下所得'],'天書殘頁':['📜','字會動的紙'],'娘的棉衣':['🧥','穿了很多年'],'老怪的洞府':['🏠','賭約贏來的洞府'],'長老贈禮':['🎁','謝絕入門的交情'],
- '渡劫護命符':['🧧','渡劫失敗保命一次'],'前世殘寶':['♻️','前世帶來的殘缺法寶'],'父母遺物':['🧿','隱世修士父母的遺物'],'血靈功全本':['📕','魔女的功法'],'詛咒法寶（逆轉）':['🩸','被逆轉的詛咒法寶'],'黑風鬼頭刀':['🔪','黑風寨主的刀'],'血魔功殘卷':['📕','血手魔頭遺物'],'開光玉佩':['🧿','氣運 +5、強盜機率減半（已生效）'],'紫金丹爐':['🔥','聚氣丹 +50%、丹房 +50%（已生效）'],'靜心蒲團':['🪷','每回合心魔 −4（已生效）'],
+ '渡劫護命符':['🧧','渡劫失敗保命一次'],'前世殘寶':['♻️','前世帶來的殘缺法寶'],'大燕免死金券':['📜','大燕皇室所賜'],'城主府令牌':['🪪','流雲城主府的令牌'],'仙器殘片':['✨','萬寶拍賣會壓軸'],'命運線圖':['🔮','墨上師的命運線圖'],'月桂枝':['🌙','月宮桂樹的枝'],'父母遺物':['🧿','隱世修士父母的遺物'],'血靈功全本':['📕','魔女的功法'],'詛咒法寶（逆轉）':['🩸','被逆轉的詛咒法寶'],'黑風鬼頭刀':['🔪','黑風寨主的刀'],'血魔功殘卷':['📕','血手魔頭遺物'],'開光玉佩':['🧿','氣運 +5、強盜機率減半（已生效）'],'紫金丹爐':['🔥','聚氣丹 +50%、丹房 +50%（已生效）'],'靜心蒲團':['🪷','每回合心魔 −4（已生效）'],
 };
 const itemInfo=n=>{const base=ITEM_INFO[n]||(n.endsWith('的法寶')?['💞','道侶親手所煉']:['📦','紀念之物']);const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.01,calm:1}:null);const t=b?buffTxt(b):'';return t?[base[0],base[1]+'｜被動：'+t]:base};
 const ITEM_NOTE='所有持有物皆可在天雷／小天劫事件中犧牲一件擋災，或在囊中羞澀時典當。';
@@ -1771,7 +1776,7 @@ function itemRows(list){return list.map(n=>{const [ic,d]=itemInfo(n);return`<div
 
 
 /* ===================== 劇情線（三部曲） ===================== */
-const STORY={ld:{n:'⚗️ 爐鼎',max:3,cond:s=>!!s.flags.originLuding},bf:{n:'⛰️ 黑風寨',max:3},bh:{n:'🩸 血手魔頭',max:3},ms:{n:'🙇 師父的過去',max:3,cond:s=>!!s.master}};
+const STORY={ld:{n:'⚗️ 爐鼎',max:3,cond:s=>!!s.flags.originLuding},em:{n:'👑 大燕王朝',max:3},ly:{n:'🏮 流雲城',max:3},au:{n:'🎪 萬寶拍賣會',max:3},tj:{n:'🔮 天機局',max:3,cond:s=>JL('tj')>=3||s.realm>=6},bf:{n:'⛰️ 黑風寨',max:3},bh:{n:'🩸 血手魔頭',max:3},ms:{n:'🙇 師父的過去',max:3,cond:s=>!!s.master}};
 const ST=(k)=>S.flags['st_'+k]||0;
 const EV15=[
 {id:'bf1',realm:[1,2,3],w:12,cond:s=>ST('bf')===0,tag:'dgr',t:'⛰️ 黑風寨・劫',d:'黑風寨的山賊洗劫了山下三個村子。他們背後似乎有修士撐腰——尋常官府管不了。',
@@ -1929,6 +1934,65 @@ const EV19=[
 ];
 EV.push(...EV19);
 
+
+/* ===================== 劇情線：皇帝、流雲城、拍賣會、天機局 ===================== */
+const EV20=[
+/* 👑 大燕皇帝（元嬰+） */
+{id:'em1',realm:[3,4,5,6],w:9,cond:s=>ST('em')===0,tag:'',t:'👑 大燕・托孤',d:'凡人王朝大燕的老皇帝病危，太子年幼，冠王虎視眈眈。老皇帝派人來請你——「以修士之身，攝政三十年，保我大燕不亡」。',
+ opts:[{b:'入宮攝政',cs:['劇情推進','靈石+/年'],r:()=>{S.flags.st_em=1;S.flags.regent=true;return[true,'你穿上了蟒袍。朝堂上一百雙眼睛盯著你，一半是敬，一半是恨。',['成為攝政','每回合靈石 +1500','劇情：大燕 1/3']]}},
+ {b:'不涉凡俗',cs:['—'],r:()=>{S.flags.st_em=-1;return[true,'半年後大燕內亂，冠王登基，屠了太子一脈。',[K_(-5)]]}}]},
+{id:'em2',realm:[3,4,5,6,7],w:14,cond:s=>ST('em')===1,tag:'dgr',t:'👑 大燕・冠王之亂',d:'冠王勾結遼國，引兵入關；朝中內應在你的酒裡下毒。內憂外患一夜俱至。',
+ opts:[{b:'御駕親征，先斬內應',cs:['根骨+人脈檢定'],r:()=>{S.flags.killed=true;S.flags.st_em=2;return chk('body',46,S.stat.social/5)?[true,'你當朝斬了三個內應，率軍北上，遼帝退兵。冠王逃入草原。',[F_(1500),K_(5),$_(5000),'劇情：大燕 2/3']]:[false,'內應太多。你保住了京城，但丟了三州。',[H_(-30),F_(-200),'劇情：大燕 2/3']]}},
+ {b:'以修士手段，夜刺遼帝',cs:['神識檢定','因果-'],r:()=>{S.flags.killed=true;S.flags.st_em=2;return chk('spirit',48)?[true,'遼帝暴斃，遼軍大亂。冠王失了外援。',[F_(1000),K_(-8),'劇情：大燕 2/3']]:[false,'遼帝身邊有修士護衛。你負傷而回。',[H_(-35),'劇情：大燕 2/3']]}}]},
+{id:'em3',realm:[3,4,5,6,7,8],w:16,cond:s=>ST('em')===2,tag:'acc',t:'👑 大燕・傳位',d:'三十年過去，太子長成，冠王餘黨盡除。今日大典——是還政，還是……',
+ opts:[{b:'還政太子，功成身退',cs:['因果++','名望+'],r:()=>{S.flags.st_em=3;S.flags.regent=false;S.flags.emperorEnd='return';return[true,'你把玉璽放回龍案，轉身出殿。滿朝跪送。史書上寫：「攝政三十年，未取一物。」',[K_(30),F_(3000),(S.items.push('大燕免死金券'),'獲得大燕免死金券'),'劇情完成：大燕']]}},
+ {b:'⚔️ 廢帝自立',cs:['名望+','因果--','每回合靈石+'],r:()=>{S.flags.st_em=3;S.flags.regent=false;S.flags.emperor=true;S.flags.emperorEnd='usurp';S.karma-=25;S.fame+=2000;return[true,'「朕。」你說。太子被廢，你成了大燕第一位修士皇帝。從此每回合國庫供奉。',['成為皇帝：每回合靈石 +4000','因果-25','名望+2000','劇情完成：大燕']]}},
+ {b:'傳位後改任國師',cs:['靈石+/年','人脈+'],r:()=>{S.flags.st_em=3;S.flags.regent=false;S.flags.stateMaster=true;addStat('social',4);return[true,'你不當皇帝，也不走。國師府從此是修士與凡人之間的橋。',['成為國師：每回合靈石 +2500','人脈+4','劇情完成：大燕']]}}]},
+/* 🏮 流雲城客卿：廢丹暴富→設局→跑路 */
+{id:'ly1',realm:[1,2,3],w:9,cond:s=>ST('ly')===0,tag:'acc',t:'🏮 流雲城・廢丹',d:'流雲城的丹坊把「藥效不穩」的丹藥當廢丹論斤賣。你發現只要控制服用節奏，這些丹一顆頂三顆。',
+ opts:[{b:'低價掃貨，轉手賺差價',cs:['悟性檢定','靈石++'],r:()=>{S.flags.st_ly=1;return chk('insight',36)?[true,'一個月內你成了流雲城最闊的散修。丹坊老闆開始打聽你是誰。',[$_(1500*(S.realm+1)),F_(200),'劇情：流雲城 1/3']]:[false,'你算錯了幾次節奏，吐了三天血。但還是賺了。',[$_(500*(S.realm+1)),H_(-15),'劇情：流雲城 1/3']]}},
+ {b:'自己吃',cs:['修為+'],r:()=>{S.flags.st_ly=1;return[true,'修為漲得飛快，也引來了目光。',[C_(.25),'劇情：流雲城 1/3']]}}]},
+{id:'ly2',realm:[1,2,3,4],w:14,cond:s=>ST('ly')===1,tag:'dgr',t:'🏮 流雲城・覬覦',d:'城主府的三公子盯上了你的「發財門路」。他請你赴宴，門口站著十二個金丹護衛。',
+ opts:[{b:'赴宴，將計就計',cs:['悟性檢定'],r:()=>{S.flags.st_ly=2;return chk('insight',40)?[true,'你在席間「透露」門路在城外某處。三公子連夜帶人去挖——那是你佈的局。',[R('insight',3),'劇情：流雲城 2/3']]:[false,'你被灌醉了，說漏了半句。三公子的人開始盯著你的住處。',[X_(10),'劇情：流雲城 2/3']]}},
+ {b:'不赴宴，連夜搬家',cs:['氣運檢定'],r:()=>{S.flags.st_ly=2;return chk('luck',38)?[true,'你搬到了城主府眼皮底下的客棧——最危險的地方最安全。',[R('luck',2),'劇情：流雲城 2/3']]:[false,'搬到一半被堵住。丟了一半家當才脫身。',[$_(-Math.round(S.stone*.3)),'劇情：流雲城 2/3']]}}]},
+{id:'ly3',realm:[1,2,3,4],w:16,cond:s=>ST('ly')===2,tag:'dgr',t:'🏮 流雲城・提桶跑路',d:'三公子在城外挖到的是一座空墳和一封信：「多謝款待。」他帶著全部護衛回城，要活剮了你。你只有一夜。',
+ opts:[{b:'⚔️ 設伏，反殺三公子',cs:['神識+根骨檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('spirit',42,S.stat.body/4)){S.flags.st_ly=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.flags.patron=false;return[true,'你在城門陣法裡等他。三公子帶著十二護衛進來，一個都沒出去。天亮前你出了城，身上多了十三個儲物袋。',[$_(4000*(S.realm+1)),F_(500),K_(-6),(S.items.push('城主府令牌'),'獲得城主府令牌'),'劇情完成：流雲城（跑路）']]}S.hp-=40;S.stone=Math.round(S.stone*.6);S.flags.st_ly=3;S.flags.everLost=true;return[false,'伏擊沒成。你殺出一條血路逃了，家當丟了四成。',['體魄-40','靈石-40%','劇情完成：流雲城（狼狽跑路）']]}},
+ {b:'提桶跑路，不戀戰',cs:['氣運檢定','靈石保'],r:()=>{S.flags.st_ly=3;return chk('luck',38)?[true,'你天沒亮就走了，帶著全部家當。三公子撲了個空。「盆滿缽滿，提桶跑路」——你給自己這一年下的註腳。',[R('luck',2),$_(500*(S.realm+1)),'劇情完成：流雲城（跑路）']]:[false,'跑得急，落下一半東西。',[$_(-Math.round(S.stone*.3)),'劇情完成：流雲城（狼狽跑路）']]}}]},
+/* 🎪 拍賣會風雲 */
+{id:'au1',realm:[2,3,4,5],w:9,cond:s=>ST('au')===0,tag:'acc',t:'🎪 萬寶拍賣會・請帖',d:'百年一度的萬寶拍賣會送來請帖。壓軸拍品：一件「無主仙器殘片」。各方天驕、老怪都會到。',
+ opts:[{b:'去，看看有沒有機會',cs:['劇情推進'],r:()=>{S.flags.st_au=1;return[true,'你到了。會場裡認識你的人不少——有些是仇家。',['劇情：拍賣會 1/3']]}},
+ {b:'太危險，不去',cs:['—'],r:()=>{S.flags.st_au=-1;return[true,'後來聽說那場拍賣會死了七個金丹。',[R('luck',1)]]}}]},
+{id:'au2',realm:[2,3,4,5,6],w:14,cond:s=>ST('au')===1,tag:'',t:'🎪 萬寶拍賣會・競價',d:'仙器殘片喊到了天價。你身邊一位「好心人」低聲說：「兄台，我知道一條密道，能在拍賣結束後『順』走它。」',
+ opts:[{b:'正經競拍',cs:['靈石-','法寶'],r:()=>{const c=Math.round(N_()*3);S.flags.st_au=2;if(S.stone<c)return[false,`你出不起（需 ${fmt(c)}）。殘片被人買走了。但你記住了買家。`,['劇情：拍賣會 2/3']];S.stone-=c;S.items.push('仙器殘片');return[true,'你拍下了殘片。走出會場時，你感覺到十幾道目光。',['靈石-'+fmt(c),'獲得仙器殘片','劇情：拍賣會 2/3']]}},
+ {b:'聽「好心人」的',cs:['高風險','因果-'],r:()=>{S.flags.st_au=2;S.flags.auTrap=true;return[true,'密道是真的。裡面等著你的人也是真的。',['劇情：拍賣會 2/3（入局）']]}},
+ {b:'把「好心人」賣給拍賣行',cs:['人脈檢定','靈石+'],r:()=>{S.flags.st_au=2;return chk('social',42)?[true,'拍賣行抓了那個騙子，謝了你一筆。',[$_(800*(S.realm+1)),F_(200),'劇情：拍賣會 2/3']]:[false,'拍賣行不信你。騙子跑了。',['劇情：拍賣會 2/3']]}}]},
+{id:'au3',realm:[2,3,4,5,6,7],w:16,cond:s=>ST('au')===2,tag:'dgr',t:'🎪 萬寶拍賣會・歸途伏殺',d:()=>S.flags.auTrap?'密道盡頭是一座殺陣，「好心人」的真身是拍賣行的黑手，專門黑吃黑。':'拍賣會結束，你在歸途被截——來的是拍賣會上出價第二高的那家人。',
+ opts:[{b:'⚔️ 反殺，黑吃黑',cs:['根骨+神識檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('body',46,S.stat.spirit/4)){S.flags.st_au=3;S.flags.bossKills=(S.flags.bossKills||0)+1;return[true,'一場血戰。你把伏殺者的儲物袋一個個撿起來——這一趟比拍賣還賺。',[$_(3000*(S.realm+1)),F_(600),(S.items.includes('仙器殘片')?'':(S.items.push('仙器殘片'),'獲得仙器殘片')),'劇情完成：拍賣會'].filter(Boolean)]}S.hp-=45;S.stone=Math.round(S.stone*.7);S.flags.st_au=3;S.flags.everLost=true;S.items=S.items.filter(x=>x!=='仙器殘片');return[false,'寡不敵眾。殘片被搶了，你重傷逃脫。',['體魄-45','靈石-30%','劇情完成：拍賣會（敗）']]}},
+ {b:'用符寶/法寶開路逃',cs:['失去一件物品'],r:()=>{S.flags.st_au=3;const it=S.items.length?S.items.shift():null;return[true,it?`「${it}」化為飛灰，替你擋了追兵。`:'你什麼都沒有，只能硬跑。',[it?'失去'+it:H_(-30),'劇情完成：拍賣會（跑路）']]}}]},
+/* 🔮 天機局（天機師/化神+） */
+{id:'tj1',realm:[5,6,7,8],w:8,cond:s=>ST('tj')===0&&(JL('tj')>=3||s.realm>=6),tag:'acc',t:'🔮 天機局・棋子',d:'一位自稱「墨上師」的天機師找到你：「你的命線在三年後斷了。除非，你替我下一局棋。」',
+ opts:[{b:'入局',cs:['劇情推進'],r:()=>{S.flags.st_tj=1;return[true,'他給了你一張命運線圖。上面畫著三個人的名字，第一個已經被劃掉。',['劇情：天機局 1/3']]}},
+ {b:'我命由我不由天',cs:['心境+'],r:()=>{S.flags.st_tj=-1;addStat('mind',3);return[true,'墨上師笑了：「也好。」三年後你沒死——因為你根本沒去那個地方。',['心境+3']]}}]},
+{id:'tj2',realm:[5,6,7,8],w:14,cond:s=>ST('tj')===1,tag:'dgr',t:'🔮 天機局・第二個名字',d:'第二個名字是一位正道天君。墨上師要你在他渡劫時「動一動天機」。你發現，那也是墨上師仇家。',
+ opts:[{b:'照做',cs:['因果--','靈石++'],r:()=>{S.flags.st_tj=2;S.karma-=15;S.stone+=5000*S.realm;S.flags.killed=true;return[true,'天君渡劫失敗，屍骨無存。墨上師付了錢。你的命線……好像更短了。',['因果-15','靈石+'+5000*S.realm,X_(10),'劇情：天機局 2/3']]}},
+ {b:'反過來提醒天君',cs:['神識檢定','因果+'],r:()=>{S.flags.st_tj=2;return chk('spirit',52)?[true,'天君渡劫成功，親自登門道謝。你多了一個大乘朋友，也多了一個天機師仇家。',[K_(15),F_(2000),R('social',3),'劇情：天機局 2/3']]:[false,'你的提醒晚了一步。天君隕落，墨上師卻知道了你的背叛。',[X_(15),'劇情：天機局 2/3']]}}]},
+{id:'tj3',realm:[5,6,7,8,9],w:16,cond:s=>ST('tj')===2,tag:'dgr',t:'🔮 天機局・第三個名字',d:'第三個名字，是你自己。墨上師從來沒打算讓你活著走出這局棋。',
+ opts:[{b:'⚔️ 篡改天機，反殺墨上師',cs:['神識+悟性檢定','BOSS'],r:()=>{S.flags.killed=true;if(chk('spirit',54,S.stat.insight/4+JL('tj')*2)){S.flags.st_tj=3;S.flags.bossKills=(S.flags.bossKills||0)+1;S.life+=Math.round(REALMS[S.realm].life*.1);S.items.push('命運線圖');return[true,'你在他的命線上輕輕一劃。墨上師死於他自己布的局。你的命線，接上了。',['壽元+'+Math.round(REALMS[S.realm].life*.1),'獲得命運線圖',F_(2000),'劇情完成：天機局']]}S.hp-=50;S.life-=Math.round(REALMS[S.realm].life*.05);S.flags.st_tj=3;S.flags.everLost=true;return[false,'棋差一著。你活著，但命線被削去一截。',['體魄-50','壽元-','劇情完成：天機局（敗）']]}},
+ {b:'跳出棋盤：閉死關百年',cs:['時間','安全'],r:()=>{S.flags.st_tj=3;S.age+=Math.round(yrsPerTurn()*3);S.cul+=Math.round(N_()*.4);return[true,'你不下了。等你出關，墨上師已經死在別人的局裡。',['時光流逝','修為大增','劇情完成：天機局']]}}]},
+/* 雜項新事件（小說味） */
+{id:'nv1',realm:[1,2,3],w:6,tag:'',t:'🧾 我想向師兄借億點錢',d:'你看中一件法寶，差三千靈石。厚著臉皮去找最有錢的師兄。',opts:[{b:'借',cs:['人脈檢定','靈石+'],r:()=>chk('social',40)?[true,'師兄借了，利息只要「以後罩我」。',[$_(3000),R('social',2),(S.flags.debt=(S.flags.debt||0)+3300,'欠債3300')]]:[false,'師兄笑著把你請出去了。',[X_(3)]]},{b:'算了',cs:['—'],r:()=>[true,'那件法寶被別人買走了。',[]]}]},
+{id:'nv2',realm:[2,3,4,5],w:6,tag:'acc',t:'🐢 龜甲推演',d:'一片能推演天機的龜甲。每用一次，龜甲裂一道紋。',opts:[{b:'推演自己下一次突破',cs:['天機'],r:()=>{S.flags.tjPeek=true;return[true,`龜甲顯示：你下一次突破成功率約 ${Math.round(brkRate()*100)}%。它裂了一道紋。`,['得知突破率',R('insight',1)]]}},{b:'推演一處寶藏',cs:['氣運檢定'],r:()=>chk('luck',42)?[true,'龜甲指向東南三百里。你去了，真的有。',[$_(2000*S.realm),C_(.1)]]:[false,'龜甲裂了，什麼也沒指。',[]]}]},
+{id:'nv3',realm:[3,4,5,6],w:6,tag:'',t:'🍶 熬老頭戰術',d:'一位比你高一境的老怪跟你結了仇。他壽元只剩三百年，你還有一千。',opts:[{b:'苟，熬死他',cs:['心境+','時間'],r:()=>{S.age+=Math.round(yrsPerTurn()*2);addStat('mind',4);S.cul+=Math.round(N_()*.3);return[true,'你閉關兩回合。出關時他已坐化。你的道心穩如老狗。',['時光流逝','心境+4','修為大增']]}},{b:'正面剛',cs:['根骨檢定'],r:()=>{S.flags.killed=true;return chk('body',52)?[true,'居然贏了。',[F_(1000)]]:[false,'高一境是真的高一境。',[H_(-45)]]}}]},
+{id:'nv4',realm:[2,3,4,5,6],w:6,cond:s=>!!s.flags.mask,tag:'',t:()=>`🎭 ${S.flags.mask}的名聲`,d:()=>`「${S.flags.mask}」的名號在坊市傳開了——有人說他是隱世高人，有人說他是老六。你聽著別人討論自己，很好玩。`,opts:[{b:'順水推舟，經營馬甲名聲',cs:['馬甲名聲+','人脈+'],r:()=>{S.flags.maskFame=(S.flags.maskFame||0)+1;return[true,'馬甲越來越響，本尊越來越低調。',['馬甲名聲+',R('social',2)]]}},{b:'低調',cs:['—'],r:()=>[true,'你把馬甲的名聲壓了壓。',[(S.flags.maskRisk=Math.max(0,(S.flags.maskRisk||0)-1),'暴露風險-')]]}]},
+{id:'nv5',realm:[4,5,6,7],w:5,tag:'acc',t:'🌕 月宮遺跡',d:'一座從天上掉下來的宮殿殘骸，裡面有一株桂樹和一隻搗藥的玉兔——它看見你，把藥杵藏到了背後。',opts:[{b:'跟玉兔做交易',cs:['人脈檢定'],r:()=>chk('social',46)?[true,'玉兔給了你一顆月華丹，換你三年講故事。',['壽元+80',(S.life+=80,''),C_(.15)].filter(Boolean)]:[false,'玉兔用藥杵敲了你一下，跑了。',[H_(-10)]]},{b:'摘桂枝',cs:['因果-','法寶'],r:()=>{S.karma-=5;S.items.push('月桂枝');return[true,'桂樹哭了。你有點內疚，但還是拿走了。',['因果-5','獲得月桂枝']]}}]},
+{id:'nv6',realm:[3,4,5,6,7,8],w:5,tag:'',t:'📿 送子道人',d:'你發現自己煉的一種丹藥有奇效——凡人夫婦服後必得子。有人願意出天價。',opts:[{b:'開張做生意',cs:['靈石+/年','因果+'],r:()=>{S.shop.alch=Math.min(3,(S.shop.alch||0)+1);S.karma+=6;S.fame+=300;return[true,'「送子道人」的名號比你的本名還響。',['丹房+1級','因果+6','名望+300']]}},{b:'不做這種生意',cs:['—'],r:()=>[true,'你把方子鎖了起來。',[R('mind',1)]]}]},
+{id:'nv7',realm:[5,6,7,8],w:5,tag:'dgr',t:'🌑 奪舍重生的老怪',d:'一位隕落萬年的老怪奪舍重生，第一件事就是找當年封印他的人的傳人——你師父的師父的師父。',cond:s=>!!s.master,opts:[{b:'替祖師擋這一劫',cs:['根骨+神識檢定'],r:()=>{S.flags.killed=true;return chk('body',54,S.stat.spirit/3)?[true,'老怪剛奪舍，根基不穩。你把他重新送回了封印。',[F_(3000),K_(15)]]:[false,'你不是對手。師門被他屠了一半。',[H_(-45),X_(20),K_(-5)]]}},{b:'通知全門，合力應對',cs:['人脈檢定'],r:()=>chk('social',50)?[true,'全門合力，老怪被鎮壓。',[F_(1000),K_(8),R('social',3)]]:[false,'來不及。',[H_(-30),X_(15)]]}]},
+{id:'nv8',realm:[2,3,4,5,6],w:5,tag:'',t:'📕 副作用交易',d:'一位丹修想用一批「副作用極大」的丹藥跟你換東西。他以為是廢物。',cond:s=>s.type==='rev',opts:[{b:'裝作勉為其難地收下',cs:['逆轉專屬','修為++'],r:()=>{S.cul+=Math.round(N_()*.3);S.life+=Math.round(REALMS[S.realm].life*.02);return[true,'他以為坑了你。你也這麼裝。',['修為大增','壽元+'+Math.round(REALMS[S.realm].life*.02)]]}}]},
+{id:'nv9',realm:[6,7,8,9],w:5,tag:'acc',t:'⚙️ 機械飛升',d:'一群不修仙的凡人造了一座通天的鐵塔，說要「機械飛升」。所有修士都在笑。你去看了。',opts:[{b:'幫他們一把',cs:['因果+','悟性+'],r:()=>[true,'鐵塔沒飛上去，但塔頂的那個人回頭對你笑了笑。你忽然覺得，路不只一條。',[K_(10),R('insight',4)]]},{b:'看笑話',cs:['—'],r:()=>[true,'鐵塔塌了。你沒笑出來。',[X_(3)]]}]},
+{id:'nv10',realm:[1,2,3,4,5,6,7,8],w:4,tag:'',t:'🍶 醉話：我不允許有這麼牛的存在',d:'酒館裡一個修士拍桌大罵：「某某人一年結丹十年化神，我不允許有這麼牛逼的存在！」——他說的是你。',opts:[{b:'請他喝一杯',cs:['人脈+','心魔-'],r:()=>[true,'他喝完才知道你是誰，當場跪了。你們後來成了朋友。',[R('social',3),X_(-8)]]},{b:'默默離開',cs:['心境+'],r:()=>[true,'名聲是別人的事。',[R('mind',2)]]}]},
+];
+EV.push(...EV20);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06)*(DEMON(S)?1.3:1)*W('cul'));S.cul+=g;if(!W('noStress',0))S.stress+=7;return`修為+${g}`+sideQuest('cul')}},
@@ -1974,7 +2038,7 @@ function render(){
  const tl=S.ach.filter(id=>ACH_BUFF[id]).map(id=>`<span class="chip c-mon" title="${esc(ACH_BUFF[id].d)}">${esc(ACH_BUFF[id].t)}</span>`).join(' ');
  const fr=S.fruits.map(id=>{const f=FRUITS.find(x=>x.id===id);return f?`<span class="chip c-dif" title="${esc(f.d)}">${esc(f.n)}</span>`:''}).join(' ');
  const gh=S.ghost?(()=>{const g=ghostAt(S.age);return`<div style="margin:8px 0;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#0d131b">⚔️ 宿敵 <b>${esc(S.ghost.n)}</b>　${g.ended?'（'+(g.lost?'杳無音訊':'已'+({ascend:'飛升',trib:'隕落',old:'坐化',hurt:'殞落',retire:'歸隱',work:'退休'}[S.ghost.end.ending]||'結束'))+'）':`同齡時：${REALMS[g.realm].n}・綜合 ${g.ovr}　<span style="color:${g.realm>S.realm?'var(--red)':g.realm<S.realm?'var(--jade)':'var(--gold)'}">${g.realm>S.realm?'▲ 領先你':g.realm<S.realm?'▼ 落後你':'＝ 並駕齊驅'}</span>`}<br><span style="font-size:.72rem;color:var(--dim)">對決 勝 ${S.flags.ghostWins||0}／敗 ${S.flags.ghostLoss||0}</span></div>`})():'';
- $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LV().ic+' 心上人：'+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${DEMON(S)?'<span style="color:var(--red)">⚫ 已墮魔道</span>（閉關 +30%、突破 +6%；每回合心魔 +4、因果 −2；坊市 ×1.2；天劫加重）<br>':S.flags.redeemed?'🕊️ 曾入魔道，已回頭<br>':''}${(S.shop&&(S.shop.vein||S.shop.alch||S.shop.guardUntil>S.age))?'🏪 產業：'+[S.shop.vein?'靈脈 Lv.'+S.shop.vein:'',S.shop.alch?'丹房 Lv.'+S.shop.alch:'',S.shop.guardUntil>S.age?'護法至 '+S.shop.guardUntil+' 歲':''].filter(Boolean).join('、')+'<br>':''}${S.job?JOBS[S.job].n+' '+(S.jobLv||0)+' 級（'+JOBS[S.job].d+'）<br>':''}${fleshLv()?'🪨 肉身境 '+['','一重','二重','三重','四重'][fleshLv()]+'（體魄上限 +'+fleshLv()*10+'、凶險傷害 −'+fleshLv()*10+'%）<br>':''}${S.flags.mask?'🎭 馬甲：'+S.flags.mask+'（仇家事件 −70%，有暴露風險）<br>':''}${S.flags.clone?'👥 分身在身（可替死一次）<br>':''}${S.type==='sword'?'⚔️ 劍意 '+(S.flags.swordQi||0)+' 點（每 3 點突破 +1%，≥5 可劍意破境）<br>':S.type==='alch'?'⚗️ 丹道 '+['未入品','一品','二品','三品'][danLv()]+'（煉丹成功 '+(S.flags.danOk||0)+' 次）<br>':S.type==='phys'?'🪨 金身 '+['未成','一重','二重','三重'][goldBody()]+'（體魄上限 '+hpMax()+'）<br>':S.type==='heart'?'🕯️ 道心 '+(S.flags.daoxin||0)+'（心境上限已 +'+(S.flags.daoxinCap||0)+'）<br>':S.type==='fate'?'🍀 天命骰：檢定擲兩次取優<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?`<div style="margin-top:8px"><div class="ct" style="margin-bottom:6px">持有物（${S.items.length}）</div>${itemRows(S.items)}<div class="hint">${ITEM_NOTE}</div></div>`:''}`;
+ $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LV().ic+' 心上人：'+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${DEMON(S)?'<span style="color:var(--red)">⚫ 已墮魔道</span>（閉關 +30%、突破 +6%；每回合心魔 +4、因果 −2；坊市 ×1.2；天劫加重）<br>':S.flags.redeemed?'🕊️ 曾入魔道，已回頭<br>':''}${(S.shop&&(S.shop.vein||S.shop.alch||S.shop.guardUntil>S.age))?'🏪 產業：'+[S.shop.vein?'靈脈 Lv.'+S.shop.vein:'',S.shop.alch?'丹房 Lv.'+S.shop.alch:'',S.shop.guardUntil>S.age?'護法至 '+S.shop.guardUntil+' 歲':''].filter(Boolean).join('、')+'<br>':''}${S.job?JOBS[S.job].n+' '+(S.jobLv||0)+' 級（'+JOBS[S.job].d+'）<br>':''}${fleshLv()?'🪨 肉身境 '+['','一重','二重','三重','四重'][fleshLv()]+'（體魄上限 +'+fleshLv()*10+'、凶險傷害 −'+fleshLv()*10+'%）<br>':''}${S.flags.emperor?'👑 大燕皇帝（每回合靈石 +4000）<br>':S.flags.regent?'🏛️ 大燕攝政（每回合靈石 +1500）<br>':S.flags.stateMaster?'📿 大燕國師（每回合靈石 +2500）<br>':''}${S.flags.mask?'🎭 馬甲：'+S.flags.mask+'（仇家事件 −70%，有暴露風險）<br>':''}${S.flags.clone?'👥 分身在身（可替死一次）<br>':''}${S.type==='sword'?'⚔️ 劍意 '+(S.flags.swordQi||0)+' 點（每 3 點突破 +1%，≥5 可劍意破境）<br>':S.type==='alch'?'⚗️ 丹道 '+['未入品','一品','二品','三品'][danLv()]+'（煉丹成功 '+(S.flags.danOk||0)+' 次）<br>':S.type==='phys'?'🪨 金身 '+['未成','一重','二重','三重'][goldBody()]+'（體魄上限 '+hpMax()+'）<br>':S.type==='heart'?'🕯️ 道心 '+(S.flags.daoxin||0)+'（心境上限已 +'+(S.flags.daoxinCap||0)+'）<br>':S.type==='fate'?'🍀 天命骰：檢定擲兩次取優<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?`<div style="margin-top:8px"><div class="ct" style="margin-bottom:6px">持有物（${S.items.length}）</div>${itemRows(S.items)}<div class="hint">${ITEM_NOTE}</div></div>`:''}`;
  renderHall('hallGrid2');
  $('logBox').innerHTML=S.log.map(l=>`<div class="log"><b>${l.y}歲</b>${esc(l.t)}</div>`).join('')||'<div class="hint">尚無記錄</div>';
  // 舞台
@@ -2095,6 +2159,7 @@ function nextYear(){
  if(S.flags.debt){S.flags.debt=Math.round(S.flags.debt*1.15)}
  if(S.flags.disciples){S.stone+=100*S.flags.disciples*yrs;S.karma+=1}
  if(S.stress>=80&&S.type!=='heart'){S.hp-=12;log('心魔纏身，體魄受損。')}
+ if(S.flags.regent)S.stone+=1500;if(S.flags.emperor)S.stone+=4000;if(S.flags.stateMaster)S.stone+=2500;
  if(S.job==='fu')S.stone+=80*(S.jobLv||0)*(S.realm+1);if(S.job==='lq')S.stone+=50*(S.jobLv||0)*(S.realm+1);if(S.job==='zf')S.stress=Math.max(0,S.stress-Math.floor((S.jobLv||0)/2));
  if(masked()){const risk=.04+(S.flags.maskFame||0)*.02+(S.flags.maskRisk||0)*.05;if(rnd()<risk){S._forceEv='mk3'}}
  if(S.flags.originOrphan&&rnd()<.3)S.karma+=1;
