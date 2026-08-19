@@ -1373,7 +1373,7 @@ const TYPE_ACT={
  phys:{id:'t_phys',n:'🪨 淬體',c:'體魄→根骨 · 體魄越滿效果越好',f:()=>{const g=S.hp>=90?3:S.hp>=60?2:1;S.hp=clamp(S.hp-12,0,hpMax());const a=addStat('body',g);return`根骨+${a}、體魄-12`}},
  heart:{id:'t_heart',n:'🕯️ 入定',c:'心魔大減 · 悟性/心境+ · 心魔越高收益越大',f:()=>{const st=S.stress;S.stress=Math.max(0,S.stress-25);const g=st>=50?2:1;const a=addStat('mind',g),b=addStat('insight',1);return`心魔-${Math.min(25,st)}、心境+${a}、悟性+${b}`}},
  fate:{id:'t_fate',n:'🍀 尋寶',c:'純氣運檢定 · 好事或小麻煩',f:()=>{const r=rnd()+ (S.stat.luck-30)/200;if(r>.85){S.stone+=400*(S.realm+1);return`撿到儲物袋！靈石+${400*(S.realm+1)}`}if(r>.6){S.cul+=Math.round(REALMS[S.realm].need*.06);return'誤入靈氣泉眼：修為+'}if(r>.4){addStat('luck',1);return'撿到一枚小玉符：氣運+1'}if(r>.15){return'走了一天，什麼也沒撿到'}S.hp-=8;S.stone=Math.max(0,S.stone-50);return'踩到陷阱：體魄-8、靈石-50'}},
- sys:{id:'t_sys',n:'📱 系統日常',c:'隨機小任務 · 70% 積分+靈石+ · 30% 失敗',f:()=>{if(!S.flags.sysWake)return'系統尚未綁定';if(S.flags.sysRebel)return'系統已與你決裂';const t=pick(['扶老奶奶過河','在坊市喊三聲「我最帥」','擊敗一隻野豬','背誦《道德經》全文','給路邊乞丐一顆靈石']);if(rnd()<.3)return`任務「${t}」失敗。系統：「……宿主加油。」`;const g=rr(8,15);S.sys.pts+=g;S.stone+=100*(S.realm+1);return`任務「${t}」完成：積分+${g}、靈石+${100*(S.realm+1)}`}},
+ sys:{id:'t_sys',n:'📱 系統日常',c:'隨機小任務 · 80% 積分+靈石+ · 20% 失敗',f:()=>{if(!S.flags.sysWake)return'系統尚未綁定';if(S.flags.sysRebel)return'系統已與你決裂';const t=pick(['扶老奶奶過河','在坊市喊三聲「我最帥」','擊敗一隻野豬','背誦《道德經》全文','給路邊乞丐一顆靈石']);if(rnd()<.2)return`任務「${t}」失敗。系統：「……宿主加油。」`;const g=rr(8,15);S.sys.pts+=g;S.stone+=100*(S.realm+1);return`任務「${t}」完成：積分+${g}、靈石+${100*(S.realm+1)}`}},
 };
 
 
@@ -1602,7 +1602,7 @@ const ACTIONS=[
  {id:'train',n:'💪 錘鍊肉身',c:'根骨+ · 體魄+',f:()=>{const a=addStat('body',rr(1,3));S.hp=clamp(S.hp+8,0,100);return`${a?'根骨+'+a:'根骨已達上限'}、體魄+8`}},
  {id:'read',n:'📚 研讀典籍',c:'悟性/神識+',f:()=>{const k=rnd()<.5?'insight':'spirit';const a=addStat(k,rr(1,3));return a?`${AN[k]}+${a}`:`${AN[k]}已達上限`}},
  {id:'wander',n:'🌄 遊歷紅塵',c:'心境/氣運+ · 心魔-',f:()=>{const k=rnd()<.5?'mind':'luck';const a=addStat(k,rr(1,3));S.stress=Math.max(0,S.stress-12);return`${a?AN[k]+'+'+a:AN[k]+'已達上限'}、心魔-12`}},
- {id:'work',n:'💰 接任務賺靈石',c:'70% 靈石+ · 人脈+ ｜ 30% 任務失敗',f:()=>{if(rnd()<.3){S.hp-=5;return pick(['任務失敗：護送的貨被劫了','任務失敗：委託人跑路沒付錢','任務失敗：找了三個月都沒找到那隻靈兔'])+'，體魄-5'}const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1);S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`}},
+ {id:'work',n:'💰 接任務賺靈石',c:'80% 靈石+ · 人脈+ ｜ 20% 任務失敗',f:()=>{if(rnd()<.2){S.hp-=5;return pick(['任務失敗：護送的貨被劫了','任務失敗：委託人跑路沒付錢','任務失敗：找了三個月都沒找到那隻靈兔'])+'，體魄-5'}const g=rr(60,140)*(S.realm+1)*(S.sect?1.3:1)*(S.realm<=2?.5:1);S.stone+=Math.round(g);const a=addStat('social',1);return`靈石+${Math.round(g)}、人脈+${a}`}},
  {id:'rest',n:'🛌 靜養',c:'體魄+ · 心魔-',f:()=>{S.hp=clamp(S.hp+25,0,100);S.stress=Math.max(0,S.stress-15);return'體魄+25、心魔-15'}},
 ];
 
