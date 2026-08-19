@@ -151,6 +151,8 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 .foot{grid-column:1/-1;text-align:center;font-size:.68rem;color:var(--dim);padding:20px 0 6px}
 .btn{min-height:48px;padding:11px 14px}
 .picks.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.picks.grid2 .btn{min-width:0}
+.btn .cs{max-width:100%}
 .picks.grid2 .cont,.picks.grid2 .brk{grid-column:1/-1}
 @media(min-width:900px){
  .app{max-width:1180px}
@@ -2047,7 +2049,7 @@ function render(){
  if(S.phase===0)renderActions();else if(S.phase===1)renderEvent();else if(S.phase===3&&S.fruitOffer)renderFruitPick();else renderYearEnd();
  syncStrip();save();
 }
-function chips(arr){return arr.map(c=>{const cls=/[-]/.test(c)&&!/檢定/.test(c)?'c-dn':/靈石\+/.test(c)?'c-mon':/檢定/.test(c)?'c-dif':/\+/.test(c)?'c-up':'c-neu';return`<span class="chip ${cls}">${esc(c)}</span>`}).join('')}
+function chips(arr){return arr.map(c=>{const long=String(c).length>16?' style="white-space:normal;text-align:left"':'';const cls=/[-]/.test(c)&&!/檢定/.test(c)?'c-dn':/靈石\+/.test(c)?'c-mon':/檢定/.test(c)?'c-dif':/\+/.test(c)?'c-up':'c-neu';return`<span class="chip ${cls}"${long}>${esc(c)}</span>`}).join('')}
 function renderActions(){
  $('eTag').textContent=`${S.age} 歲・年初`+(lifeWarn()?'・⏳ 大限將至':'');$('eTag').className=lifeWarn()?'tag dgr':'tag sch';
  $('eTitle').textContent='今年如何安排？';
@@ -2057,7 +2059,7 @@ function renderActions(){
  $('ePicks').className='picks grid2';$('ePicks').innerHTML=ACTS.map((a,i)=>`<button class="btn" ${a.id==='t_dao'?'style="border-color:#f9a8d488;background:linear-gradient(135deg,#4a1030,#111823)"':a.id==='t_demon'?'style="border-color:#e0525288;background:linear-gradient(135deg,#3a0d0d,#111823)"':a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
   `<div style="grid-column:1/-1;display:flex;gap:8px">${S.lastActs&&S.lastActs.length&&S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="repeatLast()">🔁 重複上回合安排</button>`:''}${S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="allCul()">🧘 剩餘全部閉關</button>`:''}</div><button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
-function doAct(i,quiet){if(S.ap<=0)return;(S.curActs=S.curActs||[]).push(i);const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div class="cs">${chips([v.d])}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
+function doAct(i,quiet){if(S.ap<=0)return;(S.curActs=S.curActs||[]).push(i);const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div style="font-size:.76rem;color:var(--sub);line-height:1.5;white-space:normal">${esc(v.d)}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
  $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();renderSide();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
  $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
