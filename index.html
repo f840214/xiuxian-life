@@ -203,7 +203,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 1 . 8</div>
+  <div class="en">X I A N　L I F E　V 1 . 9</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1611,6 +1611,15 @@ const EVC=[
 ];
 EV.push(...EVC);
 
+
+const EV13=[
+{id:'life_end',realm:[0,1,2,3,4,5,6,7,8,9],w:600,cond:s=>lifeWarn()&&!s.flags.lifeEndSeen,tag:'dgr',t:'⏳ 大限將至',d:()=>`你能感覺到，壽元只剩約 ${turnsLeft()} 回合了。經脈開始乾涸，白髮一夜之間長了出來。\n這一世，該怎麼收尾？`,
+ opts:[{b:'散功續命（修為歸零，壽元 +）',cs:['修為歸零','壽元+'],r:()=>{S.flags.lifeEndSeen=true;const g=Math.round(REALMS[S.realm].life*.25);S.life+=g;S.cul=0;S.stress+=10;return[true,'你散去一身修為，換來一段時間。從頭再來，也未必來不及。',['修為歸零','壽元+'+g,'心魔+10']]}},
+ {b:'閉死關，孤注一擲',cs:['修為++','壽元-'],r:()=>{S.flags.lifeEndSeen=true;S.cul+=Math.round(REALMS[S.realm].need*.6);S.life-=Math.round(yrsPerTurn()*.5);S.hp-=15;return[true,'你封了洞府的門。成，則破境；不成，就死在裡面。',['修為大增','壽元-','體魄-15']]}},
+ {b:'平靜地過完',cs:['心境+','心魔歸零'],r:()=>{S.flags.lifeEndSeen=true;addStat('mind',5);S.stress=0;S.karma+=5;return[true,'你把該交代的都交代了，然後每天看日出。',['心境+5','心魔歸零','因果+5']]}}]},
+];
+EV.push(...EV13);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06));S.cul+=g;S.stress+=7;return`修為+${g}`}},
@@ -1623,7 +1632,10 @@ const ACTIONS=[
 
 /* ===================== 流程 ===================== */
 // phase 0: 年初行動（花完 AP） → phase 1: 事件 → phase 2: 年末結算 / 突破
-function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}}
+const yrsPerTurn=()=>S.realm>=2?Math.max(1,Math.round(REALMS[S.realm].life/32)):1;
+const turnsLeft=()=>Math.max(0,Math.floor((S.life-S.age)/yrsPerTurn()));
+const lifeWarn=()=>S.realm<10&&turnsLeft()<=3;
+function syncStrip(){if(!S)return;const m={s2AP:`${S.ap}/${S.apMax}`,s2Stone:fmt(S.stone),s2HP:Math.round(S.hp),s2Life:fmt(S.life),s2Ovr:ovr(),s2Age:S.age};for(const k in m){const el=$(k);if(el)el.textContent=m[k]}const l2=$('s2Life');if(l2)l2.style.color=lifeWarn()?'var(--red)':'';}
 function render(){
  if(!S)return;
  const T=SEED_TIER.find(t=>t.k===S.tier),Rm=REALMS[S.realm];
@@ -1631,15 +1643,15 @@ function render(){
  $('bSub').innerHTML=`<span style="color:${TCOL[S.type][0]};font-weight:800">${TYPES[S.type].name}</span>｜${sectName(S)}｜${T.ic} ${T.n}`;$('bName').style.color=TCOL[S.type][0];$('bAv').style.background=`linear-gradient(135deg,#fff,${TCOL[S.type][0]} 45%,${TCOL[S.type][1]})`;$('bAv').style.boxShadow=`0 0 0 2px var(--bg),0 0 0 3.5px ${TCOL[S.type][0]}88`;
  $('bAge').textContent=S.age;$('bYear').textContent='歲';
  $('sOvr').textContent=ovr();$('sStone').textContent=fmt(S.stone);$('sAP').textContent=`${S.ap}/${S.apMax}`;
- $('sHP').textContent=Math.round(S.hp);$('sLife').textContent=fmt(S.life);
- $('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('rNm').textContent=Rm.n;$('rSd').textContent=Rm.sub;
+ $('sHP').textContent=Math.round(S.hp);$('sLife').textContent=fmt(S.life);$('sLife').style.color=lifeWarn()?'var(--red)':'';
+ $('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('rNm').textContent=Rm.n;$('rSd').textContent=Rm.sub+(S.realm>=2?`　·　此境每回合經過 ${yrsPerTurn()} 年`:'');
  const p=Math.min(100,S.cul/Rm.need*100);$('rCul').textContent=`${fmt(S.cul)} / ${fmt(Rm.need)}`;$('rFil').style.width=p+'%';
  // 狀態頁
  const o=ovr();$('kOvr').textContent=o;$('ringC').style.strokeDashoffset=289-289*Math.min(1,o/100);$('kGrade').textContent=o>=90?'SSS':o>=80?'SS':o>=70?'S':o>=60?'A':o>=45?'B':o>=30?'C':'D';
  $('kStone').textContent=fmt(S.stone);$('kFame').textContent=fmt(S.fame);$('kKarma').textContent=(S.karma>0?'+':'')+S.karma;
  $('kSect').textContent=sectName(S);
  const bar=(n,v,mx,cls,txt)=>`<div class="pbar"><div class="lb"><i>${n}</i><b>${txt||v}</b></div><div class="trk"><div class="fil ${cls}" style="width:${clamp(v/mx*100,0,100)}%"></div></div></div>`;
- $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,'f-blu',`${S.age} / ${fmt(S.life)}`);
+ $('mindBars').innerHTML=bar('體魄',S.hp,100,S.hp>60?'f-ok':S.hp>30?'f-md':'f-bad')+bar('心魔',S.stress,100,S.stress<35?'f-ok':S.stress<65?'f-md':'f-bad')+bar('壽元',S.age,S.life,lifeWarn()?'f-bad':'f-blu',`${S.age} / ${fmt(S.life)}${S.realm<10?`　<span style="color:${lifeWarn()?'var(--red)':'var(--dim)'};font-weight:400">約 ${turnsLeft()} 回合</span>`:''}`);
  $('mindBars2').innerHTML=$('mindBars').innerHTML;
  const sb=AK.map(k=>bar(AN[k],S.stat[k],100,'f-pur',`${S.stat[k]} <span style="color:var(--dim);font-weight:400">/ ${S.cap[k]}</span>`)).join('');$('statBars').innerHTML=sb;$('statBars2').innerHTML=sb;
  $('sideInfo').innerHTML=`名望 ${fmt(S.fame)}　因果 ${S.karma>0?'+':''}${S.karma}<br>${S.master?'師承 '+S.master+'<br>':''}${S.dao?'💞 '+S.dao+'<br>':S.love?LV().ic+' '+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.ghost?'⚔️ 宿敵 '+esc(S.ghost.n)+'<br>':''}${S.items.length?'持有 '+S.items.slice(-4).join('、'):''}`;
@@ -1660,9 +1672,9 @@ function render(){
 }
 function chips(arr){return arr.map(c=>{const cls=/[-]/.test(c)&&!/檢定/.test(c)?'c-dn':/靈石\+/.test(c)?'c-mon':/檢定/.test(c)?'c-dif':/\+/.test(c)?'c-up':'c-neu';return`<span class="chip ${cls}">${esc(c)}</span>`}).join('')}
 function renderActions(){
- $('eTag').textContent=`${S.age} 歲・年初`;$('eTag').className='tag sch';
+ $('eTag').textContent=`${S.age} 歲・年初`+(lifeWarn()?'・⏳ 大限將至':'');$('eTag').className=lifeWarn()?'tag dgr':'tag sch';
  $('eTitle').textContent='今年如何安排？';
- $('eDesc').textContent=`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
+ $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合（${S.life-S.age} 年）。\n`:'')+`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
  const ACTS=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]);
  $('ePicks').className='picks grid2';$('ePicks').innerHTML=ACTS.map((a,i)=>`<button class="btn" ${a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
   `<button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
@@ -1702,11 +1714,11 @@ function doOpt(i){
 }
 function renderYearEnd(){
  $('ePicks').className='picks';
- $('eTag').textContent=`${S.age} 歲・年末`;$('eTag').className='tag';
+ $('eTag').textContent=`${S.age} 歲・年末`+(lifeWarn()?'・⏳ 大限將至':'');$('eTag').className=lifeWarn()?'tag dgr':'tag';
  const Rm=REALMS[S.realm];const can=S.cul>=Rm.need&&S.realm<10;
  const rate=can?brkRate():0;
  $('eTitle').textContent=can?`修為圓滿，可嘗試突破至「${REALMS[S.realm+1].n}」`:'又是一年';
- $('eDesc').textContent=can?`${S.realm===9?'⚡ 九九天劫：成敗在此一舉。失敗 75% 身死道消、25% 僥倖跌回化神（修為減半、六維×0.7）。坊市可購「渡劫護命符」保命一次。\n':''}突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`;
+ $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合。\n`:'')+(can?`${S.realm===9?'⚡ 九九天劫：成敗在此一舉。失敗 75% 身死道消、25% 僥倖跌回化神（修為減半、六維×0.7）。坊市可購「渡劫護命符」保命一次。\n':''}突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`);
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`+(S.type==='sword'&&(S.flags.swordQi||0)>=5?`<button class="btn brk" style="background:linear-gradient(100deg,#1e5aa0,#7dd3fc)" onclick="S.flags.swordBurst=true;breakthrough()">⚔️ 劍意破境（消耗 5 劍意，+8% → ${Math.min(99,Math.round(rate*100)+8)}%）</button>`:''):'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
