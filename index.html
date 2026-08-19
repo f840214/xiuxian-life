@@ -203,7 +203,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 1 . 9</div>
+  <div class="en">X I A N　L I F E　V 2 . 0</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -810,7 +810,7 @@ const EV3=[
  {b:'交給執事',cs:['因果+'],r:()=>{S.karma+=4;S.stone+=100;return[true,'執事賞了你一百靈石。後來你再也沒見過那個瓶子。',['因果+4','靈石+100']]}}]},
 /* 天魔教：魔道 */
 {id:'tm_pool',realm:[1,2,3],w:12,cond:s=>s.sect==='tianmo',tag:'dgr',t:'🩸 天魔教・血池洗髓',d:'教中新弟子必須入血池洗髓。池水腥紅，成則脫胎換骨，敗則化為血水。',
- opts:[{b:'入池',cs:['根骨檢定'],r:()=>{if(chk('body',40)){addStat('body',6);addStat('spirit',3);S.karma-=5;S.cul+=200;return[true,'你從池裡爬出來時，眼睛是紅的。',['根骨+6','神識+3','修為+200','因果-5']]}S.hp-=40;S.life-=10;return[false,'你半死不活地被拖出來，折了十年壽。',['體魄-40','壽元-10']]}},
+ opts:[{b:'入池',cs:['根骨檢定'],r:()=>{if(chk('body',40)){addStat('body',6);addStat('spirit',3);S.karma-=5;S.cul+=200;return[true,'你從池裡爬出來時，眼睛是紅的。',['根骨+6','神識+3','修為+200','因果-5']]}S.hp-=40;S.life-=5;return[false,'你半死不活地被拖出來，折了五年壽。',['體魄-40','壽元-5']]}},
  {b:'賄賂執事逃過',cs:['靈石-'],r:()=>{S.stone-=300;return[true,'教中沒有規矩，只有價錢。',['靈石-300',R('social',2)]]}}]},
 {id:'tm_coup',realm:[2,3,4,5],w:8,cond:s=>s.sect==='tianmo',tag:'dgr',t:'🔪 天魔教・堂主之爭',d:'你所在的堂口堂主重傷閉關，堂內幾位師兄互相下毒、暗殺，人人自危。',
  opts:[{b:'先下手為強',cs:['神識檢定','因果-'],r:()=>{S.flags.killed=true;if(chk('spirit',44)){S.karma-=15;S.fame+=500;S.stone+=1500;S.flags.tmBoss=true;return[true,'一夜之間，堂口只剩你一個師兄。你成了新堂主。',['因果-15','名望+500','靈石+1500','成為堂主']]}S.hp-=40;S.stress+=15;return[false,'你中了毒，差點死在自己床上。',['體魄-40','心魔+15']]}},
@@ -981,8 +981,8 @@ const EV5=[
 {id:'sys_ssr',realm:[2,3,4,5,6,7],w:5,cond:s=>SYS(s)&&s.flags.sysWake,tag:'acc',t:'🎰 限時十連',d:'「叮！限時卡池開啟，SSR 機率 UP！宿主要抽嗎？」',
  opts:[{b:'抽（1000靈石）',cs:['靈石-1000','隨機'],r:()=>{if(S.stone<1000)return[false,'系統：「餘額不足。」',['靈石不足']];S.stone-=1000;const r=rnd()+S.stat.luck/300;if(r>.85){S.flags.ssr=true;S.items.push('SSR・'+pick(['混沌鐘','誅仙劍陣圖','崑崙鏡','東皇鐘']));AK.forEach(k=>addStat(k,3));return[true,'金光！SSR！系統：「宿主歐氣沖天！」',['獲得SSR法寶','六維+3']]}if(r>.5){S.cul+=Math.round(REALMS[S.realm].need*.2);return[true,'紫光。一瓶頓悟丹。',['修為+']]}return[false,'十發全藍。系統：「下次一定。」',['靈石-1000']]}},
  {b:'不抽',cs:['心境+'],r:()=>{addStat('mind',2);return[true,'你戒賭了。',['心境+2']]}}]},
-{id:'sys_price',realm:[4,5,6,7],w:6,cond:s=>SYS(s)&&s.flags.sysWake,tag:'dgr',t:'📉 系統索價',d:'「叮！系統維護費到期。請宿主支付：壽元 100 年，或修為 30%。」\n這是系統第一次跟你要東西。',
- opts:[{b:'付壽元',cs:['壽元-'],r:()=>{S.life-=100;return[true,'鬢角白了一片。系統：「感謝宿主。」',['壽元-100']]}},
+{id:'sys_price',realm:[4,5,6,7],w:6,cond:s=>SYS(s)&&s.flags.sysWake,tag:'dgr',t:'📉 系統索價',d:'「叮！系統維護費到期。請宿主支付：壽元 60 年，或修為 30%。」\n這是系統第一次跟你要東西。',
+ opts:[{b:'付壽元',cs:['壽元-'],r:()=>{S.life-=60;return[true,'鬢角白了一片。系統：「感謝宿主。」',['壽元-60']]}},
  {b:'付修為',cs:['修為-'],r:()=>{S.cul=Math.round(S.cul*.7);return[true,'丹田一空。',['修為-30%']]}},
  {b:'不付',cs:['系統關係惡化'],r:()=>{S.sys.pts=0;S.stress+=15;S.flags.sysRebel=true;return[false,'系統沉默了。從此簽到再也沒來過。',['系統積分歸零','心魔+15']]}}]},
 {id:'sys_truth',realm:[6,7,8,9],w:12,cond:s=>SYS(s)&&s.flags.sysWake&&!s.flags.sysEnd,tag:'dgr',t:'🌌 系統的真相',d:'你終於強到能看穿系統的本質——它是天道投下的一枚棋子，用來收割氣運。前任宿主的遺書寫的是真的。\n系統：「宿主，你知道得太多了。」',
@@ -1174,7 +1174,7 @@ const FRUITS=[
  {id:'biguan',n:'🧘 閉關狂',d:'每年修為 +3%；每年心魔 +3',cul:.03,calm:-3},
  {id:'fuxing',n:'🌟 福星高照',d:'氣運檢定 +4；人脈檢定 -1',chkK:{luck:4,social:-1}},
  {id:'nilin',n:'🐉 逆鱗',d:'突破失敗不折壽；突破率 -1%',noLifeLoss:1,brk:-.01},
- {id:'dunwu',n:'💡 頓悟體質',d:'突破率 +3%；壽元 -5%（立即）',brk:.03,lifeP:-.05},
+ {id:'dunwu',n:'💡 頓悟體質',d:'突破率 +3%；壽元 -3%（立即）',brk:.03,lifeP:-.03},
  {id:'lingshi',n:'👃 靈石鼻',d:'每年靈石 +200×境界；機緣事件 -5%',stone:200,accW:-.05},
  {id:'zhishui',n:'🕯️ 心如止水',d:'每年心魔 -5；所有檢定 -1',calm:5,chk:-1},
  {id:'xingdong',n:'⚡ 雷厲風行',d:'行動點 +1（立即）；每年心魔 +2',ap:1,calm:-2},
@@ -1188,7 +1188,7 @@ function renderFruitPick(){
  $('ePicks').className='picks';
  $('ePicks').innerHTML=S.fruitOffer.map(id=>{const f=FRUITS.find(x=>x.id===id);return`<button class="btn" onclick="takeFruit('${id}')"><b>${f.n}</b><div class="cs">${chips(f.d.split('；'))}</div></button>`}).join('');
 }
-function takeFruit(id){const f=FRUITS.find(x=>x.id===id);S.fruits.push(id);if(f.ap){S.apMax+=f.ap;S.ap+=f.ap}if(f.lifeP)S.life=Math.round(S.life*(1+f.lifeP));delete S.fruitOffer;log(`🍑 服下道果「${f.n}」：${f.d}`);S.phase=2;showRes(true,`你服下了「${f.n}」。`,f.d.split('；'));$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save()}
+function takeFruit(id){const f=FRUITS.find(x=>x.id===id);if(!f){delete S.fruitOffer;S.phase=2;render();return}S.fruits.push(id);if(f.ap){S.apMax+=f.ap;S.ap+=f.ap}if(f.lifeP)S.life=Math.round(S.life*(1+f.lifeP));delete S.fruitOffer;log(`🍑 服下道果「${f.n}」：${f.d}`);S.phase=2;showRes(true,`你服下了「${f.n}」。`,f.d.split('；'));$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save()}
 
 /* ===================== 幽靈宿敵（朋友的成長曲線） ===================== */
 function ghostAt(age){const g=S.ghost;if(!g||!g.curve.length)return null;let r=g.curve[0];for(const c of g.curve){if(c[0]<=age)r=c;else break}const last=g.curve[g.curve.length-1];const lost=!g.end&&age>last[0]+20;return{age:r[0],realm:r[1],ovr:r[2],fame:r[3],ended:!!(g.end&&age>=g.end.age)||lost,lost}}
@@ -1509,7 +1509,7 @@ const EVB=[
 {id:'b41',realm:[3,4,5,6],w:5,tag:'',t:'📯 掌門的密令',d:()=>`${sectName(S)}掌門密令：暗中調查一位長老是否通敵。`,cond:s=>!!s.sect&&s.sect!=='own'&&!s.flags.leader,opts:[{b:'查',cs:['神識檢定'],r:()=>chk('spirit',46)?[true,'長老是清白的——通敵的是他的弟子。掌門記你一功。',[F_(500),$_(1000)]]:[false,'你被那位長老發現了。他從此不待見你。',[X_(8),F_(-100)]]},{b:'裝糊塗',cs:['—'],r:()=>[true,'掌門另找了人。',[]]}]},
 {id:'b42',realm:[3,4,5,6],w:5,tag:'dgr',t:'☠️ 毒霧',d:'一團帶毒的黑霧沿著山谷擴散，所過之處寸草不生。',opts:[{b:'找到源頭',cs:['神識檢定'],r:()=>chk('spirit',46)?[true,'源頭是一頭死去的毒龍。你封住了牠的屍身。',[K_(10),F_(400),R('spirit',2)]]:[false,'你中了毒，昏迷三日。',[H_(-30)]]},{b:'撤',cs:['—'],r:()=>[true,'毒霧半年後散了。',[]]}]},
 {id:'b43',realm:[3,4,5],w:5,tag:'',t:'🎋 徒弟們打架',d:()=>`你的兩個徒弟為了一本功法打了起來，一個進了醫舍。`,opts:[{b:'各打五十大板',cs:['心境+'],r:()=>[true,'兩人跪了三天。從此不敢再鬧。',[R('mind',2)]]},{b:'把功法燒了',cs:['因果+'],r:()=>[true,'「這東西不值你們兄弟情。」他們哭了。',[K_(4),R('mind',3)]]}]},
-{id:'b44',realm:[4,5,6],w:4,tag:'acc',t:'🌀 時光裂隙',d:'一道裂隙裡，時間流速是外面的十倍。進去修一年，外面只過一個月。',opts:[{b:'進去閉關',cs:['修為++','心魔+'],r:()=>[true,'你在裡面待了十年。出來時外面只過了一年，你的頭髮卻白了。',[C_(.4),X_(15),'壽元-10',(S.life-=10,'')].filter(Boolean)]},{b:'不進',cs:['—'],r:()=>[true,'時間的帳，遲早要還。',[R('mind',1)]]}]},
+{id:'b44',realm:[4,5,6],w:4,tag:'acc',t:'🌀 時光裂隙',d:'一道裂隙裡，時間流速是外面的十倍。進去修一年，外面只過一個月。',opts:[{b:'進去閉關',cs:['修為++','心魔+'],r:()=>[true,'你在裡面待了十年。出來時外面只過了一年，你的頭髮卻白了。',[C_(.4),X_(15),'壽元-5',(S.life-=5,'')].filter(Boolean)]},{b:'不進',cs:['—'],r:()=>[true,'時間的帳，遲早要還。',[R('mind',1)]]}]},
 {id:'b45',realm:[3,4,5,6],w:5,tag:'',t:'🍶 前輩的酒局',d:'幾位老怪物請你喝酒。席間他們回憶當年，你插不上話。',opts:[{b:'靜聽',cs:['悟性+','人脈+'],r:()=>[true,'酒話裡藏著幾百年的經驗。',[R('insight',3),R('social',3)]]},{b:'找藉口走',cs:['—'],r:()=>[true,'他們沒留你。',[R('social',-1)]]}]},
 {id:'b46',realm:[3,4,5,6],w:5,tag:'dgr',t:'⚡ 天罰',d:'你做了一件天道不喜的事——你自己也不知道是哪件。一道雷從晴空落下。',opts:[{b:'硬扛',cs:['根骨檢定'],r:()=>chk('body',48)?[true,'雷過，你渾身焦黑，卻覺得筋骨更硬。',[R('body',4),H_(-20)]]:[false,'你被劈進了地裡。',[H_(-45)]]},{b:'以法寶擋',cs:['法寶'],r:()=>S.items.length?[true,`「${S.items.pop()}」替你擋了這一雷。`,['失去一件物品']]:[false,'你沒有法寶。',[H_(-45)]]}]},
 {id:'b47',realm:[3,4,5],w:5,tag:'',t:'📖 傳記出版',d:'有人替你寫的傳記在坊市大賣。裡面一半是編的。',opts:[{b:'隨它去',cs:['名望+'],r:()=>[true,'你成了說書人口中的傳奇。',[F_(800)]]},{b:'找作者理論',cs:['人脈檢定'],r:()=>chk('social',44)?[true,'作者道歉，並改了第二版。第二版賣得更好。',[F_(500),R('social',2)]]:[false,'作者說「這是藝術加工」。',[X_(5)]]}]},
@@ -1549,7 +1549,7 @@ const EVC=[
 {id:'c10',realm:[6,7,8],w:5,tag:'acc',t:'🌠 流星群',d:'一場百年一遇的流星雨。每一顆流星都是一枚天外隕鐵。',opts:[{b:'搶',cs:['氣運檢定'],r:()=>chk('luck',52)?[true,'你搶到了最大的那塊。',[(S.items.push('天外隕鐵'),'獲得天外隕鐵'),$_(5000*S.realm)]]:[false,'搶到一塊小的，還被隕石砸了。',[H_(-20),$_(500)]]},{b:'看',cs:['心境+'],r:()=>[true,'很美。',[R('mind',3),X_(-10)]]}]},
 {id:'c11',realm:[5,6,7,8],w:5,tag:'',t:'📿 度人',d:'一個十惡不赦的魔修跪在你面前求你渡他。',opts:[{b:'渡',cs:['因果+','心境+'],r:()=>[true,'你花了十年。他最後成了一個掃地僧。',[K_(15),R('mind',4)]]},{b:'殺',cs:['因果-'],r:()=>{S.flags.killed=true;return[true,'一了百了。',[K_(-8)]]}},{b:'趕走',cs:['—'],r:()=>[true,'他走了。後來又殺了很多人。',[K_(-5),X_(8)]]}]},
 {id:'c12',realm:[6,7,8],w:5,tag:'dgr',t:'⚡ 二次雷劫',d:'不知為何，本該渡完的雷劫又來了一次。',opts:[{b:'扛',cs:['根骨檢定'],r:()=>chk('body',56)?[true,'扛過了。你的道體更純。',[R('body',5),C_(.1)]]:[false,'重傷。',[H_(-45),X_(10)]]},{b:'以法寶擋',cs:['法寶'],r:()=>S.items.length?[true,`「${S.items.pop()}」化為飛灰。`,['失去一件物品']]:[false,'無寶可用。',[H_(-45)]]}]},
-{id:'c13',realm:[7,8,9],w:5,tag:'',t:'🍶 最後的酒',d:'一位與你同輩的老友壽元將盡。他約你喝最後一杯。',opts:[{b:'去',cs:['心境+','心魔+'],r:()=>[true,'他走得很安詳。你在他墳前埋了那壺酒。',[R('mind',5),X_(10),K_(3)]]},{b:'渡他壽元',cs:['壽元-','因果+'],r:()=>{S.life-=100;return[true,'你分了他一百年。他罵你傻，眼睛卻紅了。',['壽元-100',K_(15),R('mind',3)]]}}]},
+{id:'c13',realm:[7,8,9],w:5,tag:'',t:'🍶 最後的酒',d:'一位與你同輩的老友壽元將盡。他約你喝最後一杯。',opts:[{b:'去',cs:['心境+','心魔+'],r:()=>[true,'他走得很安詳。你在他墳前埋了那壺酒。',[R('mind',5),X_(10),K_(3)]]},{b:'渡他壽元',cs:['壽元-','因果+'],r:()=>{S.life-=60;return[true,'你分了他六十年。他罵你傻，眼睛卻紅了。',['壽元-60',K_(15),R('mind',3)]]}}]},
 {id:'c14',realm:[6,7,8,9],w:4,tag:'acc',t:'🌌 天門幻影',d:'天邊出現一道門的幻影。傳說那是仙界的門。',opts:[{b:'朝門而拜',cs:['心境+'],r:()=>[true,'幻影散去。你的道心更堅。',[R('mind',5),C_(.1)]]},{b:'試著飛過去',cs:['神識檢定'],r:()=>chk('spirit',58)?[true,'你觸到了門的一角。一絲仙氣入體。',[C_(.4),'壽元+300',(S.life+=300,'')].filter(Boolean)]:[false,'幻影消失時你正在半空。摔得不輕。',[H_(-30)]]}]},
 {id:'c15',realm:[7,8,9],w:5,tag:'dgr',t:'🕳️ 道基裂痕',d:'你發現自己的道基上有一道細小的裂痕——多年前某次失敗留下的。',opts:[{b:'閉關修補',cs:['時間','心境檢定'],r:()=>{S.age+=Math.round(REALMS[S.realm].life*.03);return chk('mind',56)?[true,'裂痕彌合。代價是時間。',[R('mind',3),'時光流逝']]:[false,'補了一半。你決定帶著它渡劫。',['時光流逝',X_(10)]]}},{b:'不管',cs:['心魔+'],r:()=>[true,'你告訴自己那不重要。',[X_(10)]]}]},
 {id:'c16',realm:[5,6,7,8],w:5,tag:'',t:'📯 後輩的挑戰',d:'一個天才後輩向你挑戰，說「前輩該讓位了」。',opts:[{b:'教他做人',cs:['根骨檢定'],r:()=>chk('body',52)?[true,'三招。他跪了。',[F_(1000),R('body',2)]]:[false,'後生可畏。你敗了。',[F_(-1000),H_(-30),(S.flags.everLost=true,'')].filter(Boolean)]},{b:'讓',cs:['心境+','名望-'],r:()=>[true,'「後浪推前浪。」你笑著讓開。',[R('mind',4),F_(-300),K_(3)]]}]},
@@ -1614,8 +1614,8 @@ EV.push(...EVC);
 
 const EV13=[
 {id:'life_end',realm:[0,1,2,3,4,5,6,7,8,9],w:600,cond:s=>lifeWarn()&&!s.flags.lifeEndSeen,tag:'dgr',t:'⏳ 大限將至',d:()=>`你能感覺到，壽元只剩約 ${turnsLeft()} 回合了。經脈開始乾涸，白髮一夜之間長了出來。\n這一世，該怎麼收尾？`,
- opts:[{b:'散功續命（修為歸零，壽元 +）',cs:['修為歸零','壽元+'],r:()=>{S.flags.lifeEndSeen=true;const g=Math.round(REALMS[S.realm].life*.25);S.life+=g;S.cul=0;S.stress+=10;return[true,'你散去一身修為，換來一段時間。從頭再來，也未必來不及。',['修為歸零','壽元+'+g,'心魔+10']]}},
- {b:'閉死關，孤注一擲',cs:['修為++','壽元-'],r:()=>{S.flags.lifeEndSeen=true;S.cul+=Math.round(REALMS[S.realm].need*.6);S.life-=Math.round(yrsPerTurn()*.5);S.hp-=15;return[true,'你封了洞府的門。成，則破境；不成，就死在裡面。',['修為大增','壽元-','體魄-15']]}},
+ opts:[{b:'散功續命（修為歸零，壽元 +）',cs:['修為歸零','壽元+'],r:()=>{S.flags.lifeEndSeen=true;const g=Math.round(REALMS[S.realm].life*.15);S.life+=g;S.cul=0;S.stress+=10;AK.forEach(k=>S.stat[k]=Math.max(5,Math.round(S.stat[k]*.9)));return[true,'你散去一身修為，換來一段時間。從頭再來，也未必來不及。',['修為歸零','六維×0.9','壽元+'+g,'心魔+10']]}},
+ {b:'閉死關，孤注一擲',cs:['修為++','壽元-'],r:()=>{S.flags.lifeEndSeen=true;S.cul+=Math.round(REALMS[S.realm].need*.6);S.life-=Math.round(yrsPerTurn()*.25);S.hp-=15;return[true,'你封了洞府的門。成，則破境；不成，就死在裡面。',['修為大增','壽元-','體魄-15']]}},
  {b:'平靜地過完',cs:['心境+','心魔歸零'],r:()=>{S.flags.lifeEndSeen=true;addStat('mind',5);S.stress=0;S.karma+=5;return[true,'你把該交代的都交代了，然後每天看日出。',['心境+5','心魔歸零','因果+5']]}}]},
 ];
 EV.push(...EV13);
@@ -1728,7 +1728,7 @@ function breakthrough(){
  if(S.realm===9){ // 渡劫
   const ok=rnd()<r*.9;
   if(ok){S.realm=10;S.flags.tribSurv=true;S.life=1e9;log('⚡ 九九天劫過，白日飛升！');ach();S.dead=true;S.ending='ascend';render();return}
-  if(rnd()<.25){S.realm=5;S.cul=Math.round(REALMS[5].need*.5);AK.forEach(k=>S.stat[k]=Math.max(5,Math.round(S.stat[k]*.7)));S.life=Math.min(S.life,S.age+Math.round(REALMS[5].life*.6));S.hp=15;S.stress=Math.min(100,S.stress+35);S.flags.tribFall=(S.flags.tribFall||0)+1;S.flags.brkFail=(S.flags.brkFail||0)+1;
+  if(rnd()<.25){S.realm=5;S.cul=Math.round(REALMS[5].need*.5);AK.forEach(k=>S.stat[k]=Math.max(5,Math.round(S.stat[k]*.7)));S.life=Math.min(S.life,S.age+Math.round(REALMS[5].life*.75));S.hp=15;S.stress=Math.min(100,S.stress+35);S.flags.tribFall=(S.flags.tribFall||0)+1;S.flags.brkFail=(S.flags.brkFail||0)+1;
    log('⚡ 渡劫失敗！最後一道天雷劈碎道基——你僥倖未死，境界跌回化神期。');ach();
    showRes(false,'第九道天雷落下，你的元嬰碎了一半。醒來時已是三百年後，境界只剩化神。\n但你還活著。',['境界跌回化神期','修為減半','六維×0.7','體魄→15','心魔+35','壽元受限']);
    $('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();
@@ -1737,17 +1737,17 @@ function breakthrough(){
   S.dead=true;S.ending='trib';log('⚡ 渡劫失敗，身死道消。');ach();render();return
  }
  if(rnd()<r){
-  S.realm++;S.cul=Math.max(0,S.cul-Rm.need);S.life+=REALMS[S.realm].life-Rm.life;S.apMax=REALMS[S.realm].ap+(S.tier===-1?1:0)+(S.flags.vowRogue?1:0);S.hp=100;S.stress=Math.max(0,S.stress-20);
+  S.realm++;S.cul=Math.max(0,S.cul-Rm.need);const T=SEED_TIER.find(t=>t.k===S.tier);if(S.realm<=(S.flags.maxRealm||0)){S.life=Math.max(S.life,S.age+50,REALMS[S.realm].life+T.life)}else{S.life+=REALMS[S.realm].life-Rm.life;S.flags.maxRealm=S.realm}S.apMax=REALMS[S.realm].ap+(S.tier===-1?1:0)+(S.flags.vowRogue?1:0);S.hp=100;S.stress=Math.max(0,S.stress-20);
   AK.forEach(k=>addStat(k,rr(2,5)));S.fame+=100*S.realm*S.realm;
   log(`🌟 突破成功！晉入 ${REALMS[S.realm].n}，壽元增至 ${fmt(S.life)}。`);ach();
   showRes(true,`天地靈氣灌體，你成功晉入 ${REALMS[S.realm].n}！`,['壽元+'+fmt(REALMS[S.realm].life-Rm.life),'六維全面提升','體魄回滿']);
-  if(S.shop)S.shop.qiN=0;recordCurve();offerFruits();S.phase=3;
-  $('ePicks').innerHTML=`<button class="btn brk" onclick="renderFruitPick()">🍑 選擇道果 →</button>`;save();
+  if(S.shop)S.shop.qiN=0;recordCurve();offerFruits();
+  if(S.fruitOffer&&S.fruitOffer.length){S.phase=3;$('ePicks').innerHTML=`<button class="btn brk" onclick="renderFruitPick()">🍑 選擇道果 →</button>`}else{delete S.fruitOffer;S.phase=2;$('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`}save();
   $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);return;
  }else{
-  S.flags.brkFail=(S.flags.brkFail||0)+1;S.hp-=Math.round((30+S.realm*3)*(S.type==='phys'?.5:1));S.stress+=20;S.cul=Math.round(S.cul*.7);let drop='';if(S.realm>=5&&rnd()<.25){S.realm--;S.cul=Math.round(REALMS[S.realm].need*.8);S.life=Math.min(S.life,REALMS[S.realm].life+200);drop='境界跌落至'+REALMS[S.realm].n;log('⚠️ 反噬過猛，'+drop+'！')}if(S.tier!==-1&&!B('noLifeLoss'))S.life-=Math.round(Rm.life*.05);
+  S.flags.brkFail=(S.flags.brkFail||0)+1;S.hp-=Math.round((30+S.realm*3)*(S.type==='phys'?.5:1));S.stress+=20;S.cul=Math.round(S.cul*.7);let drop='';if(S.realm>=5&&rnd()<.25){S.realm--;S.cul=Math.round(REALMS[S.realm].need*.8);S.life=Math.min(S.life,Math.max(S.age+REALMS[S.realm].life*.35,REALMS[S.realm].life+200));drop='境界跌落至'+REALMS[S.realm].n;log('⚠️ 反噬過猛，'+drop+'！')}if(S.tier!==-1&&!B('noLifeLoss'))S.life-=Math.round(Rm.life*.03);
   log('💥 突破失敗，反噬受傷。');ach();
-  showRes(false,drop?'靈力逆衝，根基崩裂——你的境界跌落了！':'靈力逆衝，經脈受創。你吐出一口血，境界仍在原地。',['體魄-'+Math.round((30+S.realm*3)*(S.type==='phys'?.5:1)),'心魔+20',drop||'修為-30%',(S.tier===-1||B('noLifeLoss'))?'不折壽':'壽元-'+Math.round(Rm.life*.05)]);
+  showRes(false,drop?'靈力逆衝，根基崩裂——你的境界跌落了！':'靈力逆衝，經脈受創。你吐出一口血，境界仍在原地。',['體魄-'+Math.round((30+S.realm*3)*(S.type==='phys'?.5:1)),'心魔+20',drop||'修為-30%',(S.tier===-1||B('noLifeLoss'))?'不折壽':'壽元-'+Math.round(Rm.life*.03)]);
  }
  $('ePicks').innerHTML=`<button class="btn cont" onclick="nextYear()">度過此年 →</button>`;save();
  $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);
