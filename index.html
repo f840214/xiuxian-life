@@ -2068,6 +2068,7 @@ function breakthrough(){
  $('rNm').textContent=REALMS[S.realm].n;$('rSd').textContent=REALMS[S.realm].sub;$('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('sLife').textContent=fmt(S.life);
 }
 function nextYear(){
+ const hp0=S.hp;
  if(S.sect)S.flags.everSect=true;
  S.lastActs=S.curActs||[];S.curActs=[];rollWeather();
  // 年度被動
@@ -2104,7 +2105,7 @@ function nextYear(){
  S.hp=clamp(S.hp+3,0,hpMax());
  // 死亡
  if(S.age>=S.life){S.dead=true;S.ending='old';log('壽元耗盡，坐化。')}
- else if(S.hp<=0){if(S.flags.clone){S.flags.clone=false;S.hp=30;S.stress+=15;log('👥 分身替死！你在千里之外睜開眼——真正的你還活著。')}else{S.dead=true;S.ending='hurt';log('傷重不治。')}}
+ else if(hp0<=0){if(S.flags.clone){S.flags.clone=false;S.hp=30;S.stress+=15;log('👥 分身替死！你在千里之外睜開眼——真正的你還活著。')}else{S.dead=true;S.ending='hurt';log('傷重不治。')}}
  ach();render();window.scrollTo(0,0);
 }
 function renderEnd(){
