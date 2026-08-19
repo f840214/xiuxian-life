@@ -232,7 +232,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 3 . 1</div>
+  <div class="en">X I A N　L I F E　V 3 . 2</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -542,6 +542,10 @@ const ACH=[
  {id:'ldDao',n:'🌹 魔女道侶',chk:s=>s.dao==='冷紫煙',lock:'需爐鼎開局'},
  {id:'rev1',n:'🔄 副作用是補藥',chk:s=>s.type==='rev'&&(s.flags.revForbidden||0)>=1,lock:'需逆轉靈根'},
  {id:'origins',n:'🌱 百般出身',chk:s=>!!s.origin&&s.origin!=='farm'&&s.realm>=5},
+ {id:'mask',n:'🎭 馬甲穩健',chk:s=>!!s.flags.mask&&(s.flags.maskFame||0)>=3},
+ {id:'job8',n:'📚 八階大師',chk:s=>(s.jobLv||0)>=8},
+ {id:'flesh4',n:'🪨 肉身四重',chk:s=>fleshLv()>=4},
+ {id:'clone',n:'👥 一氣化三清',chk:s=>!!s.flags.clone||!!s.flags.cloneSeen&&(s.log||[]).some(l=>/分身替死/.test(l.t))},
  {id:'work',n:'🧾 打工人的一生',chk:s=>s.flags.workLife},
  {id:'rogue',n:'🌪️ 散修至尊',chk:s=>s.flags.vowRogue&&s.realm>=5&&!s.flags.everSect,lock:'需立誓終身散修'},
 ];
@@ -590,7 +594,7 @@ function applyHallTiers(s){HALL_TIERS.forEach(t=>{if(HALL.all.length>=t.n)t.f(s)
 /* ===================== 事件 ===================== */
 const DF=n=>n; // 難度基準
 function chk(k,d,bonus=0){ // 檢定：屬性+骰 vs 難度（含稱號被動）
- const roll=S.type==='fate'?Math.max(rr(-12,12),rr(-12,4)):rr(-12,12);const v=S.stat[k]+bonus+roll+(S.stat.luck-30)/6+B('chk')+B('chkK',k)+(S.type==='sword'&&k==='body'&&S.evId&&(EV.find(e=>e.id===S.evId)||{}).tag==='dgr'?4:0);return v>=d}
+ const roll=S.type==='fate'?Math.max(rr(-12,12),rr(-12,4)):rr(-12,12);const v=S.stat[k]+bonus+roll+(S.stat.luck-30)/6+B('chk')+B('chkK',k)+(S.type==='sword'&&k==='body'&&S.evId&&(EV.find(e=>e.id===S.evId)||{}).tag==='dgr'?4:0)+(k==='body'&&JL('fu')&&S.evId&&(EV.find(e=>e.id===S.evId)||{}).tag==='dgr'?JL('fu'):0);return v>=d}
 const R=(k,v)=>{const g=addStat(k,v);return g?`${AN[k]}${g>0?'+':''}${g}`:`${AN[k]}已達上限`};
 const EV=[
 /* --- 凡人期 --- */
@@ -1437,7 +1441,7 @@ EV.push(...EV12);
 /* ===================== 靈根專屬行動與被動 ===================== */
 const danLv=()=>{const n=S.flags.danOk||0;return n>=20?3:n>=10?2:n>=5?1:0};
 const goldBody=()=>S.type!=='phys'?0:S.stat.body>=90?3:S.stat.body>=75?2:S.stat.body>=60?1:0;
-const hpMax=()=>(S.type==='phys'?[120,130,140,150][goldBody()]:100)+(S.flags.originYao?20:0);
+const hpMax=()=>(S.type==='phys'?[120,130,140,150][goldBody()]:100)+(S.flags.originYao?20:0)+fleshLv()*10;
 const DEMON_ACT={id:'t_demon',n:'🩸 奪元',c:'搶奪他人修為 · 修為+12% · 因果-4 · 30% 反被打傷',f:()=>{if(rnd()<.3){S.hp-=15;return'選錯了對象，反被打傷：體魄-15'}S.cul+=Math.round(N_()*.12);S.karma-=4;S.fame=Math.max(0,S.fame-30);S.flags.killed=true;return'奪元成功：修為+12%、因果-4、名望-30'}};
 const DAO_ACT={id:'t_dao',n:'💞 雙修',c:'與道侶雙修 · 修為+8% · 心魔-10 · 好感+2（每回合一次）',f:()=>{if(S.flags.daoActUsed===S.step)return'';if(S.flags.daoActTurn===S.age+'_'+S.realm)return'本回合已與道侶雙修過';S.flags.daoActTurn=S.age+'_'+S.realm;S.cul+=Math.round(N_()*.08);S.stress=Math.max(0,S.stress-10);if(S.love)S.love.aff=Math.min(100,S.love.aff+2);return`與${S.dao}雙修：修為+8%、心魔-10、好感+2`}};
 const TYPE_ACT={
@@ -1721,7 +1725,7 @@ const WEATHER=[
  {id:'star',ic:'✨',n:'星辰歸位',d:'百年一遇的天象：突破率 +5%',brk:.05},
 ];
 const W=(k,def=1)=>(S&&S.weather&&WEATHER.find(w=>w.id===S.weather)&&WEATHER.find(w=>w.id===S.weather)[k]!==undefined)?WEATHER.find(w=>w.id===S.weather)[k]:def;
-function rollWeather(){S.weather=rnd()<.6?pick(WEATHER).id:null}
+function rollWeather(){const nx=()=>rnd()<.6?pick(WEATHER).id:null;S.weather=S.nextWeather!==undefined?S.nextWeather:nx();S.nextWeather=nx()}
 const SIDEQUEST={
  cul:[()=>{S.cul+=Math.round(N_()*.06);return'✨ 閉關中忽有所悟，修為額外+6%'},()=>{S.hp-=8;S.stress+=5;return'⚡ 練功太急，走火受了點小傷：體魄-8、心魔+5'},()=>{addStat('insight',2);return'📖 入定時想通一個舊疑問：悟性+2'}],
  train:[()=>{addStat('body',2);return'💪 一位路過的體修看你練得認真，指點了兩招：根骨+2'},()=>{S.hp-=10;return'🩹 練過頭拉傷了：體魄-10'}],
@@ -1746,7 +1750,7 @@ const ITEM_BUFF={
  '舍利':{calm:1},'念珠':{calm:1},'琴譜':{calm:1},'靜心蒲團':{},'老怪的洞府':{cul:.01},'仙人玉符':{dgrW:-.1},'魚吐珠':{chkK:{luck:2}},'靈光珠':{chkK:{insight:1}},'古銅鏡':{chkK:{spirit:1}},'半塊玉佩':{chkK:{luck:1}},
  '靈鷹':{accW:.05},'靈獸':{chkK:{body:1}},'老狗':{calm:1},'娘的棉衣':{calm:1},'陶匠的碗':{calm:1},'長老贈禮':{chk:1},'撿漏法器':{chkK:{spirit:1}},'石上刻文':{cul:.005},'千年樹心':{chkK:{spirit:2}},'仙盟令':{accW:.05},'三十年前的包裹':{chkK:{mind:1}},
 };
-const IB=(k,sub)=>S?S.items.reduce((a,n)=>{const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.01,calm:1}:null);if(!b)return a;if(sub)return a+((b[k]||{})[sub]||0);return a+(typeof b[k]==='number'?b[k]:0)},0):0;
+const IB=(k,sub)=>S?(1+JL('lq')*.1)*S.items.reduce((a,n)=>{const b=ITEM_BUFF[n]||(n.endsWith('的法寶')?{brk:.01,calm:1}:null);if(!b)return a;if(sub)return a+((b[k]||{})[sub]||0);return a+(typeof b[k]==='number'?b[k]:0)},0):0;
 const buffTxt=b=>{const o=[];if(b.brk)o.push('突破率 '+(b.brk>0?'+':'')+Math.round(b.brk*100)+'%');if(b.chk)o.push('所有檢定 '+(b.chk>0?'+':'')+b.chk);if(b.chkK)for(const k in b.chkK)o.push(AN[k]+'檢定 '+(b.chkK[k]>0?'+':'')+b.chkK[k]);if(b.cul)o.push('每回合修為 +'+(b.cul*100)+'%');if(b.calm)o.push('每回合心魔 '+(b.calm>0?'−':'+')+Math.abs(b.calm));if(b.dgrW)o.push('凶險事件 '+Math.round(b.dgrW*100)+'%');if(b.dgrHp)o.push('凶險傷害 −'+Math.round(b.dgrHp*100)+'%');if(b.accW)o.push('機緣事件 +'+Math.round(b.accW*100)+'%');return o.join('、')};
 
 /* ===================== 持有物說明 ===================== */
@@ -1889,6 +1893,42 @@ const EV17=[
 ];
 EV.push(...EV17);
 
+
+/* ===================== 馬甲系統 ===================== */
+const MASKS=['張老三','李符師','趙掌櫃','無名道人','黑袍客','王木匠','清風居士','阿貴'];
+const masked=()=>!!S.flags.mask;
+const EV18=[
+{id:'mk1',realm:[1,2,3,4,5,6,7],w:25,cond:s=>!masked()&&(s.fame>=800||s.karma<=-20||DEMON(s)),tag:'acc',t:'🎭 換個身分',d:'名聲太響或仇家太多，都不是好事。你想起一個老辦法：換張臉、換個名字，重新開始。',
+ opts:[{b:'穿上馬甲',cs:['開啟馬甲','仇家事件 −70%'],r:()=>{S.flags.mask=pick(MASKS);S.flags.maskFame=0;return[true,`從今天起，你叫「${S.flags.mask}」。${S.name}幹的事，跟${S.flags.mask}有什麼關係？`,['馬甲：'+S.flags.mask,'追殺/圍剿/仇家事件大減']]}},
+ {b:'行不改名坐不改姓',cs:['名望+'],r:()=>[true,'你不屑。',[F_(100),R('mind',2)]]}]},
+{id:'mk2',realm:[1,2,3,4,5,6,7,8],w:9,cond:masked,tag:'',t:()=>`🎭 ${S.flags.mask}的生意`,d:()=>`頂著「${S.flags.mask}」的名號，你可以做一些「${S.name}」不方便做的事。`,
+ opts:[{b:'賣禁藥/黑貨',cs:['靈石+','因果-','名望不變'],r:()=>{S.stone+=600*(S.realm+1);S.karma-=4;S.flags.maskFame=(S.flags.maskFame||0)+1;return[true,'一筆橫財。反正是馬甲幹的。',['靈石+'+600*(S.realm+1),'因果-4','馬甲名聲+']]}},
+ {b:'以馬甲身分坑一把仇家',cs:['悟性檢定','靈石+'],r:()=>chk('insight',42)?[true,'仇家被坑得傾家蕩產，還不知道是誰幹的。',[$_(1000*(S.realm+1)),F_(0),(S.flags.maskFame=(S.flags.maskFame||0)+1,'馬甲名聲+')]]:[false,'局沒做好，被人看出破綻。',[X_(8),(S.flags.maskRisk=(S.flags.maskRisk||0)+1,'暴露風險+')]]},
+ {b:'低調做人',cs:['修為+'],r:()=>[true,'馬甲的好處是沒人找你麻煩。',[C_(.08)]]}]},
+{id:'mk3',realm:[1,2,3,4,5,6,7,8],w:0,cond:masked,tag:'dgr',t:()=>`🎭 馬甲掉了`,d:()=>`有人指著你：「你不是${S.flags.mask}——你是${S.name}！」`,
+ opts:[{b:'裝傻到底',cs:['人脈檢定'],r:()=>chk('social',42+(S.flags.maskFame||0)*3)?[true,'「你認錯人了。」你演得太像，連自己都信了。',[R('social',2),(S.flags.maskRisk=0,'')].filter(Boolean)]:[false,'瞞不住了。馬甲的帳全算到你頭上。',[(S.fame=Math.max(0,S.fame-300*(S.flags.maskFame||1)),'名望-'),X_(10),(S.flags.mask=null,'失去馬甲')]]},
+ {b:'殺人滅口',cs:['根骨檢定','因果--'],r:()=>{S.flags.killed=true;return chk('body',44)?[true,'死人不會說話。馬甲保住了。',[K_(-12),(S.flags.maskRisk=0,'')].filter(Boolean)]:[false,'沒殺乾淨。消息傳開了。',[K_(-8),(S.flags.mask=null,'失去馬甲')]]}},
+ {b:'坦然承認',cs:['心境+'],r:()=>{S.flags.mask=null;return[true,'「是我。」你把馬甲脫了。有些帳，還是自己扛。',[R('mind',4),'失去馬甲']]}}]},
+];
+EV.push(...EV18);
+/* ===================== 副職業 ===================== */
+const JOBS={fu:{n:'📜 符師',d:'每級：每回合靈石 +80×級×境界；符寶：凶險事件根骨檢定 +級'},tj:{n:'🔮 天機師',d:'每級：突破率 +0.6%；三級起年末可預知下回合天時；六級起機緣事件 +15%'},lq:{n:'🔨 煉器師',d:'每級：所有法寶被動 +10%（含檢定/突破）；每回合靈石 +50×級×境界'},zf:{n:'🧭 陣法師',d:'每級：凶險事件 −6%；每回合心魔 −1（每 2 級）'}};
+const JOB_ACT={id:'t_job',n:'📚 副業修習',c:'研習副職業（符/天機/煉器/陣法） · 悟性檢定升級 · 最高 8 級',f:()=>{if(!S.job){S._pickJob=true;return'請選擇副職業（見下方）'}const lv=S.jobLv||0;if(lv>=8)return`${JOBS[S.job].n}已達八級巔峰`;if(chk('insight',30+lv*6)){S.jobLv=lv+1;return`${JOBS[S.job].n}晉升 ${S.jobLv} 級！`}return`${JOBS[S.job].n}研習未有寸進（悟性檢定失敗）`}};
+function pickJob(k){S.job=k;S.jobLv=1;delete S._pickJob;log(`📚 開始修習${JOBS[k].n}（1 級）`);render()}
+const JL=(k)=>S&&S.job===k?(S.jobLv||0):0;
+/* ===================== 肉身境（所有人） ===================== */
+const fleshLv=()=>S.stat.body>=95?4:S.stat.body>=80?3:S.stat.body>=65?2:S.stat.body>=50?1:0;
+/* ===================== 分身術 ===================== */
+const EV19=[
+{id:'fs1',realm:[4,5,6,7,8],w:7,cond:s=>!s.flags.clone&&!s.flags.cloneSeen,tag:'acc',t:'👥 分身術',d:'一部殘缺的《一氣化三清》：可煉出一具分身，替你死一次、替你演一場戲。代價是修為。',
+ opts:[{b:'煉分身（修為 −30%）',cs:['分身','替死一次'],r:()=>{S.flags.cloneSeen=true;S.flags.clone=true;S.cul=Math.round(S.cul*.7);return[true,'一具與你一模一樣的分身站在面前。它眨了眨眼。',['獲得分身：傷亡致死時替死一次；仇家事件可由分身頂','修為-30%']]}},
+ {b:'不煉',cs:['—'],r:()=>{S.flags.cloneSeen=true;return[true,'一個自己就夠煩了。',[R('mind',1)]]}}]},
+{id:'fs2',realm:[4,5,6,7,8],w:8,cond:s=>!!s.flags.clone,tag:'',t:'👥 分身互演',d:'仇家追殺到門口。你的分身在正門跟他們周旋，你在後門喝茶。',
+ opts:[{b:'看戲',cs:['心魔-','名望+'],r:()=>[true,'分身演得比你還像你。仇家走了，還留下一句「葉某人果然厲害」。',[X_(-10),F_(200)]]},
+ {b:'趁機從背後包抄',cs:['根骨檢定'],r:()=>{S.flags.killed=true;return chk('body',48)?[true,'前後夾擊，仇家全滅。',[F_(500),$_(1000*S.realm)]]:[false,'仇家看穿了。分身被打散。',[(S.flags.clone=false,'失去分身'),H_(-20)]]}}]},
+];
+EV.push(...EV19);
+
 /* ===================== 年度行動 ===================== */
 const ACTIONS=[
  {id:'cul',n:'🧘 閉關修煉',c:'修為+ · 心魔+',f:()=>{const g=Math.round(REALMS[S.realm].need*(.025+S.stat.insight/3000+(S.master?.01:0))*Math.max(.5,1-S.realm*.06)*(DEMON(S)?1.3:1)*W('cul'));S.cul+=g;if(!W('noStress',0))S.stress+=7;return`修為+${g}`+sideQuest('cul')}},
@@ -1934,7 +1974,7 @@ function render(){
  const tl=S.ach.filter(id=>ACH_BUFF[id]).map(id=>`<span class="chip c-mon" title="${esc(ACH_BUFF[id].d)}">${esc(ACH_BUFF[id].t)}</span>`).join(' ');
  const fr=S.fruits.map(id=>{const f=FRUITS.find(x=>x.id===id);return f?`<span class="chip c-dif" title="${esc(f.d)}">${esc(f.n)}</span>`:''}).join(' ');
  const gh=S.ghost?(()=>{const g=ghostAt(S.age);return`<div style="margin:8px 0;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#0d131b">⚔️ 宿敵 <b>${esc(S.ghost.n)}</b>　${g.ended?'（'+(g.lost?'杳無音訊':'已'+({ascend:'飛升',trib:'隕落',old:'坐化',hurt:'殞落',retire:'歸隱',work:'退休'}[S.ghost.end.ending]||'結束'))+'）':`同齡時：${REALMS[g.realm].n}・綜合 ${g.ovr}　<span style="color:${g.realm>S.realm?'var(--red)':g.realm<S.realm?'var(--jade)':'var(--gold)'}">${g.realm>S.realm?'▲ 領先你':g.realm<S.realm?'▼ 落後你':'＝ 並駕齊驅'}</span>`}<br><span style="font-size:.72rem;color:var(--dim)">對決 勝 ${S.flags.ghostWins||0}／敗 ${S.flags.ghostLoss||0}</span></div>`})():'';
- $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LV().ic+' 心上人：'+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${DEMON(S)?'<span style="color:var(--red)">⚫ 已墮魔道</span>（閉關 +30%、突破 +6%；每回合心魔 +4、因果 −2；坊市 ×1.2；天劫加重）<br>':S.flags.redeemed?'🕊️ 曾入魔道，已回頭<br>':''}${(S.shop&&(S.shop.vein||S.shop.alch||S.shop.guardUntil>S.age))?'🏪 產業：'+[S.shop.vein?'靈脈 Lv.'+S.shop.vein:'',S.shop.alch?'丹房 Lv.'+S.shop.alch:'',S.shop.guardUntil>S.age?'護法至 '+S.shop.guardUntil+' 歲':''].filter(Boolean).join('、')+'<br>':''}${S.type==='sword'?'⚔️ 劍意 '+(S.flags.swordQi||0)+' 點（每 3 點突破 +1%，≥5 可劍意破境）<br>':S.type==='alch'?'⚗️ 丹道 '+['未入品','一品','二品','三品'][danLv()]+'（煉丹成功 '+(S.flags.danOk||0)+' 次）<br>':S.type==='phys'?'🪨 金身 '+['未成','一重','二重','三重'][goldBody()]+'（體魄上限 '+hpMax()+'）<br>':S.type==='heart'?'🕯️ 道心 '+(S.flags.daoxin||0)+'（心境上限已 +'+(S.flags.daoxinCap||0)+'）<br>':S.type==='fate'?'🍀 天命骰：檢定擲兩次取優<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?`<div style="margin-top:8px"><div class="ct" style="margin-bottom:6px">持有物（${S.items.length}）</div>${itemRows(S.items)}<div class="hint">${ITEM_NOTE}</div></div>`:''}`;
+ $('titleBox').innerHTML=gh+(fr?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${fr}</div>`:'')+(tl?`<div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px">${tl}</div>`:'')+`${T.ic} <b>${T.n}</b> — ${T.say}${T.ab?'<br>'+T.ab:''}<br>種子：<code>${esc(S.seed)}</code><br>${S.master?'師承：'+S.master+'<br>':''}${S.dao?'💞 道侶：'+S.dao+(S.flags.child?'（育有子嗣）':'')+'<br>':S.love?LV().ic+' 心上人：'+LV().n+'（好感 '+S.love.aff+'）<br>':''}${S.flags.leader?'👑 一宗之主<br>':''}${DEMON(S)?'<span style="color:var(--red)">⚫ 已墮魔道</span>（閉關 +30%、突破 +6%；每回合心魔 +4、因果 −2；坊市 ×1.2；天劫加重）<br>':S.flags.redeemed?'🕊️ 曾入魔道，已回頭<br>':''}${(S.shop&&(S.shop.vein||S.shop.alch||S.shop.guardUntil>S.age))?'🏪 產業：'+[S.shop.vein?'靈脈 Lv.'+S.shop.vein:'',S.shop.alch?'丹房 Lv.'+S.shop.alch:'',S.shop.guardUntil>S.age?'護法至 '+S.shop.guardUntil+' 歲':''].filter(Boolean).join('、')+'<br>':''}${S.job?JOBS[S.job].n+' '+(S.jobLv||0)+' 級（'+JOBS[S.job].d+'）<br>':''}${fleshLv()?'🪨 肉身境 '+['','一重','二重','三重','四重'][fleshLv()]+'（體魄上限 +'+fleshLv()*10+'、凶險傷害 −'+fleshLv()*10+'%）<br>':''}${S.flags.mask?'🎭 馬甲：'+S.flags.mask+'（仇家事件 −70%，有暴露風險）<br>':''}${S.flags.clone?'👥 分身在身（可替死一次）<br>':''}${S.type==='sword'?'⚔️ 劍意 '+(S.flags.swordQi||0)+' 點（每 3 點突破 +1%，≥5 可劍意破境）<br>':S.type==='alch'?'⚗️ 丹道 '+['未入品','一品','二品','三品'][danLv()]+'（煉丹成功 '+(S.flags.danOk||0)+' 次）<br>':S.type==='phys'?'🪨 金身 '+['未成','一重','二重','三重'][goldBody()]+'（體魄上限 '+hpMax()+'）<br>':S.type==='heart'?'🕯️ 道心 '+(S.flags.daoxin||0)+'（心境上限已 +'+(S.flags.daoxinCap||0)+'）<br>':S.type==='fate'?'🍀 天命骰：檢定擲兩次取優<br>':''}${S.type==='sys'?'📱 系統 Lv.'+S.sys.lvl+'　積分 '+S.sys.pts+'　打臉 '+S.sys.face+' 次'+(S.flags.sysDevour?'（已吞噬）':S.flags.sysRebel?'（已決裂）':'')+'<br>':''}${S.items.length?`<div style="margin-top:8px"><div class="ct" style="margin-bottom:6px">持有物（${S.items.length}）</div>${itemRows(S.items)}<div class="hint">${ITEM_NOTE}</div></div>`:''}`;
  renderHall('hallGrid2');
  $('logBox').innerHTML=S.log.map(l=>`<div class="log"><b>${l.y}歲</b>${esc(l.t)}</div>`).join('')||'<div class="hint">尚無記錄</div>';
  // 舞台
@@ -1949,21 +1989,22 @@ function renderActions(){
  $('eTitle').textContent='今年如何安排？';
  const wx=S.weather?WEATHER.find(w=>w.id===S.weather):null;
  $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合（${S.life-S.age} 年）。\n`:'')+(wx?`${wx.ic} 天時【${wx.n}】：${wx.d}\n`:'')+`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
- const ACTS=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]);
+ const ACTS=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[]);
  $('ePicks').className='picks grid2';$('ePicks').innerHTML=ACTS.map((a,i)=>`<button class="btn" ${a.id==='t_dao'?'style="border-color:#f9a8d488;background:linear-gradient(135deg,#4a1030,#111823)"':a.id==='t_demon'?'style="border-color:#e0525288;background:linear-gradient(135deg,#3a0d0d,#111823)"':a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
   `<div style="grid-column:1/-1;display:flex;gap:8px">${S.lastActs&&S.lastActs.length&&S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="repeatLast()">🔁 重複上回合安排</button>`:''}${S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="allCul()">🧘 剩餘全部閉關</button>`:''}</div><button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
-function doAct(i,quiet){if(S.ap<=0)return;(S.curActs=S.curActs||[]).push(i);const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[])[i];if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
+function doAct(i,quiet){if(S.ap<=0)return;(S.curActs=S.curActs||[]).push(i);const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div class="cs">${chips([v.d])}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
  $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();renderSide();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
  $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
 function showRes(win,txt,cs){const r=$('eRes');r.className='res '+(win?'win':'lose');r.style.display='block';$('eResTxt').textContent=txt;$('eResChips').innerHTML=chips(cs)}
 function pickEvent(){
  S.step++;reseed();
+ if(S._forceEv){const e=EV.find(x=>x.id===S._forceEv);delete S._forceEv;if(e&&(!e.cond||e.cond(S)))return e}
  if(S.stone>=50&&rnd()<(S.shop&&S.shop.dice?.14:.07))return DICE;
  const T=SEED_TIER.find(t=>t.k===S.tier);
  const pool=EV.filter(e=>e.realm.includes(S.realm)&&(!e.cond||e.cond(S))&&!(S.cd[e.id]>S.age));
- let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'));if(S.shop&&S.shop.tieUntil>=S.age)w*=2;w*=W('acc')}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));if(S.shop&&S.shop.guardUntil>S.age)w*=.5;w*=W('dgr')}tot+=w;return w});
+ let tot=0;const ws=pool.map(e=>{let w=e.w;if(e.tag==='acc'){if(T.k===3)w*=1.3;w*=Math.max(.2,1+B('accW'));if(JL('tj')>=6)w*=1.15;if(S.shop&&S.shop.tieUntil>=S.age)w*=2;w*=W('acc')}if(e.tag==='dgr'){w*=Math.max(.2,1+B('dgrW'));w*=Math.max(.2,1-JL('zf')*.06);if(masked()&&/^(c66|c67|dm_hunt|b58|b54|or2|scheme|impostor|revenge|disturb|c44|hunt)/.test(e.id))w*=.3;if(S.shop&&S.shop.guardUntil>S.age)w*=.5;w*=W('dgr')}tot+=w;return w});
  let x=rnd()*tot;for(let i=0;i<pool.length;i++){x-=ws[i];if(x<=0)return pool[i]}return pool[pool.length-1];
 }
 function toEvent(){S.phase=1;const e=pickEvent();S.evId=e.id;S._culBefore=S.cul;S._stoneBefore=S.stone;S.cd[e.id]=S.age+(S.realm===0?9:4);render()}
@@ -1978,7 +2019,7 @@ function renderEvent(){
 }
 function doOpt(i){
  const e=EV.find(x=>x.id===S.evId);const opts=typeof e.opts==='function'?e.opts():e.opts;
- S.step++;reseed();const cb=S._culBefore??S.cul,sb=S._stoneBefore??S.stone,hb=S.hp,xb=S.stress;const [win,txt,cs]=opts[i].r();if(S.type==='rev'&&S.stress>xb){const g=S.stress-xb;S.stress=xb+Math.round(g/2);S.cul+=Math.round(N_()*g/200)}if(e.tag==='dgr'&&S.hp<hb){const red=Math.min(.7,(S.type==='phys'?[0,.2,.35,.5][goldBody()]:0)+IB('dgrHp'));if(red>0)S.hp=Math.round(hb-(hb-S.hp)*(1-red))}if(S.realm<=2&&S.stone>sb)S.stone=Math.round(sb+(S.stone-sb)*.6);if(S.cul>cb)S.cul=Math.round(cb+(S.cul-cb)*(S.realm>=7?.22:S.realm>=5?.3:.45));
+ S.step++;reseed();const cb=S._culBefore??S.cul,sb=S._stoneBefore??S.stone,hb=S.hp,xb=S.stress;const [win,txt,cs]=opts[i].r();if(S.type==='rev'&&S.stress>xb){const g=S.stress-xb;S.stress=xb+Math.round(g/2);S.cul+=Math.round(N_()*g/200)}if(e.tag==='dgr'&&S.hp<hb){const red=Math.min(.75,(S.type==='phys'?[0,.2,.35,.5][goldBody()]:0)+IB('dgrHp')+fleshLv()*.1);if(red>0)S.hp=Math.round(hb-(hb-S.hp)*(1-red))}if(S.realm<=2&&S.stone>sb)S.stone=Math.round(sb+(S.stone-sb)*.6);if(S.cul>cb)S.cul=Math.round(cb+(S.cul-cb)*(S.realm>=7?.22:S.realm>=5?.3:.45));
  log(`${typeof e.t==='function'?e.t():e.t}｜${opts[i].b} → ${txt}`);
  showRes(win,txt,cs);
  S.phase=2;
@@ -1992,11 +2033,11 @@ function renderYearEnd(){
  const Rm=REALMS[S.realm];const can=S.cul>=Rm.need&&S.realm<10;
  const rate=can?brkRate():0;
  $('eTitle').textContent=can?`修為圓滿，可嘗試突破至「${REALMS[S.realm+1].n}」`:'又是一年';
- $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合。\n`:'')+(can?`${S.realm===9?'⚡ 九九天劫：成敗在此一舉。失敗 75% 身死道消、25% 僥倖跌回化神（修為減半、六維×0.7）。坊市可購「渡劫護命符」保命一次。\n':''}突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`);
+ $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合。\n`:'')+(JL('tj')>=3?`🔮 天機推演：下回合天時「${S.nextWeather?WEATHER.find(w=>w.id===S.nextWeather).n:'風平無事'}」。\n`:'')+(can?`${S.realm===9?'⚡ 九九天劫：成敗在此一舉。失敗 75% 身死道消、25% 僥倖跌回化神（修為減半、六維×0.7）。坊市可購「渡劫護命符」保命一次。\n':''}突破成功率約 ${Math.round(rate*100)}%${overflowBonus()>0?`（含厚積薄發 +${Math.round(overflowBonus()*100)}%：修為 ${Math.round(S.cul/Rm.need*100)}%）`:'。繼續積累修為可獲「厚積薄發」加成（最高 +8%，修為達 200%）'}。失敗會受傷、心魔增長${S.tier===-1?'（苦命命格：不減壽）':'，並折損壽元'}。也可以繼續打磨，明年再試。`:`歲末回望，這一年也算沒有白過。（修為 ${fmt(S.cul)} / ${fmt(Rm.need)}）\n年末將繳${S.sect&&S.sect!=='own'&&!S.flags.leader?'宗門月例':'生活開銷'} ${Math.round(10*Math.pow(S.realm+1,2)*(S.sect&&S.sect!=='own'&&!S.flags.leader?2.5:1))} 靈石。`);
  $('ePicks').innerHTML=(can?`<button class="btn brk" onclick="breakthrough()">⚡ 嘗試突破（${Math.round(rate*100)}%）</button>`+(S.type==='sword'&&(S.flags.swordQi||0)>=5?`<button class="btn brk" style="background:linear-gradient(100deg,#1e5aa0,#7dd3fc)" onclick="S.flags.swordBurst=true;breakthrough()">⚔️ 劍意破境（消耗 5 劍意，+8% → ${Math.min(99,Math.round(rate*100)+8)}%）</button>`:''):'')+`<button class="btn cont" onclick="nextYear()">度過此年 →</button><button class="btn ghost" onclick="askRetire()">🍃 歸隱，結束此生</button>`;
 }
 const overflowBonus=()=>Math.min(.08,Math.max(0,(S.cul/REALMS[S.realm].need-1)*.08));
-function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(DEMON(S))r+=.06;r+=W('brk',0);if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=(S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9)-(DEMON(S)&&S.realm>=8?.05:0);return clamp(r,.08,cap)}
+function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type==='phys'?Math.max(0,(S.stat.body-50)/4):0);let r=.24+(S.realm===0?.12:S.realm===1?.07:S.realm===2?.04:0)+(b-40)/120+(S.stat.luck-30)/300-S.stress/(S.type==='heart'?400:250)-(S.realm*.045)+(S.type==='heart'?.06:0)+(S.dao?.03:0)+(S.master?.03:0);if(S.items.includes('護身符'))r+=.03;r+=B('brk');r+=overflowBonus();if(S.type==='sword'&&S.flags.swordIntent)r+=.03;if(S.type==='sword')r+=Math.min(.05,Math.floor((S.flags.swordQi||0)/3)*.01);if(S.flags.swordBurst)r+=.08;if(DEMON(S))r+=.06;r+=W('brk',0);r+=JL('tj')*.006;if(S.type==='phys')r+=.04+goldBody()*.02;if(S.type==='alch')r+=.02+danLv()*.01;const cap=(S.realm>=9?.33:S.realm>=8?.6:S.realm>=6?.72:.9)-(DEMON(S)&&S.realm>=8?.05:0);return clamp(r,.08,cap)}
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];if(S.flags.swordBurst){S.flags.swordQi=Math.max(0,(S.flags.swordQi||0)-5);S.flags.swordBurst=false;log('⚔️ 以劍意破境！')}
  if(S.realm===9){ // 渡劫
@@ -2053,6 +2094,8 @@ function nextYear(){
  if(S.flags.debt){S.flags.debt=Math.round(S.flags.debt*1.15)}
  if(S.flags.disciples){S.stone+=100*S.flags.disciples*yrs;S.karma+=1}
  if(S.stress>=80&&S.type!=='heart'){S.hp-=12;log('心魔纏身，體魄受損。')}
+ if(S.job==='fu')S.stone+=80*(S.jobLv||0)*(S.realm+1);if(S.job==='lq')S.stone+=50*(S.jobLv||0)*(S.realm+1);if(S.job==='zf')S.stress=Math.max(0,S.stress-Math.floor((S.jobLv||0)/2));
+ if(masked()){const risk=.04+(S.flags.maskFame||0)*.02+(S.flags.maskRisk||0)*.05;if(rnd()<risk){S._forceEv='mk3'}}
  if(S.flags.originOrphan&&rnd()<.3)S.karma+=1;
  if(S.flags.originClan&&S.stone>0){S.stone-=Math.round(S.stone*.05)}
  if(S.flags.originYao){S.fame=Math.max(0,S.fame-20*(S.realm+1))}
@@ -2061,7 +2104,7 @@ function nextYear(){
  S.hp=clamp(S.hp+3,0,hpMax());
  // 死亡
  if(S.age>=S.life){S.dead=true;S.ending='old';log('壽元耗盡，坐化。')}
- else if(S.hp<=0){S.dead=true;S.ending='hurt';log('傷重不治。')}
+ else if(S.hp<=0){if(S.flags.clone){S.flags.clone=false;S.hp=30;S.stress+=15;log('👥 分身替死！你在千里之外睜開眼——真正的你還活著。')}else{S.dead=true;S.ending='hurt';log('傷重不治。')}}
  ach();render();window.scrollTo(0,0);
 }
 function renderEnd(){
