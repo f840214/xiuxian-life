@@ -168,8 +168,11 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
  #tabStage .stack>#realmCard{grid-column:1/-1}
  #tabStage .stack>.evt{grid-column:1;grid-row:2}
  #tabStage .stack>.side{grid-column:2;grid-row:2;position:sticky;top:120px}
- .nav{left:50%;right:auto;bottom:16px;transform:translateX(-50%);width:360px;border:1px solid var(--line);border-radius:999px;overflow:hidden;box-shadow:var(--sh)}
- .nb{height:52px}
+ .bar1 .nav{position:static;transform:none;width:auto;display:flex;gap:4px;padding:3px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);backdrop-filter:none;box-shadow:none;margin-left:6px}
+ .bar1 .nb{height:36px;padding:0 14px;flex-direction:row;gap:6px;border-radius:999px;font-size:.78rem}
+ .bar1 .nb span{font-size:1rem}
+ .bar1 .nb.on{background:rgba(224,182,76,.14);color:var(--gold)}
+ .body{padding-bottom:24px}
  .hd h1{font-size:1.9rem}
 }
 @media(min-width:1200px){#tabStage .stack{grid-template-columns:minmax(0,2fr) minmax(320px,1fr)}}
@@ -209,7 +212,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 2 . 8</div>
+  <div class="en">X I A N　L I F E　V 2 . 9</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1921,7 +1924,7 @@ function startGame(){
  S=newState(name,selType,selGoal,seed);initSeed(S);if($('inVow').checked){S.flags.vowRogue=true;S.apMax++;S.ap=S.apMax}applyHallTiers(S);rollWeather();S.curActs=[];const dn=$('inDao').value.trim().slice(0,8);if(dn){S.love={id:'custom',name:dn,aff:80,met:16};S.dao=dn;S.flags.loveDao='custom';log(`你與青梅竹馬 ${dn} 早已結為道侶，攜手踏上仙途。`)}const gc=$('inGhost').value.trim();if(gc){const g=parseGhost(gc);if(!g){dlg('宿敵碼無效','格式不正確，已忽略。',null)}else{S.ghost=g;S.rival=g.n;log(`此生宿敵：${g.n}（${TYPES[g.type]?TYPES[g.type].name:''}）。你們的路，從此交錯。`)}}recordCurve();
  const T=SEED_TIER.find(t=>t.k===S.tier);
  log(`${name} 出生於凡人之家，靈根：${TYPES[selType].name}。命格揭曉：${T.ic}${T.n}——${T.say}`);
- $('pgStart').style.display='none';$('pgGame').style.display='block';
+ $('pgStart').style.display='none';$('pgGame').style.display='block';placeNav();
  render();dlg('命格揭曉',`${T.ic} ${T.n}\n${T.say}${T.ab?'\n\n'+T.ab:''}`,null);
 }
 function loadGame(){try{const s=JSON.parse(localStorage.getItem(SK));if(!s||s.v!==VER)throw 0;S=s;S.sys=S.sys||{pts:0,lvl:1,face:0};S.love=S.love===undefined?null:S.love;S.fruits=S.fruits||[];S.curve=S.curve||[];S.ghost=S.ghost||null;S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};$('pgStart').style.display='none';$('pgGame').style.display='block';render()}catch(e){dlg('讀取失敗','存檔已損毀或版本不符。',null)}}
@@ -1929,6 +1932,8 @@ function askRetire(){dlg('歸隱','就此封山歸隱、不再問道？這一世
 function askReset(){dlg('重新開始','將清除目前存檔，這一生的記錄只保留成就。確定？',()=>{localStorage.removeItem(SK);S=null;$('pgGame').style.display='none';$('pgStart').style.display='block';renderStart();window.scrollTo(0,0)})}
 function openHall(){const b=$('hallBox');b.style.display=b.style.display==='none'?'block':'none';renderHall('hallGrid')}
 function renderHall(id){const got=id==='hallGrid'?HALL.all:(S?S.ach:[]);$(id).innerHTML=ACH.map(a=>{const b=ACH_BUFF[a.id];const g=got.includes(a.id);return`<div class="ac ${g?'got':''}">${g?a.n:'❔ ???'}${b&&g?`<br><span style="font-size:.66rem;color:var(--gold)">【${b.t}】${b.d}</span>`:b?`<br><span style="font-size:.66rem">✨ 附帶稱號被動</span>`:''}${a.lock&&!g?`<br><span style="font-size:.66rem">🔒 ${a.lock}</span>`:''}</div>`}).join('');if(id==='hallGrid'){$('hallCnt').textContent=`${HALL.all.length}/${ACH.length}`;$('hallTiers').innerHTML=HALL_TIERS.map(t=>`<div class="ac ${HALL.all.length>=t.n?'got':''}">${HALL.all.length>=t.n?'✅':'🔒'} ${t.n} 個成就・${t.t}<br><span style="font-size:.66rem">${t.d}</span></div>`).join('')}}
+function placeNav(){const nav=document.querySelector('.nav');if(!nav)return;const bar1=document.querySelector('#pgGame .bar1');const home=$('pgGame');if(window.innerWidth>=900){if(nav.parentNode!==bar1)bar1.appendChild(nav)}else{if(nav.parentNode!==home)home.appendChild(nav)}}
+window.addEventListener('resize',placeNav);
 function tab(t){document.querySelectorAll('.pg').forEach(p=>p.classList.toggle('on',p.id==='tab'+t));document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.t===t));window.scrollTo(0,0)}
 let dlgCb=null;function dlg(t,x,cb){$('dTitle').textContent=t;$('dText').textContent=x;dlgCb=cb;$('dlg').classList.add('on');$('dArea').style.display='none';$('dFile').style.display='none';const c=$('dlg').querySelector('.drow button');c.style.display=cb?'':'none';c.textContent='取消'}
 /* ===================== 匯出／匯入 ===================== */
@@ -1942,7 +1947,7 @@ function dlgOpen(t,x,val,showFile,cb){dlg(t,x,cb);const ta=$('dArea');ta.style.d
 
 function dlgClose(ok){$('dlg').classList.remove('on');if(ok&&dlgCb)dlgCb();dlgCb=null}
 
-rndSeed();renderStart();
+rndSeed();renderStart();placeNav();
 </script>
 </body>
 </html>
