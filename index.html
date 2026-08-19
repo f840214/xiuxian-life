@@ -260,7 +260,7 @@ body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c)
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 3 . 9</div>
+  <div class="en">X I A N　L I F E　V 4 . 0</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -2179,8 +2179,8 @@ function brkRate(){const b=(S.stat.insight+S.stat.mind+S.stat.spirit)/3+(S.type=
 function breakthrough(){
  S.step++;reseed();const r=brkRate();const Rm=REALMS[S.realm];if(S.flags.swordBurst){S.flags.swordQi=Math.max(0,(S.flags.swordQi||0)-5);S.flags.swordBurst=false;log('⚔️ 以劍意破境！')}
  if(S.realm===9){ // 渡劫
-  const ok=rnd()<r*.9;showFx('thunder','九九天劫','雷 霆 萬 鈞',2200);
-  if(ok){S.realm=10;S.flags.tribSurv=true;S.life=1e9;log('⚡ 九九天劫過，白日飛升！');setTimeout(()=>showFx('',DEMON(S)?'魔 道 飛 升':'白 日 飛 升','位 列 仙 班',2600),2200);ach();S.dead=true;S.ending='ascend';render();return}
+  const ok=rnd()<r*.9;if(!ok)showFx('thunder','九九天劫','雷 霆 萬 鈞',2200);
+  if(ok){S.realm=10;S.flags.tribSurv=true;S.life=1e9;log('⚡ 九九天劫過，白日飛升！');showFx(DEMON(S)?'dark':'',DEMON(S)?'魔 道 飛 升':'白 日 飛 升','九 九 天 劫 已 過 · 位 列 仙 班',3000);ach();S.dead=true;S.ending='ascend';render();return}
   if(rnd()<.25){S.realm=5;S.cul=Math.round(REALMS[5].need*.5);AK.forEach(k=>S.stat[k]=Math.max(5,Math.round(S.stat[k]*.7)));S.life=Math.min(S.life,S.age+Math.round(REALMS[5].life*.75));S.hp=15;S.stress=Math.min(100,S.stress+35);S.flags.tribFall=(S.flags.tribFall||0)+1;S.flags.brkFail=(S.flags.brkFail||0)+1;
    log('⚡ 渡劫失敗！最後一道天雷劈碎道基——你僥倖未死，境界跌回化神期。');ach();
    showRes(false,'第九道天雷落下，你的元嬰碎了一半。醒來時已是三百年後，境界只剩化神。\n但你還活著。',['境界跌回化神期','修為減半','六維×0.7','體魄→15','心魔+35','壽元受限']);
