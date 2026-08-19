@@ -227,6 +227,21 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 @keyframes fxt{0%{opacity:0;transform:scale(.6);letter-spacing:20px}20%{opacity:1;transform:scale(1.05)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.1)}}
 @keyframes bolt{0%{opacity:.2}100%{opacity:1}}
 .board{font-size:.78rem}.board .row{display:flex;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);align-items:center}.board .row b{color:var(--gold);min-width:2.2em}.board .row i{font-style:normal;color:var(--sub);margin-left:auto;white-space:nowrap}
+.lifebar{display:none;align-items:center;gap:10px;margin:0 12px 10px;padding:9px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(139,28,28,.55),rgba(139,28,28,.2));border:1px solid rgba(224,82,82,.6);color:#ffe0e0;font-size:.82rem;font-weight:700;animation:lifep 1.6s ease-in-out infinite}
+.lifebar.on{display:flex}
+.lifebar b{color:#fff}
+@keyframes lifep{0%,100%{box-shadow:0 0 0 rgba(224,82,82,0)}50%{box-shadow:0 0 18px rgba(224,82,82,.55)}}
+.agebox.warn{border-color:var(--red);background:rgba(224,82,82,.12);animation:lifep 1.6s ease-in-out infinite}
+.agebox.warn b{color:var(--red)}
+body.demon{--t1:#e05252;--t2:#8b1c1c;--gold:#f07070}
+body.demon .av{background:linear-gradient(135deg,#ffd6d6,#e05252 55%,#5a0d0d)!important;box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px rgba(224,82,82,.6)!important}
+body.demon .bar{border-bottom-color:rgba(224,82,82,.35)}
+body.demon .realm{border-left-color:#e05252;background:linear-gradient(135deg,#2a1216 0%,var(--card) 45%,var(--bg2) 100%)}
+body.demon .realm .seal{color:#e05252;border-color:rgba(224,82,82,.4)}
+body.demon .ct::before{background:linear-gradient(#e05252,#8b1c1c)}
+body.demon .go{background:linear-gradient(100deg,#8b1c1c,#e05252);color:#fff}
+body.demon .f-pur{background:linear-gradient(90deg,#8b1c1c,#e05252)}
+body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c);-webkit-background-clip:text;background-clip:text}
 </style>
 </head>
 <body>
@@ -237,7 +252,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 3 . 4</div>
+  <div class="en">X I A N　L I F E　V 3 . 5</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -294,6 +309,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
    <div class="sc"><em>⏳</em><b id="sLife">80</b><i>壽元</i></div>
   </div>
  </div>
+ <div class="lifebar" id="lifeBar"><span>⏳</span><span id="lifeBarTxt"></span></div>
  <div class="body">
   <!-- 舞台頁 -->
   <div class="pg on" id="tabStage"><div class="stack">
@@ -1702,7 +1718,7 @@ EV.push(...EV13);
 const DEMON=s=>!!s.flags.demonic;
 const EV14=[
 {id:'dm_enter',realm:[1,2,3,4,5,6,7],w:200,cond:s=>!DEMON(s)&&!s.flags.dmRefused&&(s.karma<=-30||s.stress>=70),tag:'dgr',t:'⚫ 魔由心生',d:()=>`${S.karma<=-30?'你手上的血太多了。':'心魔已經快把你吞噬。'}夜裡有個聲音說：「何必再裝？入魔吧。魔道不講因果，只講強弱。」\n入魔後：閉關修為 +30%、突破率 +6%；但每回合心魔 +4、因果 −2，正道宗門會除名，坊市價漲兩成，天劫更重。`,
- opts:[{b:'墮入魔道',cs:['⚫ 入魔','高風險高回報'],r:()=>{S.flags.demonic=true;S.stress=Math.max(0,S.stress-30);S.karma-=10;let msg='你笑了。從此再無束縛。';const sect=S.sect;if(sect&&sect!=='own'&&sect!=='tianmo'){S.sect=null;S.fame=Math.max(0,S.fame-500);msg+=`\n${SECTS.find(x=>x.id===sect).n}將你除名，通緝令貼滿坊市。`}return[true,msg,['入魔','心魔-30','因果-10',sect&&sect!=='tianmo'&&sect!=='own'?'被宗門除名':'']]}},
+ opts:[{b:'墮入魔道',cs:['⚫ 入魔','高風險高回報'],r:()=>{S.flags.demonic=true;S.stress=Math.max(0,S.stress-30);S.karma-=10;showFx('dark','墮 入 魔 道','從 此 再 無 束 縛',2200);let msg='你笑了。從此再無束縛。';const sect=S.sect;if(sect&&sect!=='own'&&sect!=='tianmo'){S.sect=null;S.fame=Math.max(0,S.fame-500);msg+=`\n${SECTS.find(x=>x.id===sect).n}將你除名，通緝令貼滿坊市。`}return[true,msg,['入魔','心魔-30','因果-10',sect&&sect!=='tianmo'&&sect!=='own'?'被宗門除名':'']]}},
  {b:'壓下去',cs:['心境檢定'],r:()=>chk('mind',44)?[true,'你把那個聲音關進了心底最深處。',[R('mind',4),X_(-15),(S.flags.dmRefused=true,'')].filter(Boolean)]:[false,'你壓住了，但只是暫時。',[X_(10)]]}]},
 {id:'dm_join',realm:[1,2,3,4,5,6],w:14,cond:s=>DEMON(s)&&!s.sect,tag:'acc',t:'⚫ 天魔教的邀請',d:'天魔教長老找上門：「同道，何不入我教？」',
  opts:[{b:'入教',cs:['入天魔教'],r:()=>{S.sect='tianmo';S.flags.everSect=true;addStat('spirit',3);return[true,'血池洗髓，從此你是天魔教的人。',['加入天魔教',R('spirit',0)?'':'神識+3']]}},
@@ -1717,7 +1733,7 @@ const EV14=[
  opts:[{b:'殺退',cs:['根骨+神識檢定'],r:()=>{S.flags.killed=true;return chk('body',46+S.realm*2,S.stat.spirit/4)?[true,'來多少，殺多少。',[F_(300*S.realm),K_(-8),C_(.06)]]:[false,'寡不敵眾，重傷遁走。',[H_(-45),X_(10)]]}},
  {b:'逃',cs:['安全'],r:()=>[true,'魔修的第一課：能逃就逃。',[$_(-Math.round(S.stone*.15)),X_(5)]]}]},
 {id:'dm_return',realm:[2,3,4,5,6,7,8],w:5,cond:s=>DEMON(s)&&s.karma>-60,tag:'acc',t:'⚫ 回頭是岸',d:'一位老僧攔住你，說：「施主，回頭吧。」你發現自己竟然在猶豫。',
- opts:[{b:'洗心革面',cs:['退出魔道','修為-40%','心魔歸零'],r:()=>{S.flags.demonic=false;S.flags.redeemed=true;S.cul=Math.round(S.cul*.6);S.stress=0;S.karma+=20;if(S.sect==='tianmo')S.sect=null;return[true,'你跪了三天。起身時，眼睛裡的紅退了。',['退出魔道','修為-40%','心魔歸零','因果+20',S.sect===null?'脫離天魔教':'']]}},
+ opts:[{b:'洗心革面',cs:['退出魔道','修為-40%','心魔歸零'],r:()=>{S.flags.demonic=false;S.flags.redeemed=true;S.cul=Math.round(S.cul*.6);S.stress=0;S.karma+=20;showFx('','回 頭 是 岸','放 下 屠 刀',2000);if(S.sect==='tianmo')S.sect=null;return[true,'你跪了三天。起身時，眼睛裡的紅退了。',['退出魔道','修為-40%','心魔歸零','因果+20',S.sect===null?'脫離天魔教':'']]}},
  {b:'一條路走到黑',cs:['心境+'],r:()=>[true,'「晚了。」你越過老僧繼續走。',[R('mind',3),K_(-3)]]}]},
 {id:'dm_devour',realm:[3,4,5,6,7,8],w:6,cond:DEMON,tag:'dgr',t:'⚫ 魔性反噬',d:'魔功越練越深，你發現自己開始控制不住殺意——這一次，差點殺了自己的徒弟。',
  opts:[{b:'以心境壓制',cs:['心境檢定'],r:()=>chk('mind',48)?[true,'壓住了。這一次。',[R('mind',4),X_(-10)]]:[false,'沒壓住。你不記得後來發生了什麼。',[X_(25),K_(-10),(S.flags.disciples=Math.max(0,(S.flags.disciples||0)-1),'徒弟-1')]]},
@@ -2067,6 +2083,7 @@ function render(){
  $('bAv').textContent=S.name[0];$('bName').textContent=S.name;
  $('bSub').innerHTML=`<span style="color:${TCOL[S.type][0]};font-weight:800">${TYPES[S.type].name}</span>｜${sectName(S)}｜${T.ic} ${T.n}${S.origin&&S.origin!=='farm'?'｜'+ORIGINS[S.origin].n:''}`;$('bName').style.color=TCOL[S.type][0];$('bAv').style.background=`linear-gradient(135deg,#fff,${TCOL[S.type][0]} 45%,${TCOL[S.type][1]})`;$('bAv').style.boxShadow=`0 0 0 2px var(--bg),0 0 0 3.5px ${TCOL[S.type][0]}88`;
  $('bAge').textContent=S.age;$('bYear').textContent='歲';
+ {const lw=lifeWarn();const lb=$('lifeBar');if(lb&&lb.classList){lb.classList.toggle('on',lw&&!S.dead);if(lw)$('lifeBarTxt').innerHTML=`大限將至：壽元只剩 <b>${S.life-S.age}</b> 年（約 <b>${turnsLeft()}</b> 回合）。趁還來得及——突破、延壽，或把該交代的交代。`}const ab=document.querySelector('.agebox');if(ab&&ab.classList)ab.classList.toggle('warn',lw&&!S.dead);if(document.body&&document.body.classList)document.body.classList.toggle('demon',DEMON(S))}
  $('sOvr').textContent=ovr();$('sStone').textContent=fmt(S.stone);$('sAP').textContent=`${S.ap}/${S.apMax}`;
  $('sHP').textContent=Math.round(S.hp);$('sLife').textContent=fmt(S.life);$('sLife').style.color=lifeWarn()?'var(--red)':'';
  $('rLg').textContent=`第 ${S.realm+1} 境`;$('rSeal').textContent='一二三四五六七八九十仙'[S.realm];$('rNm').textContent=Rm.n;$('rSd').textContent=Rm.sub+(S.realm>=2?`　·　此境每回合經過 ${yrsPerTurn()} 年`:'');
@@ -2100,7 +2117,7 @@ function renderActions(){
  $('ePicks').className='picks grid2';$('ePicks').innerHTML=ACTS.map((a,i)=>`<button class="btn" ${a.id==='t_dao'?'style="border-color:#f9a8d488;background:linear-gradient(135deg,#4a1030,#111823)"':a.id==='t_demon'?'style="border-color:#e0525288;background:linear-gradient(135deg,#3a0d0d,#111823)"':a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
   `<div style="grid-column:1/-1;display:flex;gap:8px">${S.lastActs&&S.lastActs.length&&S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="repeatLast()">🔁 重複上回合安排</button>`:''}${S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="allCul()">🧘 剩餘全部閉關</button>`:''}</div><button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
-function doAct(i,quiet){if(S.ap<=0)return;(S.curActs=S.curActs||[]).push(i);const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div style="font-size:.76rem;color:var(--sub);line-height:1.5;white-space:normal">${esc(v.d)}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
+function doAct(i,quiet){if(S.ap<=0)return;const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div style="font-size:.76rem;color:var(--sub);line-height:1.5;white-space:normal">${esc(v.d)}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}(S.curActs=S.curActs||[]).push(i);S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
  $('sAP').textContent=`${S.ap}/${S.apMax}`;$('sStone').textContent=fmt(S.stone);$('sHP').textContent=Math.round(S.hp);$('sOvr').textContent=ovr();syncStrip();renderSide();
  const p=Math.min(100,S.cul/REALMS[S.realm].need*100);$('rFil').style.width=p+'%';$('rCul').textContent=`${fmt(S.cul)} / ${fmt(REALMS[S.realm].need)}`;
  $('ePicks').querySelectorAll('.btn:not(.cont)').forEach(b=>b.disabled=S.ap<=0);$('ePicks').querySelector('.cont').textContent=S.ap>0?'跳過剩餘行動 → 進入今年際遇':'進入今年際遇';save()}
@@ -2256,7 +2273,7 @@ function startGame(){
 }
 function loadGame(){try{const s=JSON.parse(localStorage.getItem(SK));if(!s||s.v!==VER)throw 0;S=s;S.sys=S.sys||{pts:0,lvl:1,face:0};S.love=S.love===undefined?null:S.love;S.fruits=S.fruits||[];S.curve=S.curve||[];S.ghost=S.ghost||null;S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};S.origin=S.origin||'farm';$('pgStart').style.display='none';$('pgGame').style.display='block';render()}catch(e){dlg('讀取失敗','存檔已損毀或版本不符。',null)}}
 function askRetire(){dlg('歸隱','就此封山歸隱、不再問道？這一世將在此結束並結算，成就與目標照常計入殿堂。',()=>{S.dead=true;S.ending='retire';log('封山歸隱，此生功成身退。');ach();render();window.scrollTo(0,0)})}
-function askReset(){dlg('重新開始','將清除目前存檔，這一生的記錄只保留成就。確定？',()=>{localStorage.removeItem(SK);S=null;$('pgGame').style.display='none';$('pgStart').style.display='block';renderStart();window.scrollTo(0,0)})}
+function askReset(){if(document.body&&document.body.classList)document.body.classList.remove('demon');dlg('重新開始','將清除目前存檔，這一生的記錄只保留成就。確定？',()=>{localStorage.removeItem(SK);S=null;$('pgGame').style.display='none';$('pgStart').style.display='block';renderStart();window.scrollTo(0,0)})}
 function openHall(){const b=$('hallBox');b.style.display=b.style.display==='none'?'block':'none';renderHall('hallGrid')}
 function renderHall(id){const got=id==='hallGrid'?HALL.all:(S?S.ach:[]);$(id).innerHTML=ACH.map(a=>{const b=ACH_BUFF[a.id];const g=got.includes(a.id);return`<div class="ac ${g?'got':''}">${g?a.n:'❔ ???'}${b&&g?`<br><span style="font-size:.66rem;color:var(--gold)">【${b.t}】${b.d}</span>`:b?`<br><span style="font-size:.66rem">✨ 附帶稱號被動</span>`:''}${a.lock&&!g?`<br><span style="font-size:.66rem">🔒 ${a.lock}</span>`:''}</div>`}).join('');if(id==='hallGrid'){$('hallCnt').textContent=`${HALL.all.length}/${ACH.length}`;$('hallTiers').innerHTML=HALL_TIERS.map(t=>`<div class="ac ${HALL.all.length>=t.n?'got':''}">${HALL.all.length>=t.n?'✅':'🔒'} ${t.n} 個成就・${t.t}<br><span style="font-size:.66rem">${t.d}</span></div>`).join('')}}
 function placeNav(){const nav=document.querySelector('.nav');if(!nav)return;const bar1=document.querySelector('#pgGame .bar1');const home=$('pgGame');if(window.innerWidth>=900){if(nav.parentNode!==bar1)bar1.appendChild(nav)}else{if(nav.parentNode!==home)home.appendChild(nav)}}
