@@ -165,6 +165,9 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
  .body{padding:16px 20px calc(var(--nav) + 24px)}
  .body .stack{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
  .body .stack>.full{grid-column:1/-1}
+ #tabStat .stack{display:block;column-count:2;column-gap:14px}
+ #tabStat .stack>.card{break-inside:avoid;margin-bottom:14px;display:inline-block;width:100%}
+ #tabStat .stack>.full{column-span:all;display:block}
  #tabStage .stack{grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr)}
  #tabStage .stack>.full{grid-column:auto}
  #tabStage .stack>#realmCard{grid-column:1/-1}
