@@ -194,7 +194,7 @@ input[type=text]{flex:1;min-width:0;background:#0d131b;border:1px solid var(--li
 .nums button:hover{border-color:var(--gold)}
 .shop{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.65);display:none;place-items:center;padding:16px}
 .shop.on{display:grid}
-.shopbox{width:100%;max-width:640px;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.shopbox{position:relative;width:100%;max-width:640px;max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
 .shopbox h3{font-size:1.05rem;margin-bottom:4px}
 .shopbox .sub{font-size:.76rem;color:var(--sub);margin-bottom:12px}
 .si{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px;background:#0d131b;margin-bottom:8px}
@@ -383,7 +383,7 @@ body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c)
  </div>
 </div>
 
-<div class="shop" id="shop"><div class="shopbox"><h3>🏪 坊市</h3><div class="sub" id="shopSub"></div><div id="shopList"></div><div class="picks"><button class="btn ghost" onclick="closeShop()">離開坊市</button></div></div></div>
+<div class="shop" id="shop" onclick="if(event.target===this)closeShop()"><div class="shopbox"><button onclick="closeShop()" style="position:absolute;right:14px;top:12px;width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:#111823;color:var(--sub);font-size:1rem;cursor:pointer">✕</button><h3>🏪 坊市</h3><div class="sub" id="shopSub"></div><div id="shopList"></div><div class="picks"><button class="btn ghost" onclick="closeShop()">離開坊市</button></div></div></div>
 <div class="fx" id="fx"><div class="glow"></div><div class="txt"><b id="fxB"></b><i id="fxI"></i></div></div>
 <div id="toasts" style="position:fixed;top:calc(var(--sat) + 76px);right:14px;z-index:80;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:320px"></div>
 <div class="dlg" id="dlg"><div class="dbox"><h3 id="dTitle"></h3><p id="dText"></p><textarea id="dArea" style="display:none;width:100%;min-height:110px;margin-top:10px;background:#0d131b;border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--txt);font:inherit;font-size:.78rem;resize:vertical"></textarea><input type="file" id="dFile" accept=".json,.txt" style="display:none;margin-top:10px;font-size:.8rem"><div class="drow"><button onclick="dlgClose(false)">取消</button><button class="ok" onclick="dlgClose(true)">確定</button></div></div></div>
@@ -1393,6 +1393,7 @@ const FLOOR={qi:120,hui:90,qing:70,wen:200,vein:600,alch:900,guard:400,life:500,
 function shopPrice(it){if(it.pts)return 0;let p=Math.max(it.price(),0);p=Math.max(p,Math.round((FLOOR[it.id]||0)*Math.pow(S.realm+1,1.5)));if(S.shop.alch&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.9);if(S.type==='alch'&&['qi','hui','qing','life'].includes(it.id))p=Math.round(p*.7*(danLv()?.9:1));if(DEMON(S))p=Math.round(p*1.2);p=Math.round(p*W('shop'));return p}
 function openShop(){S.shop=S.shop||{vein:0,alch:0,guardUntil:0,lifeBought:{},buys:{},dice:0};renderShop();$('shop').classList.add('on')}
 function closeShop(){if(S._rob){robYield()}$('shop').classList.remove('on');render()}
+function shopRefresh(){renderShop();$('sStone').textContent=fmt(S.stone);$('sAP').textContent=`${S.ap}/${S.apMax}`;$('sHP').textContent=Math.round(S.hp);$('sLife').textContent=fmt(S.life);const Rm=REALMS[S.realm];$('rCul').textContent=`${fmt(S.cul)} / ${fmt(Rm.need)}`;$('rFil').style.width=Math.min(100,S.cul/Rm.need*100)+'%';syncStrip();renderSide()}
 function robYield(){const r=S._rob;if(!r)return;S._shopMsg=1;const it=SHOP.find(x=>x.id===r.id)||BLACK.find(x=>x.id===r.id);S.stone=Math.max(0,S.stone-r.loss);S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 坊市歸途遇強盜！「${it.n}」被搶走，還被洗劫 ${fmt(r.loss)} 靈石。`);delete S._rob;$('shopSub').innerHTML=`<span style="color:var(--red)">你交出了東西和靈石。強盜揚長而去。</span>`;renderShop();$('sStone').textContent=fmt(S.stone);$('sAP').textContent=`${S.ap}/${S.apMax}`;$('sHP').textContent=Math.round(S.hp);$('sLife').textContent=fmt(S.life);{const Rm=REALMS[S.realm];$('rCul').textContent=`${fmt(S.cul)} / ${fmt(Rm.need)}`;$('rFil').style.width=Math.min(100,S.cul/Rm.need*100)+'%'}syncStrip();renderSide();save()}
 function robFight(){const r=S._rob;if(!r)return;S._shopMsg=1;const it=SHOP.find(x=>x.id===r.id)||BLACK.find(x=>x.id===r.id);S.step++;reseed();delete S._rob;if(chk('body',34+S.realm*3,S.stat.spirit/6)){const bounty=200*(S.realm+1);S.stone-=shopPrice(it);S.stone+=bounty;S.shop.buys[it.id]=(S.shop.buys[it.id]||0)+1;it.buy();S.flags.killed=true;S.flags.robKills=(S.flags.robKills||0)+1;S.karma-=1;S.fame+=50;log(`⚔️ 歸途遇強盜，你反手殺退了他們！保住「${it.n}」，還從賊贓裡搜出 ${bounty} 靈石。`);$('shopSub').innerHTML=`<span style="color:var(--jade)">⚔️ 強盜殺退！「${it.n}」到手，賊贓 +${bounty} 靈石（因果 −1、名望 +50）。</span>`}else{S.stone=Math.max(0,S.stone-r.loss);S.hp-=15;S.flags.robbed=(S.flags.robbed||0)+1;log(`🏴‍☠️ 反擊失敗！「${it.n}」被搶、損失 ${fmt(r.loss)} 靈石，還挨了一刀。`);$('shopSub').innerHTML=`<span style="color:var(--red)">反擊失敗——東西沒了，靈石 −${fmt(r.loss)}，體魄 −15。</span>`}renderShop();$('sStone').textContent=fmt(S.stone);$('sAP').textContent=`${S.ap}/${S.apMax}`;$('sHP').textContent=Math.round(S.hp);$('sLife').textContent=fmt(S.life);{const Rm=REALMS[S.realm];$('rCul').textContent=`${fmt(S.cul)} / ${fmt(Rm.need)}`;$('rFil').style.width=Math.min(100,S.cul/Rm.need*100)+'%'}syncStrip();renderSide();save()}
 function renderShop(){
@@ -1407,7 +1408,7 @@ function renderShopList(){
 }
 function buyItem(id){const it=SHOP.find(x=>x.id===id)||(DEMON(S)?BLACK.find(x=>x.id===id):null);if(!it||(it.type&&it.type!==S.type)||(it.min&&S.realm<it.min))return;const p=shopPrice(it);if(S.stone<p||(it.max&&it.max())||(S.shop.buys[id]||0)>=it.limit)return;S.step++;reseed();
  let robP=S.shop.guardUntil>S.age?.05:.15;if(S.shop.yu)robP/=2;if(it.pts)robP=0;if(rnd()<robP){const loss=Math.min(S.stone,Math.round(S.stone*(S.shop.bag?.05:.10)));S._rob={id:it.id,loss};$('shopSub').innerHTML=`<span style="color:var(--red)">🏴‍☠️ 歸途遇強盜攔路！他們要搶走「${it.n}」，還要你交出 ${fmt(loss)} 靈石。</span><div style="display:flex;gap:8px;margin-top:8px"><button class="btn go" style="min-height:40px" onclick="robFight()">⚔️ 反擊（根骨檢定）</button><button class="btn ghost" style="min-height:40px" onclick="robYield()">認栽</button></div>`;$('shopList').innerHTML='';save();return}
- S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;renderShop();$('sStone').textContent=fmt(S.stone);save()}
+ S.stone-=p;S.shop.buys[id]=(S.shop.buys[id]||0)+1;it.buy();log(`🏪 坊市：購入「${it.n}」，靈石 -${fmt(p)}`);S.flags.shopSpent=(S.flags.shopSpent||0)+p;shopRefresh();save()}
 
 
 const EV10=[
