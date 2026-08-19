@@ -260,7 +260,7 @@ body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c)
 <div id="pgStart">
  <div class="hd">
   <h1>修仙人生模擬器</h1>
-  <div class="en">X I A N　L I F E　V 3 . 8</div>
+  <div class="en">X I A N　L I F E　V 3 . 9</div>
   <p>「凡人百年，修士千載。長生路上，<br>你要走成一段傳說，還是一縷青煙？」</p>
  </div>
  <div class="body"><div class="stack">
@@ -1383,7 +1383,7 @@ const SHOP=[
  {id:'sp1',ic:'🎁',n:'積分兌換：靈石大禮包',d:()=>`系統專屬。消耗 30 積分（目前 ${S.sys.pts}），獲得靈石 ${fmt(500*(S.realm+1))}`,price:()=>0,limit:2,type:'sys',pts:30,max:()=>S.sys.pts<30,buy:()=>{S.sys.pts-=30;S.stone+=500*(S.realm+1)}},
  {id:'sp2',ic:'💡',n:'積分兌換：頓悟卡',d:()=>`系統專屬。消耗 60 積分（目前 ${S.sys.pts}），修為 +25%`,price:()=>0,limit:1,type:'sys',pts:60,max:()=>S.sys.pts<60,buy:()=>{S.sys.pts-=60;S.cul+=Math.round(REALMS[S.realm].need*.25)}},
  {id:'sp3',ic:'🛡️',n:'積分兌換：免死金牌',d:()=>`系統專屬・一次性。消耗 200 積分（目前 ${S.sys.pts}），渡劫失敗時保命一次`,price:()=>0,limit:1,type:'sys',pts:200,max:()=>S.sys.pts<200||!!S.flags.freeDeath,buy:()=>{S.sys.pts-=200;S.flags.freeDeath=true}},
- {id:'talis',ic:'🧧',n:'渡劫護命符',d:()=>'渡劫期限定・一次性。渡劫失敗時保住性命（境界不跌、修為減半、重傷）。固定 200 萬靈石',price:()=>2000000,limit:1,min:9,max:()=>!!S.flags.freeDeath,buy:()=>{S.flags.freeDeath=true;S.items.push('渡劫護命符')}},
+ {id:'talis',ic:'🧧',n:'渡劫護命符',d:()=>'渡劫期限定・一次性。渡劫失敗時保住性命（境界不跌、修為減半、重傷）。固定 500 萬靈石',price:()=>5000000,limit:1,min:9,max:()=>!!S.flags.freeDeath,buy:()=>{S.flags.freeDeath=true;S.items.push('渡劫護命符')}},
  {id:'bag',ic:'👝',n:'防盜儲物袋',d:()=>'一次性。被強盜洗劫時損失減半（10% → 5%）',price:()=>Math.round(REALMS[S.realm].need*1.5),limit:1,max:()=>!!S.shop.bag,buy:()=>{S.shop.bag=1}},
  {id:'tie',ic:'📨',n:'拜帖',d:()=>'消耗品。下一回合機緣事件出現率 ×2',price:()=>Math.round(REALMS[S.realm].need*.8),limit:1,buy:()=>{S.shop.tieUntil=S.age+1}},
  {id:'dice',ic:'🎲',n:'骰盅',d:()=>'一次性。天機賭局出現率翻倍（永久）',price:()=>Math.round(REALMS[S.realm].need*.5),limit:1,max:()=>S.shop.dice>0,buy:()=>{S.shop.dice=1}},
