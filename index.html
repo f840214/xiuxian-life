@@ -242,6 +242,13 @@ body.demon .ct::before{background:linear-gradient(#e05252,#8b1c1c)}
 body.demon .go{background:linear-gradient(100deg,#8b1c1c,#e05252);color:#fff}
 body.demon .f-pur{background:linear-gradient(90deg,#8b1c1c,#e05252)}
 body.demon .hd h1{background:linear-gradient(100deg,#e05252,#ffd6d6 45%,#8b1c1c);-webkit-background-clip:text;background-clip:text}
+.wx{display:flex;align-items:center;gap:12px;padding:11px 14px;margin:0 0 12px;border-radius:12px;border:1px solid rgba(90,169,230,.45);background:linear-gradient(90deg,rgba(30,90,160,.35),rgba(30,90,160,.08));animation:pop .34s cubic-bezier(.2,.85,.2,1)}
+.wx .ic{font-size:1.6rem;flex:0 0 auto;filter:drop-shadow(0 0 8px rgba(90,169,230,.6))}
+.wx .t{flex:1;min-width:0}
+.wx .t b{display:block;font-size:.92rem;color:#9ed1ff;letter-spacing:1px}
+.wx .t i{display:block;font-style:normal;font-size:.78rem;color:#cfe3f5;line-height:1.5}
+.wx.good{border-color:rgba(79,207,154,.5);background:linear-gradient(90deg,rgba(15,107,72,.35),rgba(15,107,72,.08))}.wx.good .t b{color:#8ff0c3}.wx.good .ic{filter:drop-shadow(0 0 8px rgba(79,207,154,.6))}
+.wx.bad{border-color:rgba(224,82,82,.5);background:linear-gradient(90deg,rgba(139,28,28,.35),rgba(139,28,28,.08))}.wx.bad .t b{color:#ffa3a3}.wx.bad .ic{filter:drop-shadow(0 0 8px rgba(224,82,82,.6))}
 </style>
 </head>
 <body>
@@ -2112,9 +2119,11 @@ function renderActions(){
  $('eTag').textContent=`${S.age} 歲・年初`+(lifeWarn()?'・⏳ 大限將至':'');$('eTag').className=lifeWarn()?'tag dgr':'tag sch';
  $('eTitle').textContent='今年如何安排？';
  const wx=S.weather?WEATHER.find(w=>w.id===S.weather):null;
- $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合（${S.life-S.age} 年）。\n`:'')+(wx?`${wx.ic} 天時【${wx.n}】：${wx.d}\n`:'')+`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
+ $('eDesc').textContent=(lifeWarn()?`⏳ 大限將至：壽元只剩約 ${turnsLeft()} 回合（${S.life-S.age} 年）。\n`:'')+`你有 ${S.ap} 點行動點。每個行動消耗 1 點；用完後進入今年的際遇。`;
+ const wxGood={qi:1,fair:1,lit:1,cloud:1,star:1,calm:1},wxBad={drought:1,storm:1};
+ const wxHtml=wx?`<div class="wx ${wxGood[wx.id]?'good':wxBad[wx.id]?'bad':''}" style="grid-column:1/-1"><div class="ic">${wx.ic}</div><div class="t"><b>天時 · ${wx.n}</b><i>${wx.d}</i></div></div>`:`<div class="wx" style="grid-column:1/-1;opacity:.75"><div class="ic">🌤️</div><div class="t"><b>天時 · 風平無事</b><i>今年沒有特別的天象。</i></div></div>`;
  const ACTS=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[]);
- $('ePicks').className='picks grid2';$('ePicks').innerHTML=ACTS.map((a,i)=>`<button class="btn" ${a.id==='t_dao'?'style="border-color:#f9a8d488;background:linear-gradient(135deg,#4a1030,#111823)"':a.id==='t_demon'?'style="border-color:#e0525288;background:linear-gradient(135deg,#3a0d0d,#111823)"':a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0||a.done?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
+ $('ePicks').className='picks grid2';$('ePicks').innerHTML=wxHtml+ACTS.map((a,i)=>`<button class="btn" ${a.id==='t_dao'?'style="border-color:#f9a8d488;background:linear-gradient(135deg,#4a1030,#111823)"':a.id==='t_demon'?'style="border-color:#e0525288;background:linear-gradient(135deg,#3a0d0d,#111823)"':a.id&&a.id.startsWith('t_')?'style="border-color:'+TCOL[S.type][0]+'55;background:linear-gradient(135deg,'+TCOL[S.type][1]+'33,#111823)"':''} onclick="doAct(${i})" ${S.ap<=0||a.done?'disabled':''}><b>${a.n}</b><div class="cs">${chips([a.c])}</div></button>`).join('')+
   `<div style="grid-column:1/-1;display:flex;gap:8px">${S.lastActs&&S.lastActs.length&&S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="repeatLast()">🔁 重複上回合安排</button>`:''}${S.ap>0?`<button class="btn ghost" style="flex:1;min-height:42px" onclick="allCul()">🧘 剩餘全部閉關</button>`:''}</div><button class="btn ghost" style="grid-column:1/-1" onclick="openShop()">🏪 逛坊市（不耗行動點）</button><button class="btn cont" onclick="toEvent()">${S.ap>0?'跳過剩餘行動 → ':''}進入今年際遇</button>`;
 }
 function doAct(i,quiet){if(S.ap<=0)return;const a=ACTIONS.concat(TYPE_ACT[S.type]?[TYPE_ACT[S.type]]:[]).concat(DEMON(S)?[DEMON_ACT]:[]).concat(S.dao?[DAO_ACT]:[]).concat(S.realm>=1?[JOB_ACT]:[])[i];if(a.id==='t_job'&&!S.job){S._pickJob=true;$('ePicks').innerHTML=`<div class="hint" style="grid-column:1/-1">選擇你的副職業（終身只能選一種）：</div>`+Object.entries(JOBS).map(([k,v])=>`<button class="btn" onclick="pickJob('${k}')"><b>${v.n}</b><div style="font-size:.76rem;color:var(--sub);line-height:1.5;white-space:normal">${esc(v.d)}</div></button>`).join('')+`<button class="btn ghost" style="grid-column:1/-1" onclick="delete S._pickJob;render()">先不選</button>`;return}if(a.id==='t_dao'&&S.flags.daoActTurn===S.age+'_'+S.realm){showRes(false,'本回合已與道侶雙修過了。',['每回合限一次']);return}(S.curActs=S.curActs||[]).push(i);S.step++;reseed();const r=a.f();S.ap--;log(`${a.n}：${r}`);if(!quiet)showRes(true,`${a.n}`,[r]);
